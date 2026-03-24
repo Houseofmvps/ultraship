@@ -1,0 +1,17 @@
+{
+  "name": "ultraship",
+  "description": "All-in-one builder toolkit for Claude Code. Replaces 6 plugins. Ship production-ready SaaS with /ship.",
+  "owner": {
+    "name": "Houseofmvps",
+    "email": "houseofmvps2024@gmail.com",
+    "url": "https://github.com/Houseofmvps"
+  },
+  "plugins": [
+    {
+      "name": "ultraship",
+      "description": "Workflow + code review + frontend design + SEO/GEO/AEO + Lighthouse + security + browser testing",
+      "version": "1.0.0",
+      "source": "./"
+    }
+  ]
+}
