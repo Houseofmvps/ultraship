@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — All-in-one Claude Code Plugin" width="100%"/>
 
-### Replace 6 Claude Code plugins with 1. Ship production-ready SaaS with a single command.
+### The only Claude Code plugin you need. 22 skills. 21 tools. 5 agents. Ship production-ready SaaS with one command.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)

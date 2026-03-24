@@ -1,7 +1,7 @@
 {
   "name": "ultraship",
   "version": "1.1.2",
-  "description": "All-in-one Claude Code plugin. Ship production-ready SaaS with one command.",
+  "description": "The only Claude Code plugin you need. 22 skills, 21 tools, 5 agents. Brainstorm, plan, TDD, review, audit, and ship production-ready SaaS.",
   "type": "module",
   "author": "Houseofmvps",
   "license": "MIT",
