@@ -28,28 +28,47 @@
 
 ## The Problem
 
-You're a solo founder. You just spent 3 hours building a feature. Now you need to ship it. Here's what happens next:
+You're a solo founder. You tell Claude to build something. Here's what actually happens:
 
-- You ask Claude to review your code. It says "looks good" without actually catching the N+1 query you just introduced.
-- You forget to check if your OG tags work. Your launch post on Twitter shows a broken preview. You don't notice for 6 hours.
-- You deployed without running Lighthouse. Your LCP is 4.2 seconds. Google is already de-ranking you.
-- Your `.env` has a placeholder `sk-...` that made it to production. You find out when Stripe emails you about the leaked key.
-- ChatGPT and Perplexity can't cite your content because you blocked AI crawlers in `robots.txt` and you don't have an `llms.txt` file. You didn't even know that was a thing.
+**The building is broken:**
+- You say "build me a pricing page" and Claude jumps straight into code. No questions about your pricing model, no design options, no spec. It builds the wrong thing and you start over.
+- You have no implementation plan. Claude writes 400 lines in one shot, half of it doesn't work, and you can't tell which half.
+- You write code first, then tests (if ever). When something breaks in production, you guess at the root cause instead of tracing it systematically.
 - Claude hallucinated an API method that doesn't exist in Drizzle v0.36. You spent 45 minutes debugging before realizing the method was from v0.28.
 - You have no CLAUDE.md, so every new conversation starts from scratch. Claude keeps suggesting Prisma even though you use Drizzle.
-- You write code first, then tests (if ever). When something breaks in production, you guess at the root cause instead of tracing it systematically.
+- Code review is "looks good" without catching the N+1 query, the sync I/O in your request handler, or the memory leak from a module-scoped array.
+
+**The shipping is broken:**
+- Your `.env` has a placeholder `sk-...` that made it to production. You find out when Stripe emails you about the leaked key.
+- You deployed without running Lighthouse. Your LCP is 4.2 seconds. Google is already de-ranking you.
 - Your bundle is 2.3MB because `moment.js` is still in there. You didn't know `dayjs` is 2KB.
 - You push to production and pray. No health check. No SSL verification. No security header audit.
 
-That's not shipping. That's gambling.
+**The SEO is broken:**
+- You forget to check if your OG tags work. Your launch post on Twitter shows a broken preview. You don't notice for 6 hours.
+- ChatGPT and Perplexity can't cite your content because you blocked AI crawlers in `robots.txt` and you don't have an `llms.txt` file. You didn't even know that was a thing.
+- You have no structured data, no FAQPage schema, no speakable markup. Google's AI overview skips you entirely.
+- Your H2s are statements, not questions. AI search engines extract answers from Q&A-structured content — yours gets ignored.
+
+That's not building. That's gambling at every stage.
 
 ## The Solution
+
+Ultraship rewires your entire workflow — from the first idea to the production deploy.
+
+**It starts with how you build.** You describe what you want. Ultraship's brainstorming skill asks clarifying questions, proposes 2-3 approaches, and writes a spec you approve before a single line of code exists. Then the planning skill breaks it into bite-sized tasks — exact file paths, complete code, test commands, commit messages. Every step is a 2-5 minute action. TDD is enforced: write the failing test, implement the minimum to pass, refactor, commit. When bugs appear, systematic debugging traces root causes instead of guessing. Code review catches N+1 queries, sync I/O, and auth bypasses — not "looks good."
+
+**Then it handles how you ship.** Security scans catch leaked secrets, dependency vulnerabilities, and OWASP patterns before they reach production. Performance audits run Lighthouse via headless Chrome and flag your 4-second LCP. Bundle tracking catches that 2MB `moment.js` and suggests the 2KB `dayjs` replacement. Env validation confirms every required variable is set and not a placeholder.
+
+**Then it handles how you rank.** SEO scans run 60+ rules. GEO optimization ensures ChatGPT, Perplexity, and Gemini can cite your content — `llms.txt`, AI-friendly `robots.txt`, question-format headings. AEO optimization adds FAQPage schema, speakable markup, and structured data so Google's AI overview and voice assistants pull from your site instead of skipping it.
+
+**And when everything is ready:**
 
 ```bash
 /ship
 ```
 
-One command. Ultraship takes over. It dispatches 5 parallel agents across your entire project — SEO, performance, security, code quality, and browser testing. It runs 60+ rules, auto-fixes what it can, and gives you a score:
+One command. 5 parallel agents. 60+ rules. Auto-fixes what it can.
 
 ```
 ====================================
@@ -69,9 +88,7 @@ One command. Ultraship takes over. It dispatches 5 parallel agents across your e
 ====================================
 ```
 
-**Score >= 80?** Ship it. **Below 80?** Ultraship already fixed 7 issues for you. Fix the remaining 2 and run again.
-
-But `/ship` is just the final step. Ultraship changes how you build from the very first line of code.
+**Score >= 80?** Ship it. **Below 80?** Fix the remaining items and run again.
 
 ---
 
@@ -116,17 +133,33 @@ And because skills trigger automatically based on what you're doing, you don't n
 
 ## The Basic Workflow
 
-1. **Brainstorming** — Activates when you describe what you want to build. Explores requirements, proposes approaches, writes a spec.
-2. **Writing Plans** — Activates after a spec is approved. Creates step-by-step implementation plan. DRY. YAGNI. Exact file paths.
-3. **Test-Driven Development** — Activates before writing code. Enforces RED-GREEN-REFACTOR. No skipping steps.
-4. **Subagent-Driven Development** — Activates when executing plans. Fresh agent per task. Two-stage review after each.
-5. **Systematic Debugging** — Activates when something breaks. Root-cause tracing. Defense-in-depth. No guessing.
-6. **Code Review** — Activates when work is done. Confidence scoring. Severity tagging. Security focus.
-7. **Verification Before Completion** — Activates before claiming done. Evidence before assertions. Run tests, check output, then commit.
-8. **/ship** — Your pre-deploy quality gate. 5 agents, 60+ rules, auto-fixes, scorecard.
-9. **Deploy + Release** — Full pipeline with env validation, migration safety, health check, changelog, npm publish.
+**Build it right:**
 
-The agent checks for relevant skills before any task. Mandatory workflows, not suggestions.
+1. **Brainstorming** — You describe what you want. Ultraship asks clarifying questions, proposes 2-3 approaches, writes a spec you approve.
+2. **Writing Plans** — Spec gets broken into bite-sized tasks. Exact file paths. Complete code. Test commands. Commit messages. Every step is 2-5 minutes.
+3. **Test-Driven Development** — RED-GREEN-REFACTOR enforced. Write the failing test. Implement minimum to pass. Refactor. Commit.
+4. **Subagent-Driven Development** — Fresh agent per task. Two-stage review after each: spec compliance first, then code quality.
+5. **Frontend Design** — Production-grade Tailwind + shadcn/ui components. No generic AI aesthetics.
+6. **Live Documentation** — Fetches current, accurate docs for any library on the fly. No hallucinated APIs.
+7. **Systematic Debugging** — When something breaks: reproduce, isolate, trace, verify. No guessing.
+8. **Code Review** — Confidence scoring. Severity tagging. N+1 queries, sync I/O, auth bypasses, test gaps.
+9. **Verification** — Evidence before assertions. Run tests, check output, then commit.
+
+**Audit it all:**
+
+10. **SEO Audit** — 60+ rules: meta tags, canonical URLs, heading hierarchy, image alt text, sitemap, robots.txt, structured data.
+11. **GEO Audit** — Generative Engine Optimization: `llms.txt`, AI-friendly `robots.txt`, question-format headings, structured data for ChatGPT/Perplexity/Gemini extraction.
+12. **AEO Audit** — Answer Engine Optimization: FAQPage schema, speakable markup, concise answer paragraphs for featured snippets and voice assistants.
+13. **Security Audit** — Dependency vulnerabilities, secret scanning, OWASP patterns, HTTP security headers.
+14. **Performance Audit** — Lighthouse via headless Chrome, Core Web Vitals, bundle size analysis, heavy dependency detection.
+15. **Browser Testing** — Automated smoke tests on your running app. Navigate, click, fill, screenshot, verify.
+
+**Ship it:**
+
+16. **/ship** — Your pre-deploy quality gate. 5 agents, 60+ rules, auto-fixes, scorecard.
+17. **Deploy + Release** — Full pipeline: env validation, migration safety, health check, changelog, npm publish.
+
+Skills activate automatically based on what you're doing. Mandatory workflows, not suggestions.
 
 ---
 
