@@ -5,6 +5,7 @@
 
 import https from 'https';
 import http from 'http';
+import { validateUrl, createResponseAccumulator } from './lib/security.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -18,9 +19,10 @@ function checkUrl(url, followRedirects = 3) {
 
     const req = mod.request(url, { method: 'GET', timeout: 10000 }, (res) => {
       const responseTime = Date.now() - startTime;
-      let body = '';
-      res.on('data', (chunk) => { body += chunk; });
+      const acc = createResponseAccumulator();
+      res.on('data', (chunk) => { acc.onData(chunk); });
       res.on('end', () => {
+        const body = acc.getBody();
         // Follow redirects
         if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location && followRedirects > 0) {
           let redirectUrl = res.headers.location;
@@ -106,11 +108,10 @@ async function main() {
     process.exit(0);
   }
 
-  // Validate URL format
-  try {
-    new URL(url);
-  } catch {
-    output({ error: `Invalid URL: ${url}`, success: false });
+  // Validate URL format and block SSRF targets
+  const urlCheck = validateUrl(url);
+  if (!urlCheck.valid) {
+    output({ error: urlCheck.reason, success: false });
     process.exit(0);
   }
 

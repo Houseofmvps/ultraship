@@ -8,6 +8,7 @@
 import https from 'https';
 import http from 'http';
 import { readFileSync, existsSync } from 'fs';
+import { validateUrl, createResponseAccumulator } from './lib/security.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -25,6 +26,12 @@ function followRedirects(url, maxHops = 10) {
       }
       if (visited.has(currentUrl)) {
         resolve({ url, chain, final_url: currentUrl, status: 'loop', error: `Redirect loop detected at ${currentUrl}` });
+        return;
+      }
+      // Validate each hop URL to prevent SSRF via redirect
+      const hopCheck = validateUrl(currentUrl);
+      if (!hopCheck.valid) {
+        resolve({ url, chain, final_url: currentUrl, status: 'blocked', error: `Redirect blocked: ${hopCheck.reason}` });
         return;
       }
       visited.add(currentUrl);
@@ -86,11 +93,13 @@ function extractUrlsFromSitemap(content) {
 
 function fetchUrl(url) {
   return new Promise((resolve, reject) => {
+    const urlCheck = validateUrl(url);
+    if (!urlCheck.valid) { reject(new Error(urlCheck.reason)); return; }
     const mod = url.startsWith('https') ? https : http;
     const req = mod.request(url, { timeout: 10000 }, (res) => {
-      let body = '';
-      res.on('data', (chunk) => { body += chunk; });
-      res.on('end', () => resolve(body));
+      const acc = createResponseAccumulator();
+      res.on('data', (chunk) => { acc.onData(chunk); });
+      res.on('end', () => resolve(acc.getBody()));
     });
     req.on('error', reject);
     req.on('timeout', () => { req.destroy(); reject(new Error('timeout')); });

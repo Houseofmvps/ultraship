@@ -44,10 +44,22 @@ docs/             — Documentation
 | `structured-data-generator.mjs` | Generates JSON-LD structured data |
 | `llms-txt-generator.mjs` | Generates llms.txt for AI discoverability |
 
+## Security
+
+- All HTTP-making tools import `tools/lib/security.mjs` for SSRF protection, response size limits
+- `validateUrl()` blocks private IPs, cloud metadata, non-HTTP schemes
+- `checkFileSize()` prevents OOM by capping reads at 10MB
+- `createResponseAccumulator()` caps HTTP responses at 5MB
+- File writes use mode `0o600`, directories `0o700`
+- Secret scanner redacts found values in output
+- Lighthouse version is pinned (`lighthouse@12`) to prevent supply chain attacks
+
 ## Conventions
 
 - Tools output JSON to stdout, errors exit with code 0 (never crash Claude Code)
 - Skills use `${CLAUDE_PLUGIN_ROOT}` to reference tool paths
+- New tools that make HTTP requests MUST import and use `validateUrl()` from `tools/lib/security.mjs`
+- New tools that read files MUST use `checkFileSize()` before `readFileSync()`
 - GEO = Generative Engine Optimization (NOT geographic targeting)
 - AEO = Answer Engine Optimization (featured snippets, voice assistants)
 - Auth env vars: `ULTRASHIP_GSC_CREDENTIALS`, `ULTRASHIP_GSC_ACCESS_TOKEN`, `ULTRASHIP_BING_KEY`

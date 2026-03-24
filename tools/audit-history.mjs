@@ -30,8 +30,8 @@ function loadHistory(dir) {
 
 function saveHistory(dir, history) {
   const reportsDir = join(dir, '.ultraship/reports');
-  mkdirSync(reportsDir, { recursive: true });
-  writeFileSync(getHistoryPath(dir), JSON.stringify(history, null, 2));
+  mkdirSync(reportsDir, { recursive: true, mode: 0o700 });
+  writeFileSync(getHistoryPath(dir), JSON.stringify(history, null, 2), { mode: 0o600 });
 }
 
 function formatDate(iso) {

@@ -2,6 +2,7 @@
 import { Parser } from 'htmlparser2';
 import fs from 'fs';
 import path from 'path';
+import { checkFileSize } from './lib/security.mjs';
 
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'build']);
 
@@ -26,6 +27,10 @@ function findHtmlFiles(dir) {
 }
 
 function parseHtmlFile(filePath) {
+  // Check file size before reading to prevent OOM on huge files
+  const sizeCheck = checkFileSize(filePath, fs.statSync);
+  if (!sizeCheck.ok) return null;
+
   let content;
   try {
     content = fs.readFileSync(filePath, 'utf8');

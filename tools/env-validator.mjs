@@ -118,7 +118,7 @@ function main() {
         variable: key,
         status: 'placeholder',
         severity: 'high',
-        message: `${key} still has placeholder value "${actualValue}"`,
+        message: `${key} still has its placeholder value — update it with the real value`,
       });
     } else {
       set.push(key);

@@ -223,12 +223,12 @@ function main() {
 
     // Save current report
     try {
-      mkdirSync(reportsDir, { recursive: true });
-      writeFileSync(reportFile, JSON.stringify(reportData, null, 2));
+      mkdirSync(reportsDir, { recursive: true, mode: 0o700 });
+      writeFileSync(reportFile, JSON.stringify(reportData, null, 2), { mode: 0o600 });
 
       // Also save timestamped copy
       const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      writeFileSync(join(reportsDir, `bundle-${ts}.json`), JSON.stringify(reportData, null, 2));
+      writeFileSync(join(reportsDir, `bundle-${ts}.json`), JSON.stringify(reportData, null, 2), { mode: 0o600 });
     } catch { /* ignore */ }
   }
 

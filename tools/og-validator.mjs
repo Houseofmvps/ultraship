@@ -8,6 +8,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, relative } from 'path';
 import https from 'https';
 import http from 'http';
+import { validateUrl, checkFileSize } from './lib/security.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -55,6 +56,13 @@ function checkImageUrl(imageUrl) {
   return new Promise((resolve) => {
     if (!imageUrl || imageUrl.startsWith('/') || imageUrl.startsWith('./')) {
       resolve({ reachable: null, reason: 'relative_path', url: imageUrl });
+      return;
+    }
+
+    // Validate URL to prevent SSRF
+    const urlCheck = validateUrl(imageUrl);
+    if (!urlCheck.valid) {
+      resolve({ reachable: false, reason: urlCheck.reason, url: imageUrl });
       return;
     }
 
@@ -164,6 +172,8 @@ async function main() {
 
   const pages = [];
   for (const file of htmlFiles) {
+    const sizeCheck = checkFileSize(file, statSync);
+    if (!sizeCheck.ok) continue; // Skip files that are too large or unreadable
     const html = readFileSync(file, 'utf8');
     const relPath = relative(target, file);
     const result = await validatePage(file, relPath, html);

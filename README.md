@@ -138,9 +138,26 @@ No configuration required. Ultraship reads your project structure, package.json,
 | Skills | 21 | 14 workflow + 7 specialist skills (incl. deploy) |
 | Agents | 5 | ship, review, seo, security, browser |
 | Commands | 14 | /ship, /deploy, /review, /design, /seo, /perf, /security, /health, /content, /redirects, /bundle, /test, /workflow, /claude-md |
-| Tools | 16 | SEO scanner, content scorer, OG validator, redirect checker, Lighthouse, health check, env validator, migration checker, bundle tracker, audit history, GSC client, Bing client, secret scanner, sitemap/robots/structured-data generators |
+| Tools | 20 | SEO scanner, content scorer, OG validator, redirect checker, Lighthouse, health check, env validator, migration checker, bundle tracker, audit history, API smoke test, code profiler, dep doctor, GSC client, Bing client, secret scanner, sitemap/robots/structured-data/llms-txt generators |
 | Hook | 1 | pre-commit hook that blocks on critical security findings |
+| Security | 1 | Shared security module (`tools/lib/security.mjs`) — SSRF protection, file size limits, response caps |
 | MCP Servers | 2 | context7 (live docs), playwright (browser automation) |
+
+---
+
+## Enterprise Security
+
+Ultraship is built for enterprise environments. See [SECURITY.md](SECURITY.md) for full details.
+
+- **Zero native dependencies** — no compiled binaries, no `node-gyp`, clean `npm install`
+- **No shell injection** — all subprocess calls use `execFileSync` (array args, no shell)
+- **SSRF protection** — all HTTP tools validate URLs, block private IPs and cloud metadata endpoints
+- **No telemetry** — zero data collection, no analytics, no phone-home
+- **No persistent processes** — stateless tools only, no background daemons
+- **Secret redaction** — found secrets are truncated in output, env values never logged
+- **File size limits** — 10MB read cap prevents OOM attacks
+- **Response size limits** — 5MB HTTP response cap prevents memory exhaustion
+- **Restrictive file permissions** — written files use `0o600`, directories `0o700`
 
 ---
 

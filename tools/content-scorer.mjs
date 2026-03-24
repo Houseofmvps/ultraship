@@ -6,6 +6,7 @@
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, relative } from 'path';
+import { checkFileSize } from './lib/security.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -236,6 +237,8 @@ function main() {
 
   const pages = [];
   for (const file of htmlFiles) {
+    const sizeCheck = checkFileSize(file, statSync);
+    if (!sizeCheck.ok) continue;
     const html = readFileSync(file, 'utf8');
     const relPath = relative(dir, file);
     pages.push(analyzeContent(html, relPath, keyword));

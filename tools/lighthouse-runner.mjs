@@ -4,6 +4,10 @@ import { execFileSync } from 'child_process';
 import { readFileSync, unlinkSync, mkdtempSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { validateUrl } from './lib/security.mjs';
+
+// Pin lighthouse version to prevent supply chain attacks via auto-install
+const LIGHTHOUSE_VERSION = 'lighthouse@12';
 
 const CHROME_PATHS = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -50,6 +54,13 @@ function main() {
     process.exit(0);
   }
 
+  // Validate URL — block SSRF and non-HTTP schemes
+  const urlCheck = validateUrl(url);
+  if (!urlCheck.valid) {
+    process.stdout.write(JSON.stringify(errorResult(url, urlCheck.reason), null, 2) + '\n');
+    process.exit(0);
+  }
+
   const chromePath = findChrome();
 
   if (!chromePath) {
@@ -65,7 +76,7 @@ function main() {
       'npx',
       [
         '-y',
-        'lighthouse',
+        LIGHTHOUSE_VERSION,
         url,
         '--output=json',
         `--output-path=${outputFile}`,

@@ -7,6 +7,7 @@
 import https from 'https';
 import http from 'http';
 import { readFileSync, existsSync } from 'fs';
+import { validateUrl, createResponseAccumulator } from './lib/security.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -40,14 +41,14 @@ function request(method, url, options = {}) {
     const startTime = Date.now();
     const req = mod.request(reqOptions, (res) => {
       const responseTime = Date.now() - startTime;
-      let body = '';
-      res.on('data', (chunk) => { body += chunk; });
+      const acc = createResponseAccumulator();
+      res.on('data', (chunk) => { acc.onData(chunk); });
       res.on('end', () => {
-        let parsed = null;
+        const body = acc.getBody();
         let isJson = false;
         const contentType = res.headers['content-type'] || '';
         if (contentType.includes('json')) {
-          try { parsed = JSON.parse(body); isJson = true; } catch { /* not json */ }
+          try { JSON.parse(body); isJson = true; } catch { /* not json */ }
         }
 
         resolve({
@@ -57,7 +58,7 @@ function request(method, url, options = {}) {
           response_time_ms: responseTime,
           content_type: contentType,
           is_json: isJson,
-          body_length: body.length,
+          body_length: acc.getTotalSize(),
           body_preview: body.slice(0, 500),
           headers: {
             cors: res.headers['access-control-allow-origin'] || null,
@@ -109,14 +110,13 @@ async function main() {
     process.exit(0);
   }
 
-  // Validate URL
-  let parsedBase;
-  try {
-    parsedBase = new URL(baseUrl);
-  } catch {
-    output({ error: `Invalid URL: ${baseUrl}`, success: false });
+  // Validate URL and block SSRF targets
+  const urlCheck = validateUrl(baseUrl);
+  if (!urlCheck.valid) {
+    output({ error: urlCheck.reason, success: false });
     process.exit(0);
   }
+  const parsedBase = urlCheck.url;
 
   let routes = DEFAULT_ROUTES;
 
