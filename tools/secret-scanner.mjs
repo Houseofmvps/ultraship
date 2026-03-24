@@ -146,9 +146,12 @@ function redact(match) {
 function scanFile(filePath) {
   const findings = [];
 
-  // Check for committed .env files
+  // Check for committed .env files (skip example/sample/template files)
   const name = basename(filePath);
-  if (name === '.env' || name.startsWith('.env.')) {
+  const ENV_EXAMPLE_SUFFIXES = ['.example', '.exam', '.sample', '.template', '.defaults'];
+  const isEnvFile = name === '.env' || name.startsWith('.env.');
+  const isExampleEnv = ENV_EXAMPLE_SUFFIXES.some(suffix => name.endsWith(suffix));
+  if (isEnvFile && !isExampleEnv) {
     findings.push({
       file: filePath,
       line: 0,
