@@ -269,14 +269,124 @@ Determines version bump from commit messages, generates changelog, bumps `packag
 
 ---
 
-### More Commands
+### /workflow: 14 Workflow Skills (Powered by Superpowers)
 
-| Command | What it does |
+Ultraship bundles the full **Superpowers** skill suite. These aren't just prompts — they're structured, multi-step workflows that enforce discipline:
+
+| Skill | What it does |
 |---|---|
-| `/design` | Generate production-grade UI components from a description |
-| `/test` | Generate and run Playwright smoke tests |
-| `/workflow` | Access 14 workflow skills (brainstorming, TDD, debugging, planning) |
-| `/claude-md` | Create, audit, or revise CLAUDE.md for your project |
+| **Brainstorming** | Guided idea-to-spec process. Asks clarifying questions one at a time, proposes 2-3 approaches with trade-offs, presents design for approval, writes spec doc, then hands off to planning. Includes optional visual companion for mockups in the browser. |
+| **Writing Plans** | Turns specs into bite-sized implementation plans with exact file paths, complete code snippets, test commands, and commit messages. Every step is a 2-5 minute action. |
+| **Test-Driven Development** | Enforces the red-green-refactor cycle. Write failing test first, run it, implement minimal code, run again, refactor, commit. No skipping steps. |
+| **Systematic Debugging** | Root-cause tracing methodology. No guessing. Reproduce, isolate, trace, fix, verify. Includes defense-in-depth patterns and condition-based waiting. |
+| **Subagent-Driven Development** | Dispatches a fresh subagent per task from your plan. Each task gets: implementation, spec compliance review, then code quality review. Two-stage review catches issues early. |
+| **Executing Plans** | Batch execution of implementation plans with review checkpoints. For when you want to run through a plan in a separate session. |
+| **Git Worktrees** | Isolate feature work in git worktrees. Smart directory selection, safety verification, clean branch setup. |
+| **Code Review** | Request or receive code reviews with structured feedback, confidence scoring, and verification before completion. |
+| **Finishing Branches** | Guides completion of development work — structured options for merge, PR, or cleanup. |
+| **Verification Before Completion** | Requires running verification commands and confirming output before claiming work is done. Evidence before assertions. |
+| **Writing Skills** | Create, test, and optimize new skills with eval frameworks and performance benchmarks. |
+| **Frontend Design** | Generate distinctive, production-grade UI with Tailwind + shadcn/ui. Avoids generic AI aesthetics. |
+| **CLAUDE.md Management** | Auto-create, audit, and revise CLAUDE.md files. Checks for stale rules, missing context, conflicting instructions. |
+| **Deploy + Release** | Full deploy pipeline and automated release with changelog generation. |
+
+These skills chain together naturally: **brainstorm** -> **write plan** -> **TDD** -> **review** -> **ship** -> **deploy** -> **release**.
+
+---
+
+### Context7: Live Documentation MCP Server
+
+Ultraship includes the **Context7** MCP server by Upstash. Instead of Claude hallucinating outdated API docs, Context7 fetches **real, current documentation** for any library on the fly.
+
+**How it works:**
+- You ask Claude to use a library (React, Hono, Drizzle, Stripe, etc.)
+- Context7 fetches the latest docs from the library's actual documentation site
+- Claude gets accurate, version-correct API references in its context
+
+**Why this matters for indie hackers:**
+- No more debugging code that uses deprecated APIs
+- No more "that method doesn't exist in v4" surprises
+- Works with any npm/PyPI library automatically
+
+---
+
+### Playwright: Browser Testing MCP Server
+
+Ultraship includes the **Playwright** MCP server by Anthropic. This gives Claude full browser automation capabilities:
+
+**What it can do:**
+- Navigate to your running app and take screenshots
+- Click buttons, fill forms, select options
+- Run multi-step user flows (signup, login, checkout)
+- Check console for errors
+- Verify page content and element visibility
+- Upload files and handle dialogs
+
+**How `/ship` uses it:**
+- Auto-generates smoke tests from your routes
+- Runs login, navigation, and form flows
+- Reports pass/fail per route with screenshots on failure
+- Browser test appears as a pass/fail line in the scorecard
+
+**How you use it directly:**
+- Ask Claude to "test the signup flow on localhost:3000"
+- Claude opens the browser, fills the form, clicks submit, checks the result
+- You get a screenshot and pass/fail without writing a single test file
+
+---
+
+### GEO + AEO: The AI Search Advantage
+
+This is what makes Ultraship different from every other SEO plugin. Traditional SEO tools check meta tags. Ultraship checks if your content is optimized for **AI search engines**.
+
+**GEO (Generative Engine Optimization)** — getting cited by ChatGPT, Perplexity, Gemini, and Claude when users ask questions in your domain.
+
+| What Ultraship checks | Why it matters |
+|---|---|
+| `llms.txt` file exists | Tells AI crawlers what your site is about and what to index |
+| AI crawler access in robots.txt | GPTBot, PerplexityBot, ClaudeBot, GoogleOther must not be blocked |
+| Question-format H2 headings | AI search engines extract answers from Q&A-structured content |
+| Structured data (JSON-LD) | AI models parse structured data more reliably than plain text |
+| Definition paragraphs | Content that starts with "[Term] is..." gets extracted as answers |
+| Concise answer blocks | 40-60 word paragraphs after headings are ideal for AI citation |
+
+**AEO (Answer Engine Optimization)** — getting featured in Google snippets, voice assistants (Siri, Alexa), and AI overviews.
+
+| What Ultraship checks | Why it matters |
+|---|---|
+| FAQPage schema | Directly eligible for Google FAQ rich results |
+| Speakable markup | Tells voice assistants which content to read aloud |
+| HowTo schema | Step-by-step content gets rich snippet treatment |
+| Short answer paragraphs | Google extracts 40-50 word blocks as featured snippets |
+| Breadcrumb structured data | Helps search engines understand site hierarchy |
+
+**Ultraship auto-generates:**
+- `llms.txt` and `llms-full.txt` from your HTML files
+- AI-friendly `robots.txt` that allows all major AI crawlers
+- `sitemap.xml` from your routes
+- JSON-LD structured data for your pages
+
+Most SEO tools don't even know GEO exists. Ultraship has 60+ rules for it.
+
+---
+
+### /design: Frontend UI Generation
+
+Generate production-grade UI components from a text description:
+- Outputs Tailwind CSS + shadcn/ui components
+- Accessibility baked in (ARIA labels, keyboard navigation, focus management)
+- Responsive layout (mobile-first)
+- Avoids generic "AI-generated" aesthetics — aims for distinctive, polished design
+- Supports dark mode, animations, and complex layouts
+
+---
+
+### /claude-md: CLAUDE.md Management
+
+- **Creates** a CLAUDE.md from scratch if your project doesn't have one — reads package.json, directory structure, and README to generate context
+- **Audits** existing CLAUDE.md files for stale rules, missing stack info, and conflicting instructions
+- **Revises** with targeted updates based on what you built in the current session
+- **SessionStart hook** checks CLAUDE.md age and reminds you to update if it's over 7 days old
 
 ---
 
