@@ -27,55 +27,49 @@ jobs:
       - name: Verify tools load without errors
         run: |
           for tool in tools/*.mjs; do
+            # Skip lib/ subdirectory modules (they're imports, not standalone tools)
+            if echo "$tool" | grep -q '/lib/'; then continue; fi
             echo "Testing: $tool"
             node -e "import('./$tool')" 2>&1 || exit 1
           done
 
       - name: Run tool smoke tests
         run: |
-          # SEO scanner - empty directory should return 0 findings
-          result=$(node tools/seo-scanner.mjs /tmp)
-          echo "$result" | node -e "
-            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
-            if (typeof d.files_scanned !== 'number') process.exit(1);
-          "
-          echo "seo-scanner: OK"
+          # Each tool should output valid JSON and exit 0
 
-          # Content scorer - empty directory
-          result=$(node tools/content-scorer.mjs /tmp)
-          echo "$result" | node -e "
-            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
-            if (!Array.isArray(d.files)) process.exit(1);
-          "
-          echo "content-scorer: OK"
+          # SEO scanner - empty directory
+          node tools/seo-scanner.mjs /tmp | node -e "
+            const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if(d.files_scanned!==0){process.exit(1)}
+          " && echo "seo-scanner: OK"
+
+          # Content scorer - empty directory returns pages:[]
+          node tools/content-scorer.mjs /tmp | node -e "
+            const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if(!d.success){process.exit(1)}
+          " && echo "content-scorer: OK"
 
           # Env validator - no .env.example
-          result=$(node tools/env-validator.mjs /tmp)
-          echo "$result" | node -e "
-            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
-            if (typeof d.status !== 'string') process.exit(1);
-          "
-          echo "env-validator: OK"
+          node tools/env-validator.mjs /tmp | node -e "
+            const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if(!d.success){process.exit(1)}
+          " && echo "env-validator: OK"
 
-          # Bundle tracker - empty dir
-          result=$(node tools/bundle-tracker.mjs /tmp)
-          echo "$result" | node -e "
-            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
-            if (typeof d !== 'object') process.exit(1);
-          "
-          echo "bundle-tracker: OK"
+          # Bundle tracker - no build output
+          node tools/bundle-tracker.mjs /tmp | node -e "
+            const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if(!d.success){process.exit(1)}
+          " && echo "bundle-tracker: OK"
 
-          # Migration checker
-          result=$(node tools/migration-checker.mjs /tmp)
-          echo "$result" | node -e "
-            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
-            if (typeof d !== 'object') process.exit(1);
-          "
-          echo "migration-checker: OK"
+          # Migration checker - no ORM
+          node tools/migration-checker.mjs /tmp | node -e "
+            const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if(!d.success){process.exit(1)}
+          " && echo "migration-checker: OK"
 
-      - name: Verify security module exports
+      - name: Verify security module
         run: |
-          node -e "
+          node --input-type=module -e "
             import { validateUrl, checkFileSize, createResponseAccumulator, MAX_RESPONSE_SIZE } from './tools/lib/security.mjs';
             const tests = [
               ['http://169.254.169.254/latest/meta-data', false, 'block metadata IP'],
@@ -96,7 +90,7 @@ jobs:
 
       - name: Verify plugin manifest versions match
         run: |
-          node -e "
+          node --input-type=module -e "
             import { readFileSync } from 'fs';
             const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
             const plugin = JSON.parse(readFileSync('.claude-plugin/plugin.json', 'utf8'));
