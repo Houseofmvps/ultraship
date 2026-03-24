@@ -64,8 +64,8 @@ Production-grade UI generation from a description or screenshot. Outputs Tailwin
 
 ### SEO / GEO / AEO
 - SEO: meta tags, canonical URLs, structured data, sitemap validation
-- GEO: geographic targeting signals, hreflang, localized content checks
-- AEO: answer engine optimization — structures content for AI citation in ChatGPT, Perplexity, and similar tools
+- GEO: generative engine optimization — structured data, llms.txt, content optimized for AI search engines (ChatGPT, Perplexity, Gemini)
+- AEO: answer engine optimization — featured snippets, FAQPage schema, speakable markup for voice assistants
 
 ### Performance
 Lighthouse audits via headless Chrome. Auto-fixes image formats, defers non-critical JS, adds resource hints. Reports CLS, LCP, FID with before/after scores.
