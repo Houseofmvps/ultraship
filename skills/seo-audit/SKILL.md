@@ -62,6 +62,35 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/bing-webmaster.mjs submit-sitemap <sitemap-url>
 
 Re-run the scanner to confirm fixes and report before/after scores.
 
+### Phase 6: AI Search Content Strategy
+
+After technical fixes, advise on content-level optimizations that the scanner cannot automate:
+
+**GEO Content Patterns (for AI citation):**
+- Rewrite key H2 headers as questions: "What is [topic]", "How does [feature] work", "Why use [product]"
+- Add 1-2 sentence TL;DR summaries under important H2 sections — AI engines extract these as standalone answers
+- Use plain-language definitions before introducing nuance: "[Product] is [clear definition]"
+- Write in citation-ready format: concise, factual, quotable — avoid vague marketing copy
+- Create comparison tables, statistics pages, and glossaries — these are the most-cited page formats by AI
+
+**E-E-A-T Signals (for AI trust):**
+- Add Author/Person schema with credentials, role, and expertise
+- Include first-hand experience statements: "We tested", "In our experience", "Based on [N] customers"
+- Add original visuals, screenshots, and data — AI cannot synthesize these, so they prove authenticity
+- Ensure author bios establish subject-matter relevance on every content page
+
+**AI Bot Access:**
+- Verify robots.txt explicitly allows GPTBot (ChatGPT), PerplexityBot, and Claude-Web
+- Block Google-Extended and CCBot only if you want to prevent AI training (not citation)
+
+**Citation-Worthy Page Formats:**
+- Ultimate guides consolidating a topic into one authoritative resource
+- "[Topic] Statistics (2026)" pages centralizing referenceable data
+- "Best [Category] Tools Compared" with explicit comparison tables
+- FAQ pages with direct, quotable answers (not marketing fluff)
+
+**Key test:** "If your content can't answer a question clearly in 30 seconds, AI engines won't select it for generated answers."
+
 ## Key Principle
 
-**Fix, don't just audit.** Every finding should have a concrete fix applied.
+**Fix, don't just audit.** Every finding should have a concrete fix applied. Every content page should have a strategy to be cited by AI.

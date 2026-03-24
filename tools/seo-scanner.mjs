@@ -53,6 +53,9 @@ function parseHtmlFile(filePath) {
     hasNav: false,
     hasFooter: false,
     hasArticle: false,
+    h2Texts: [],
+    inH2: false,
+    currentH2Text: '',
     jsonLdScripts: 0,
     jsonLdContent: [],
     inScript: false,
@@ -99,6 +102,10 @@ function parseHtmlFile(filePath) {
           const level = parseInt(headingMatch[1], 10);
           state.headingLevels.push(level);
           if (level === 1) state.h1Count++;
+          if (level === 2) {
+            state.inH2 = true;
+            state.currentH2Text = '';
+          }
         }
 
         // Semantic HTML landmarks
@@ -128,6 +135,9 @@ function parseHtmlFile(filePath) {
         if (state.inTitle && text.trim()) {
           state.hasTitle = true;
         }
+        if (state.inH2) {
+          state.currentH2Text += text;
+        }
         if (state.inScript && state.scriptType === 'application/ld+json') {
           state.scriptContent += text;
         }
@@ -137,6 +147,11 @@ function parseHtmlFile(filePath) {
         const tag = name.toLowerCase();
         if (tag === 'title') {
           state.inTitle = false;
+        }
+        if (tag === 'h2' && state.inH2) {
+          state.h2Texts.push(state.currentH2Text.trim());
+          state.inH2 = false;
+          state.currentH2Text = '';
         }
         if (tag === 'script') {
           if (state.scriptType === 'application/ld+json' && state.scriptContent.trim()) {
@@ -266,9 +281,27 @@ function scanDirectory(rootDir) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'missing-organization-schema', message: 'No Organization schema — AI engines need this to identify your brand' });
     }
 
+    // GEO: Author/Person schema (E-E-A-T signal for AI trust)
+    const hasAuthorSchema = allJsonLd.includes('Person') || allJsonLd.includes('author');
+    if (!hasAuthorSchema) {
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'missing-author-schema', message: 'No Author/Person schema — AI engines use this for E-E-A-T credibility signals' });
+    }
+
     // GEO: Semantic HTML for AI content extraction
     if (!state.hasMain) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'missing-main-for-ai', message: 'No <main> element — AI crawlers use this to identify primary content' });
+    }
+
+    // GEO: Question-based H2 headers (AI engines favor "What is", "How does", "Why" patterns)
+    if (state.h2Texts.length > 0) {
+      const questionPattern = /^(what|how|why|when|where|who|which|can|does|is|are|do|should|will)\b/i;
+      const questionH2s = state.h2Texts.filter(t => questionPattern.test(t));
+      const questionRatio = questionH2s.length / state.h2Texts.length;
+      if (questionRatio === 0) {
+        findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'no-question-headers', message: 'No question-based H2 headers — AI engines favor "What is", "How does", "Why" patterns for citation' });
+      } else if (questionRatio < 0.3 && state.h2Texts.length >= 3) {
+        findings.push({ file: relFile, line: 0, severity: 'low', category: 'geo', rule: 'few-question-headers', message: `Only ${questionH2s.length}/${state.h2Texts.length} H2s use question format — add more for AI answer eligibility` });
+      }
     }
 
     // AEO: FAQPage schema
