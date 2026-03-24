@@ -1,6 +1,6 @@
 <div align="center">
 
-# ULTRASHIP
+<img src="assets/hero-banner.jpg" alt="Ultraship — All-in-one Claude Code Plugin" width="100%"/>
 
 ### Replace 6 Claude Code plugins with 1. Ship production-ready SaaS with a single command.
 
