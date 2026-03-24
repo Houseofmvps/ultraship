@@ -28,16 +28,20 @@
 
 ## The Problem
 
-You're a solo founder building a SaaS. Before every deploy, you're juggling:
+You're a solo founder. You just spent 3 hours building a feature. Now you need to ship it. Here's what happens next:
 
-- One plugin for code review
-- One for SEO checks
-- One for performance audits
-- One for security scanning
-- One for browser testing
-- One for workflow automation
+- You ask Claude to review your code. It says "looks good" without actually catching the N+1 query you just introduced.
+- You forget to check if your OG tags work. Your launch post on Twitter shows a broken preview. You don't notice for 6 hours.
+- You deployed without running Lighthouse. Your LCP is 4.2 seconds. Google is already de-ranking you.
+- Your `.env` has a placeholder `sk-...` that made it to production. You find out when Stripe emails you about the leaked key.
+- ChatGPT and Perplexity can't cite your content because you blocked AI crawlers in `robots.txt` and you don't have an `llms.txt` file. You didn't even know that was a thing.
+- Claude hallucinated an API method that doesn't exist in Drizzle v0.36. You spent 45 minutes debugging before realizing the method was from v0.28.
+- You have no CLAUDE.md, so every new conversation starts from scratch. Claude keeps suggesting Prisma even though you use Drizzle.
+- You write code first, then tests (if ever). When something breaks in production, you guess at the root cause instead of tracing it systematically.
+- Your bundle is 2.3MB because `moment.js` is still in there. You didn't know `dayjs` is 2KB.
+- You push to production and pray. No health check. No SSL verification. No security header audit.
 
-Six plugins. Six configs. Six things fighting for context window. And you STILL forget to check your OG tags.
+That's not shipping. That's gambling.
 
 ## The Solution
 
@@ -45,7 +49,7 @@ Six plugins. Six configs. Six things fighting for context window. And you STILL 
 /ship
 ```
 
-One command. Ultraship audits your entire project across **5 dimensions**, auto-fixes what it can, and gives you a score:
+One command. Ultraship takes over. It dispatches 5 parallel agents across your entire project — SEO, performance, security, code quality, and browser testing. It runs 60+ rules, auto-fixes what it can, and gives you a score:
 
 ```
 ====================================
@@ -66,6 +70,8 @@ One command. Ultraship audits your entire project across **5 dimensions**, auto-
 ```
 
 **Score >= 80?** Ship it. **Below 80?** Ultraship already fixed 7 issues for you. Fix the remaining 2 and run again.
+
+But `/ship` is just the final step. Ultraship changes how you build from the very first line of code.
 
 ---
 
@@ -92,44 +98,76 @@ Then in any project:
 
 ---
 
-## What Is Ultraship?
+## How It Works
 
-Ultraship is an **all-in-one Claude Code plugin** that turns Claude into a full development team. It's not a single tool — it's **22 skills, 18 commands, 21 tools, 5 agents, and 2 MCP servers** working together as one system.
+It starts before you write a single line of code.
 
-**Here's what it actually does:**
+When you tell Claude to build something, Ultraship doesn't let it jump straight into coding. The **brainstorming skill** activates first — it asks you clarifying questions one at a time, proposes 2-3 approaches with trade-offs, and presents a design for your approval. Once you sign off, the **planning skill** breaks it into bite-sized tasks with exact file paths, complete code, test commands, and commit messages. Every step is a 2-5 minute action.
 
-**1. It thinks before it builds.** Ultraship has a built-in brainstorming skill that walks you through idea-to-spec. It asks questions one at a time, proposes approaches with trade-offs, writes a design doc, reviews it, and then creates a step-by-step implementation plan — all before touching code. No more "Claude built the wrong thing."
+Then comes the building. **Test-driven development** is enforced — not suggested. Write the failing test first. Run it. Implement the minimum code to pass. Run again. Refactor. Commit. For larger plans, **subagent-driven development** dispatches a fresh agent per task, each getting a two-stage review: first for spec compliance, then for code quality. When bugs appear, **systematic debugging** kicks in — no guessing, no random fixes. Reproduce, isolate, trace, verify.
 
-**2. It writes code the right way.** Test-driven development is enforced: write failing test, run it, implement, run again, commit. Subagent-driven development dispatches fresh agents per task with two-stage review (spec compliance + code quality). Systematic debugging traces root causes instead of guessing.
+When you're ready to deploy, one `/ship` command dispatches 5 parallel agents — SEO, performance, security, code quality, and browser testing — across your entire project. It runs 60+ rules, auto-fixes what it can, and produces a scorecard. Below 80? It tells you exactly what to fix. Above 80? Ship it.
 
-**3. It audits everything before you ship.** One `/ship` command runs 5 parallel agents across SEO/GEO/AEO (60+ rules), performance (Lighthouse + Core Web Vitals), security (secrets, deps, OWASP), code quality (N+1, memory leaks, sync I/O), and browser testing (automated smoke tests). Auto-fixes what it can. Gives you a score.
+After shipping, Ultraship monitors. Health checks hit your production URL for status codes, response times, SSL validity, and security headers. Audit scores are saved for trend tracking. Your CLAUDE.md gets updated with what you built.
 
-**4. It optimizes for AI search engines.** Ultraship doesn't just check meta tags — it checks if ChatGPT, Perplexity, and Gemini can find and cite your content. It generates `llms.txt`, AI-friendly `robots.txt`, structured data, and sitemaps. Most SEO tools don't even know GEO exists.
-
-**5. It fetches real documentation.** Built-in live docs lookup means Claude gets current, accurate API references for any library — React, Hono, Drizzle, Stripe, anything. No more hallucinated methods that don't exist.
-
-**6. It tests in a real browser.** Built-in browser automation lets Claude navigate your running app, fill forms, click buttons, and verify everything works — without you writing test files.
-
-**7. It manages your project memory.** Auto-creates and maintains `CLAUDE.md` so Claude always knows your project's stack, conventions, and decisions. Alerts you when it's stale.
-
-**8. It deploys and monitors.** Full pipeline: env validation, migration safety check, bundle analysis, ship audit, deploy, health check, score history. One command.
-
-**Every skill chains together:** brainstorm → plan → TDD → review → ship → deploy → release. That's the Ultraship workflow.
+And because skills trigger automatically based on what you're doing, you don't need to memorize commands or configure anything. Just have Ultraship installed and build. It handles the rest.
 
 ---
 
-## What Ultraship Replaces
+## The Basic Workflow
 
-| What you're doing now | What Ultraship gives you instead |
-|---|---|
-| **Multiple workflow plugins** | 14 built-in workflow skills: brainstorming, TDD, debugging, planning, code review, git worktrees |
-| **Searching outdated docs** | Live documentation lookups via built-in MCP server — always current, never hallucinated |
-| **Manual browser testing** | Automated smoke tests and full browser automation built in |
-| **Separate code review plugins** | PR review with confidence scoring, severity tagging, inline comments |
-| **Generic UI generators** | Production-grade frontend design (Tailwind + shadcn/ui) |
-| **No project memory** | CLAUDE.md auto-creation, auditing, and revision to keep Claude aligned |
+1. **Brainstorming** — Activates when you describe what you want to build. Explores requirements, proposes approaches, writes a spec.
+2. **Writing Plans** — Activates after a spec is approved. Creates step-by-step implementation plan. DRY. YAGNI. Exact file paths.
+3. **Test-Driven Development** — Activates before writing code. Enforces RED-GREEN-REFACTOR. No skipping steps.
+4. **Subagent-Driven Development** — Activates when executing plans. Fresh agent per task. Two-stage review after each.
+5. **Systematic Debugging** — Activates when something breaks. Root-cause tracing. Defense-in-depth. No guessing.
+6. **Code Review** — Activates when work is done. Confidence scoring. Severity tagging. Security focus.
+7. **Verification Before Completion** — Activates before claiming done. Evidence before assertions. Run tests, check output, then commit.
+8. **/ship** — Your pre-deploy quality gate. 5 agents, 60+ rules, auto-fixes, scorecard.
+9. **Deploy + Release** — Full pipeline with env validation, migration safety, health check, changelog, npm publish.
 
-**One install. Everything. Plus 21 specialized tools they don't have.**
+The agent checks for relevant skills before any task. Mandatory workflows, not suggestions.
+
+---
+
+## What's Inside
+
+Ultraship is **22 skills, 18 commands, 21 tools, 5 agents, and 2 MCP servers** working as one system.
+
+**Workflow Skills**
+- **Brainstorming** — idea-to-spec with clarifying questions, approach proposals, visual companion for mockups
+- **Writing Plans** — specs to bite-sized implementation plans with full code and test commands
+- **Test-Driven Development** — enforced red-green-refactor (includes testing anti-patterns reference)
+- **Systematic Debugging** — root-cause tracing methodology (includes defense-in-depth, condition-based waiting)
+- **Subagent-Driven Development** — fresh agent per task with spec + quality review
+- **Executing Plans** — batch execution with review checkpoints
+- **Git Worktrees** — isolated feature work with smart directory selection
+- **Code Review** — structured feedback with confidence scoring
+- **Finishing Branches** — merge, PR, or cleanup guidance
+- **Verification Before Completion** — evidence before assertions
+- **Writing Skills** — create and test new skills with eval frameworks
+- **Dispatching Parallel Agents** — concurrent independent tasks
+
+**Specialist Skills**
+- **Frontend Design** — production-grade Tailwind + shadcn/ui, no generic AI aesthetics
+- **CLAUDE.md Management** — auto-create, audit, and revise project memory
+- **SEO/GEO/AEO Audit** — 60+ rules across traditional, generative, and answer engine optimization
+- **Security Audit** — deps, secrets, OWASP patterns, HTTP headers
+- **Performance Audit** — Lighthouse, Core Web Vitals, bundle analysis
+- **Deploy + Release** — full pipeline with health check and changelog generation
+
+**Tools (21 Node.js modules)**
+- SEO scanner (60+ rules), content scorer, OG validator, redirect checker, Lighthouse runner, health check, env validator, migration checker, bundle tracker, audit history, API smoke test, code profiler, dep doctor, GSC client, Bing Webmaster client, secret scanner, sitemap generator, robots.txt generator, structured data generator, llms.txt generator, shared security module
+
+**Agents (5)**
+- Ship orchestrator, SEO auditor, security auditor, performance auditor, browser verifier
+
+**MCP Servers (2)**
+- Live documentation lookup — fetches current, accurate docs for any library on the fly
+- Browser automation — full browser control: navigate, click, fill, screenshot, verify
+
+**Commands (18)**
+- `/ship` `/deploy` `/review` `/seo` `/perf` `/security` `/health` `/content` `/bundle` `/profile` `/deps` `/redirects` `/release` `/design` `/brainstorm` `/write-plan` `/execute-plan` `/claude-md`
 
 ---
 
@@ -295,193 +333,17 @@ Determines version bump from commit messages, generates changelog, bumps `packag
 
 ---
 
-### /workflow: 14 Built-In Workflow Skills
+## Philosophy
 
-These aren't just prompts — they're structured, multi-step workflows that enforce discipline at every stage of development:
+**Test-Driven, Not Vibe-Driven.** Every feature gets tests first. Red-green-refactor is enforced, not suggested. The agent writes the failing test before touching implementation code.
 
-| Skill | What it does |
-|---|---|
-| **Brainstorming** | Guided idea-to-spec process. Asks clarifying questions one at a time, proposes 2-3 approaches with trade-offs, presents design for approval, writes spec doc, then hands off to planning. Includes optional visual companion for mockups in the browser. |
-| **Writing Plans** | Turns specs into bite-sized implementation plans with exact file paths, complete code snippets, test commands, and commit messages. Every step is a 2-5 minute action. |
-| **Test-Driven Development** | Enforces the red-green-refactor cycle. Write failing test first, run it, implement minimal code, run again, refactor, commit. No skipping steps. |
-| **Systematic Debugging** | Root-cause tracing methodology. No guessing. Reproduce, isolate, trace, fix, verify. Includes defense-in-depth patterns and condition-based waiting. |
-| **Subagent-Driven Development** | Dispatches a fresh subagent per task from your plan. Each task gets: implementation, spec compliance review, then code quality review. Two-stage review catches issues early. |
-| **Executing Plans** | Batch execution of implementation plans with review checkpoints. For when you want to run through a plan in a separate session. |
-| **Git Worktrees** | Isolate feature work in git worktrees. Smart directory selection, safety verification, clean branch setup. |
-| **Code Review** | Request or receive code reviews with structured feedback, confidence scoring, and verification before completion. |
-| **Finishing Branches** | Guides completion of development work — structured options for merge, PR, or cleanup. |
-| **Verification Before Completion** | Requires running verification commands and confirming output before claiming work is done. Evidence before assertions. |
-| **Writing Skills** | Create, test, and optimize new skills with eval frameworks and performance benchmarks. |
-| **Frontend Design** | Generate distinctive, production-grade UI with Tailwind + shadcn/ui. Avoids generic AI aesthetics. |
-| **CLAUDE.md Management** | Auto-create, audit, and revise CLAUDE.md files. Checks for stale rules, missing context, conflicting instructions. |
-| **Deploy + Release** | Full deploy pipeline and automated release with changelog generation. |
+**Think First, Build Second.** Most AI coding failures come from jumping straight to implementation. Ultraship's brainstorming and planning skills force a design phase. The spec gets reviewed before the first line of code is written.
 
-These skills chain together naturally: **brainstorm** -> **write plan** -> **TDD** -> **review** -> **ship** -> **deploy** -> **release**.
+**Evidence Before Assertions.** Ultraship never claims "it works" without proof. The verification skill requires running tests and checking output before marking anything as done. The `/ship` scorecard is evidence, not opinion.
 
----
+**Zero Configuration.** Ultraship reads your project structure — `package.json`, directory layout, framework configs — and self-configures. No YAML files. No setup wizards. Install and build.
 
-### Live Documentation Lookup
-
-Ultraship includes a built-in MCP server that fetches **real, current documentation** for any library on the fly — no more hallucinated APIs.
-
-**How it works:**
-- You ask Claude to use a library (React, Hono, Drizzle, Stripe, etc.)
-- Ultraship fetches the latest docs from the library's actual documentation site
-- Claude gets accurate, version-correct API references in its context
-
-**Why this matters for indie hackers:**
-- No more debugging code that uses deprecated APIs
-- No more "that method doesn't exist in v4" surprises
-- Works with any npm/PyPI library automatically
-
----
-
-### Browser Testing & Automation
-
-Ultraship includes a built-in browser automation MCP server that gives Claude full control of a real browser:
-
-**What it can do:**
-- Navigate to your running app and take screenshots
-- Click buttons, fill forms, select options
-- Run multi-step user flows (signup, login, checkout)
-- Check console for errors
-- Verify page content and element visibility
-- Upload files and handle dialogs
-
-**How `/ship` uses it:**
-- Auto-generates smoke tests from your routes
-- Runs login, navigation, and form flows
-- Reports pass/fail per route with screenshots on failure
-- Browser test appears as a pass/fail line in the scorecard
-
-**How you use it directly:**
-- Ask Claude to "test the signup flow on localhost:3000"
-- Claude opens the browser, fills the form, clicks submit, checks the result
-- You get a screenshot and pass/fail without writing a single test file
-
----
-
-### GEO + AEO: The AI Search Advantage
-
-This is what makes Ultraship different from every other SEO plugin. Traditional SEO tools check meta tags. Ultraship checks if your content is optimized for **AI search engines**.
-
-**GEO (Generative Engine Optimization)** — getting cited by ChatGPT, Perplexity, Gemini, and Claude when users ask questions in your domain.
-
-| What Ultraship checks | Why it matters |
-|---|---|
-| `llms.txt` file exists | Tells AI crawlers what your site is about and what to index |
-| AI crawler access in robots.txt | GPTBot, PerplexityBot, ClaudeBot, GoogleOther must not be blocked |
-| Question-format H2 headings | AI search engines extract answers from Q&A-structured content |
-| Structured data (JSON-LD) | AI models parse structured data more reliably than plain text |
-| Definition paragraphs | Content that starts with "[Term] is..." gets extracted as answers |
-| Concise answer blocks | 40-60 word paragraphs after headings are ideal for AI citation |
-
-**AEO (Answer Engine Optimization)** — getting featured in Google snippets, voice assistants (Siri, Alexa), and AI overviews.
-
-| What Ultraship checks | Why it matters |
-|---|---|
-| FAQPage schema | Directly eligible for Google FAQ rich results |
-| Speakable markup | Tells voice assistants which content to read aloud |
-| HowTo schema | Step-by-step content gets rich snippet treatment |
-| Short answer paragraphs | Google extracts 40-50 word blocks as featured snippets |
-| Breadcrumb structured data | Helps search engines understand site hierarchy |
-
-**Ultraship auto-generates:**
-- `llms.txt` and `llms-full.txt` from your HTML files
-- AI-friendly `robots.txt` that allows all major AI crawlers
-- `sitemap.xml` from your routes
-- JSON-LD structured data for your pages
-
-Most SEO tools don't even know GEO exists. Ultraship has 60+ rules for it.
-
----
-
-### /design: Frontend UI Generation
-
-Generate production-grade UI components from a text description:
-- Outputs Tailwind CSS + shadcn/ui components
-- Accessibility baked in (ARIA labels, keyboard navigation, focus management)
-- Responsive layout (mobile-first)
-- Avoids generic "AI-generated" aesthetics — aims for distinctive, polished design
-- Supports dark mode, animations, and complex layouts
-
----
-
-### /claude-md: CLAUDE.md Management
-
-- **Creates** a CLAUDE.md from scratch if your project doesn't have one — reads package.json, directory structure, and README to generate context
-- **Audits** existing CLAUDE.md files for stale rules, missing stack info, and conflicting instructions
-- **Revises** with targeted updates based on what you built in the current session
-- **SessionStart hook** checks CLAUDE.md age and reminds you to update if it's over 7 days old
-
----
-
-## How It Works
-
-```
-You type /ship
-    |
-    |-- Detects project type (API, landing page, full-stack)
-    |-- Runs pre-flight checks (env vars, migrations, bundle)
-    |
-    |-- Dispatches 5 parallel agents:
-    |   |-- SEO Auditor ---- 60+ rules, cross-page analysis
-    |   |-- Perf Auditor --- Lighthouse, Core Web Vitals
-    |   |-- Security ------- Deps, secrets, OWASP, headers
-    |   |-- Code Reviewer -- Quality, N+1, memory leaks
-    |   +-- Browser -------- automated smoke tests
-    |
-    |-- Runs inline checks:
-    |   |-- Content quality (readability, keyword density)
-    |   |-- OG tag validation (image reachability)
-    |   |-- Bundle analysis (size, heavy deps)
-    |   |-- Code profiling (N+1, sync I/O, leaks)
-    |   +-- Dependency health (unused, outdated)
-    |
-    |-- Auto-fixes everything it safely can
-    |
-    +-- Outputs the scorecard
-        |-- >= 80: READY TO SHIP
-        |-- 60-79: NEEDS WORK
-        +-- < 60:  NOT READY
-```
-
----
-
-## Full Architecture
-
-```
-ultraship/
-  .claude-plugin/     Plugin manifest
-  skills/             22 skills (14 workflow + 8 specialist)
-  agents/              5 agents (ship, review, seo, security, browser)
-  commands/           18 slash commands
-  tools/              21 Node.js tools + shared security module
-  hooks/               1 pre-commit security hook
-  SECURITY.md          Full security documentation
-```
-
-| Layer | Count | Details |
-|---|---|---|
-| **Skills** | 22 | Brainstorming, TDD, debugging, planning, code review, git worktrees, deploy, release, SEO audit, security audit, perf audit, frontend design, CLAUDE.md management |
-| **Agents** | 5 | Ship orchestrator, code reviewer, SEO auditor, security auditor, browser verifier |
-| **Commands** | 18 | /ship, /deploy, /review, /design, /seo, /perf, /security, /health, /content, /redirects, /bundle, /release, /profile, /deps, /test, /workflow, /claude-md, /brainstorm |
-| **Tools** | 21 | SEO scanner (60+ rules), content scorer, OG validator, redirect checker, Lighthouse runner, health check, env validator, migration checker, bundle tracker, audit history, API smoke test, code profiler, dep doctor, GSC client, Bing client, secret scanner, sitemap/robots/structured-data/llms-txt generators, shared security module |
-| **MCP Servers** | 2 | Live documentation lookup, browser automation |
-
----
-
-## Tech Stack
-
-| Component | Technology |
-|---|---|
-| Runtime | Node.js (ESM) |
-| HTML parsing | htmlparser2 (SAX-based, ~30KB) |
-| Performance | Lighthouse via headless Chrome |
-| Browser testing | Built-in browser automation MCP |
-| Documentation | Built-in live docs MCP |
-| Build step | None: tools run directly as `.mjs` files |
-| Dependencies | 1 (`htmlparser2`) |
+**1 Dependency.** The entire plugin ships with a single runtime dependency: `htmlparser2` (30KB SAX parser). No native bindings. No `node-gyp`. No supply chain surface area. Clean install on every machine.
 
 ---
 
