@@ -43,9 +43,16 @@ function parseHtmlFile(filePath) {
     hasOgImage: false,
     hasOgUrl: false,
     hasTwitterCard: false,
+    hasTwitterImage: false,
     hasCanonical: false,
     h1Count: 0,
+    headingLevels: [],
     imagesWithoutAlt: 0,
+    imagesWithoutDimensions: 0,
+    hasMain: false,
+    hasNav: false,
+    hasFooter: false,
+    hasArticle: false,
     jsonLdScripts: 0,
     jsonLdContent: [],
     inScript: false,
@@ -78,6 +85,7 @@ function parseHtmlFile(filePath) {
           if (propAttr === 'og:image' && content) state.hasOgImage = true;
           if (propAttr === 'og:url' && content) state.hasOgUrl = true;
           if (nameAttr === 'twitter:card' && content) state.hasTwitterCard = true;
+          if (nameAttr === 'twitter:image' && content) state.hasTwitterImage = true;
         }
 
         if (tag === 'link') {
@@ -85,14 +93,27 @@ function parseHtmlFile(filePath) {
           if (rel === 'canonical' && attrs.href) state.hasCanonical = true;
         }
 
-        if (tag === 'h1') {
-          state.h1Count++;
+        // Heading tracking
+        const headingMatch = tag.match(/^h([1-6])$/);
+        if (headingMatch) {
+          const level = parseInt(headingMatch[1], 10);
+          state.headingLevels.push(level);
+          if (level === 1) state.h1Count++;
         }
+
+        // Semantic HTML landmarks
+        if (tag === 'main') state.hasMain = true;
+        if (tag === 'nav') state.hasNav = true;
+        if (tag === 'footer') state.hasFooter = true;
+        if (tag === 'article') state.hasArticle = true;
 
         if (tag === 'img') {
           const alt = attrs.alt;
           if (alt === undefined || alt === null) {
             state.imagesWithoutAlt++;
+          }
+          if (!attrs.width || !attrs.height) {
+            state.imagesWithoutDimensions++;
           }
         }
 
@@ -194,6 +215,9 @@ function scanDirectory(rootDir) {
     if (!state.hasTwitterCard) {
       findings.push({ file: relFile, line: 0, severity: 'low', category: 'seo', rule: 'missing-twitter-card', message: 'No <meta name="twitter:card"> found' });
     }
+    if (!state.hasTwitterImage) {
+      findings.push({ file: relFile, line: 0, severity: 'low', category: 'seo', rule: 'missing-twitter-image', message: 'No <meta name="twitter:image"> found — social previews will lack images' });
+    }
     if (!state.hasCanonical) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'missing-canonical', message: 'No <link rel="canonical"> found' });
     }
@@ -202,28 +226,65 @@ function scanDirectory(rootDir) {
     } else if (state.h1Count > 1) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'multiple-h1', message: `${state.h1Count} <h1> tags found — should be exactly 1` });
     }
+    // Check for skipped heading levels (H1 → H3 without H2)
+    for (let i = 1; i < state.headingLevels.length; i++) {
+      if (state.headingLevels[i] - state.headingLevels[i - 1] > 1) {
+        findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'skipped-heading-level', message: `Heading level skipped: H${state.headingLevels[i - 1]} → H${state.headingLevels[i]} — hurts content hierarchy` });
+        break;
+      }
+    }
     if (state.imagesWithoutAlt > 0) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'images-missing-alt', message: `${state.imagesWithoutAlt} image(s) missing alt text` });
+    }
+    if (state.imagesWithoutDimensions > 0) {
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'images-missing-dimensions', message: `${state.imagesWithoutDimensions} image(s) missing width/height — causes CLS (layout shift)` });
+    }
+    // Semantic HTML checks
+    if (!state.hasMain) {
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'missing-main-landmark', message: 'No <main> element — hurts accessibility and AI content extraction' });
+    }
+    if (!state.hasNav) {
+      findings.push({ file: relFile, line: 0, severity: 'low', category: 'seo', rule: 'missing-nav-landmark', message: 'No <nav> element — use semantic navigation for crawlers' });
+    }
+    if (!state.hasFooter) {
+      findings.push({ file: relFile, line: 0, severity: 'low', category: 'seo', rule: 'missing-footer-landmark', message: 'No <footer> element found' });
     }
     if (state.jsonLdScripts === 0) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'missing-json-ld', message: 'No JSON-LD structured data found' });
     }
 
-    // GEO: JSON-LD presence
+    // GEO: JSON-LD presence and quality
     if (state.jsonLdScripts === 0) {
-      findings.push({ file: relFile, line: 0, severity: 'high', category: 'geo', rule: 'missing-structured-data', message: 'No JSON-LD structured data — poor GEO signal' });
+      findings.push({ file: relFile, line: 0, severity: 'high', category: 'geo', rule: 'missing-structured-data', message: 'No JSON-LD structured data — AI engines cannot extract structured facts' });
+    }
+
+    const allJsonLd = state.jsonLdContent.join(' ');
+
+    // GEO: Organization schema (critical for brand recognition by AI)
+    const hasOrganization = allJsonLd.includes('Organization');
+    if (!hasOrganization) {
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'missing-organization-schema', message: 'No Organization schema — AI engines need this to identify your brand' });
+    }
+
+    // GEO: Semantic HTML for AI content extraction
+    if (!state.hasMain) {
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'missing-main-for-ai', message: 'No <main> element — AI crawlers use this to identify primary content' });
     }
 
     // AEO: FAQPage schema
-    const allJsonLd = state.jsonLdContent.join(' ');
     const hasFaqPage = allJsonLd.includes('FAQPage');
     const hasSpeakable = allJsonLd.includes('speakable') || allJsonLd.includes('SpeakableSpecification');
+    const hasHowTo = allJsonLd.includes('HowTo');
+    const hasArticle = allJsonLd.includes('Article') || allJsonLd.includes('BlogPosting') || allJsonLd.includes('NewsArticle');
 
     if (!hasFaqPage) {
-      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'aeo', rule: 'missing-faqpage-schema', message: 'No FAQPage schema found in JSON-LD' });
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'aeo', rule: 'missing-faqpage-schema', message: 'No FAQPage schema — missed opportunity for featured snippets and voice answers' });
     }
     if (!hasSpeakable) {
-      findings.push({ file: relFile, line: 0, severity: 'low', category: 'aeo', rule: 'missing-speakable-schema', message: 'No speakable schema found in JSON-LD' });
+      findings.push({ file: relFile, line: 0, severity: 'low', category: 'aeo', rule: 'missing-speakable-schema', message: 'No speakable schema — voice assistants cannot identify readable content' });
+    }
+    if (!hasHowTo && !hasArticle) {
+      findings.push({ file: relFile, line: 0, severity: 'low', category: 'aeo', rule: 'missing-content-schema', message: 'No HowTo/Article/BlogPosting schema — add for rich result eligibility' });
     }
   }
 
@@ -247,6 +308,35 @@ function scanDirectory(rootDir) {
 
   if (!checkFileExists(robotsCandidates)) {
     findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'seo', rule: 'missing-robots-txt', message: 'No robots.txt found in root or public/' });
+    findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'missing-robots-ai-access', message: 'No robots.txt — cannot verify AI bot access (GPTBot, PerplexityBot, Claude-Web)' });
+  } else {
+    // Check robots.txt content for AI bot access
+    let robotsContent = '';
+    for (const candidate of robotsCandidates) {
+      try {
+        robotsContent = fs.readFileSync(candidate, 'utf8');
+        break;
+      } catch { /* continue */ }
+    }
+    if (robotsContent) {
+      const robotsLower = robotsContent.toLowerCase();
+      const hasGptBot = robotsLower.includes('gptbot');
+      const hasPerplexityBot = robotsLower.includes('perplexitybot');
+
+      // Check if AI bots are explicitly blocked
+      const gptBotBlocked = /user-agent:\s*gptbot[\s\S]*?disallow:\s*\//im.test(robotsContent);
+      const perplexityBlocked = /user-agent:\s*perplexitybot[\s\S]*?disallow:\s*\//im.test(robotsContent);
+
+      if (!hasGptBot && !hasPerplexityBot) {
+        findings.push({ file: 'robots.txt', line: 0, severity: 'medium', category: 'geo', rule: 'no-ai-bot-rules', message: 'No AI bot rules in robots.txt — explicitly allow GPTBot/PerplexityBot for GEO visibility' });
+      }
+      if (gptBotBlocked) {
+        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'gptbot-blocked', message: 'GPTBot is blocked in robots.txt — ChatGPT cannot cite your content' });
+      }
+      if (perplexityBlocked) {
+        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'perplexitybot-blocked', message: 'PerplexityBot is blocked in robots.txt — Perplexity cannot cite your content' });
+      }
+    }
   }
   if (!checkFileExists(sitemapCandidates)) {
     findings.push({ file: 'sitemap.xml', line: 0, severity: 'high', category: 'seo', rule: 'missing-sitemap', message: 'No sitemap.xml found in root or public/' });
