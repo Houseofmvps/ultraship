@@ -9,7 +9,24 @@ const dir = process.argv[2] || '.';
 const baseUrl = (process.argv[3] || 'https://example.com').replace(/\/$/, '');
 const absDir = path.resolve(dir);
 
-const content = `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}/sitemap.xml\n`;
+const content = `User-agent: *
+Allow: /
+
+# AI Search Bots — Allow for GEO (Generative Engine Optimization)
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: ${baseUrl}/sitemap.xml
+`;
 
 const publicDir = path.join(absDir, 'public');
 const outDir = fs.existsSync(publicDir) ? publicDir : absDir;

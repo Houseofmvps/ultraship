@@ -45,6 +45,8 @@ function parseHtmlFile(filePath) {
     hasTwitterCard: false,
     hasTwitterImage: false,
     hasCanonical: false,
+    hasNoindex: false,
+    hasNoodp: false,
     h1Count: 0,
     headingLevels: [],
     imagesWithoutAlt: 0,
@@ -82,6 +84,8 @@ function parseHtmlFile(filePath) {
 
           if (nameAttr === 'description' && content) state.hasMetaDescription = true;
           if (nameAttr === 'viewport') state.hasViewport = true;
+          if (nameAttr === 'robots' && content.toLowerCase().includes('noindex')) state.hasNoindex = true;
+          if (nameAttr === 'googlebot' && content.toLowerCase().includes('noindex')) state.hasNoindex = true;
           if (charset || httpEquiv === 'content-type') state.hasCharset = true;
           if (propAttr === 'og:title' && content) state.hasOgTitle = true;
           if (propAttr === 'og:description' && content) state.hasOgDescription = true;
@@ -202,6 +206,12 @@ function scanDirectory(rootDir) {
     if (!state) continue;
 
     const relFile = path.relative(absRoot, filePath);
+
+    // Critical: noindex blocks ALL search engines and AI bots
+    if (state.hasNoindex) {
+      findings.push({ file: relFile, line: 0, severity: 'critical', category: 'seo', rule: 'has-noindex', message: 'Page has <meta name="robots" content="noindex"> — invisible to ALL search engines and AI bots' });
+      findings.push({ file: relFile, line: 0, severity: 'critical', category: 'geo', rule: 'noindex-blocks-ai', message: 'noindex blocks AI crawlers (GPTBot, PerplexityBot, Claude-Web) — page cannot be cited in AI answers' });
+    }
 
     if (!state.hasTitle) {
       findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'missing-title', message: 'No <title> tag found' });
@@ -353,21 +363,52 @@ function scanDirectory(rootDir) {
     }
     if (robotsContent) {
       const robotsLower = robotsContent.toLowerCase();
+
+      // Check which AI bots are mentioned
       const hasGptBot = robotsLower.includes('gptbot');
       const hasPerplexityBot = robotsLower.includes('perplexitybot');
+      const hasClaudeWeb = robotsLower.includes('claude-web') || robotsLower.includes('claudebot');
+      const hasGoogleExtended = robotsLower.includes('google-extended');
+      const hasCCBot = robotsLower.includes('ccbot');
 
       // Check if AI bots are explicitly blocked
-      const gptBotBlocked = /user-agent:\s*gptbot[\s\S]*?disallow:\s*\//im.test(robotsContent);
-      const perplexityBlocked = /user-agent:\s*perplexitybot[\s\S]*?disallow:\s*\//im.test(robotsContent);
+      const botBlockPattern = (botName) => new RegExp(`user-agent:\\s*${botName}[\\s\\S]*?disallow:\\s*\\/`, 'im');
+      const gptBotBlocked = botBlockPattern('gptbot').test(robotsContent);
+      const perplexityBlocked = botBlockPattern('perplexitybot').test(robotsContent);
+      const claudeWebBlocked = botBlockPattern('claude-web|claudebot').test(robotsContent);
+      const googleExtBlocked = botBlockPattern('google-extended').test(robotsContent);
 
-      if (!hasGptBot && !hasPerplexityBot) {
-        findings.push({ file: 'robots.txt', line: 0, severity: 'medium', category: 'geo', rule: 'no-ai-bot-rules', message: 'No AI bot rules in robots.txt — explicitly allow GPTBot/PerplexityBot for GEO visibility' });
+      // No AI bot rules at all
+      if (!hasGptBot && !hasPerplexityBot && !hasClaudeWeb && !hasGoogleExtended) {
+        findings.push({ file: 'robots.txt', line: 0, severity: 'medium', category: 'geo', rule: 'no-ai-bot-rules', message: 'No AI bot rules in robots.txt — explicitly allow GPTBot, PerplexityBot, Claude-Web for AI search visibility' });
       }
+
+      // Individual bot blocks
       if (gptBotBlocked) {
-        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'gptbot-blocked', message: 'GPTBot is blocked in robots.txt — ChatGPT cannot cite your content' });
+        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'gptbot-blocked', message: 'GPTBot is blocked — ChatGPT Search cannot cite your content' });
       }
       if (perplexityBlocked) {
-        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'perplexitybot-blocked', message: 'PerplexityBot is blocked in robots.txt — Perplexity cannot cite your content' });
+        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'perplexitybot-blocked', message: 'PerplexityBot is blocked — Perplexity cannot cite your content' });
+      }
+      if (claudeWebBlocked) {
+        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'claudeweb-blocked', message: 'Claude-Web/ClaudeBot is blocked — Anthropic AI cannot cite your content' });
+      }
+      if (googleExtBlocked) {
+        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'google-extended-blocked', message: 'Google-Extended is blocked — content excluded from Google AI Overviews and Gemini' });
+      }
+
+      // Check if sitemap is referenced in robots.txt
+      if (!robotsLower.includes('sitemap:')) {
+        findings.push({ file: 'robots.txt', line: 0, severity: 'medium', category: 'seo', rule: 'robots-missing-sitemap-ref', message: 'robots.txt has no Sitemap: directive — AI bots use this to discover all pages' });
+        findings.push({ file: 'robots.txt', line: 0, severity: 'medium', category: 'geo', rule: 'robots-no-sitemap-for-ai', message: 'No Sitemap: in robots.txt — AI crawlers may miss pages without explicit sitemap reference' });
+      }
+
+      // Informational: CCBot status
+      if (hasCCBot) {
+        const ccBotBlocked = botBlockPattern('ccbot').test(robotsContent);
+        if (ccBotBlocked) {
+          findings.push({ file: 'robots.txt', line: 0, severity: 'low', category: 'geo', rule: 'ccbot-blocked', message: 'CCBot is blocked — Common Crawl data (used by many AI training sets) excluded. This is fine if intentional.' });
+        }
       }
     }
   }
