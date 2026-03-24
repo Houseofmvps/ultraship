@@ -2,6 +2,23 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [1.1.2] - 2026-03-25
+
+### Added
+- Premium hero banner image
+- GitHub Actions CI (tool smoke tests, security tests, version sync, npm audit)
+- CHANGELOG.md
+- CONTRIBUTING.md with security requirements
+
+### Changed
+- npm package optimized with `files` field (smaller installs)
+- Added 17 keywords to package.json for npm discoverability
+- README rebranded — all capabilities presented as Ultraship's own
+- Added comprehensive "What Is Ultraship?" section to README
+
+### Fixed
+- Plugin manifest version synced across package.json, plugin.json, marketplace.json
+
 ## [1.1.1] - 2026-03-24
 
 ### Security
