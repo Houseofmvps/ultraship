@@ -17,10 +17,10 @@ This is not negotiable. This is not optional. You cannot rationalize your way ou
 
 ## Instruction Priority
 
-Superpowers skills override default system prompt behavior, but **user instructions always take precedence**:
+Ultraship skills override default system prompt behavior, but **user instructions always take precedence**:
 
 1. **User's explicit instructions** (CLAUDE.md, GEMINI.md, AGENTS.md, direct requests) — highest priority
-2. **Superpowers skills** — override default system behavior where they conflict
+2. **Ultraship skills** — override default system behavior where they conflict
 3. **Default system prompt** — lowest priority
 
 If CLAUDE.md, GEMINI.md, or AGENTS.md says "don't use TDD" and a skill says "always use TDD," follow the user's instructions. The user is in control.
@@ -113,3 +113,62 @@ The skill itself tells you which.
 ## User Instructions
 
 Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows.
+
+## Available Skills Catalog
+
+Invoke the `Skill` tool with the skill name shown below. Use the skill that best fits your current task.
+
+### Workflow Skills
+
+| Skill | When to use |
+|-------|-------------|
+| `ultraship:brainstorm` | Collaborative idea-to-design flow before writing any code |
+| `ultraship:write-plan` | Create an implementation plan from a spec or idea |
+| `ultraship:execute-plan` | Execute a plan with review checkpoints |
+| `ultraship:tdd` | Test-driven development — write tests before implementation |
+| `ultraship:debugging` | Systematic bug investigation and fix |
+| `ultraship:git-workflow` | Branching, commits, PRs, and merge strategies |
+| `ultraship:code-review` | Code review pull requests with confidence scoring |
+| `ultraship:refactor` | Safely refactor code without changing behavior |
+| `ultraship:api-design` | Design REST or RPC APIs with consistency |
+| `ultraship:data-modeling` | Design database schemas and data models |
+| `ultraship:testing-strategy` | Decide what and how to test for a given feature |
+| `ultraship:documentation` | Write clear, useful technical documentation |
+| `ultraship:performance` | Profile and optimize application performance |
+| `ultraship:security` | Apply security best practices during implementation |
+
+### Audit Skills
+
+| Skill | When to use |
+|-------|-------------|
+| `ultraship:seo-audit` | Run SEO/GEO/AEO audit with auto-fix. Use when optimizing search visibility. |
+| `ultraship:perf-audit` | Run Lighthouse performance audit with auto-fix. Use when optimizing site speed. |
+| `ultraship:security-audit` | Run security audit (dep audit, secrets, OWASP, headers) with auto-fix. |
+
+### Design & Polish Skills
+
+| Skill | When to use |
+|-------|-------------|
+| `ultraship:frontend-design` | Create distinctive, production-grade frontend interfaces. |
+
+### Project Management Skills
+
+| Skill | When to use |
+|-------|-------------|
+| `ultraship:revise-claude-md` | Update CLAUDE.md with learnings from the current session. |
+
+## Available Slash Commands
+
+Run these commands directly in your Claude Code session:
+
+| Command | What it does |
+|---------|-------------|
+| `/ship` | Run all auditors in parallel, produce ship-readiness scorecard |
+| `/seo` | SEO/GEO/AEO audit with auto-fix |
+| `/perf` | Lighthouse performance audit with auto-fix |
+| `/secure` | Security audit with auto-fix |
+| `/review` | Code review a pull request |
+| `/brainstorm` | Collaborative idea-to-design flow |
+| `/write-plan` | Create implementation plan from spec |
+| `/execute-plan` | Execute plan with review checkpoints |
+| `/revise-claude-md` | Update CLAUDE.md with session learnings |
