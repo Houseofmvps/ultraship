@@ -48,8 +48,11 @@ function parseHtmlFile(filePath) {
     hasTwitterCard: false,
     hasTwitterImage: false,
     hasCanonical: false,
+    canonicalUrl: '',
     hasNoindex: false,
     hasHreflang: false,
+    hasAnalytics: false,
+    analyticsProvider: null,
     h1Count: 0,
     h1Text: '',
     headingLevels: [],
@@ -110,7 +113,7 @@ function parseHtmlFile(filePath) {
 
         if (tag === 'link') {
           const rel = (attrs.rel || '').toLowerCase();
-          if (rel === 'canonical' && attrs.href) state.hasCanonical = true;
+          if (rel === 'canonical' && attrs.href) { state.hasCanonical = true; state.canonicalUrl = attrs.href; }
           if (rel === 'alternate' && attrs.hreflang) state.hasHreflang = true;
         }
 
@@ -159,6 +162,29 @@ function parseHtmlFile(filePath) {
           state.inScript = true;
           state.scriptType = (attrs.type || '').toLowerCase();
           state.scriptContent = '';
+          // Detect analytics from script src
+          const src = (attrs.src || '').toLowerCase();
+          if (src.includes('googletagmanager.com') || src.includes('gtag/js') || src.includes('google-analytics.com')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'google-analytics';
+          } else if (src.includes('plausible.io')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'plausible';
+          } else if (src.includes('posthog')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'posthog';
+          } else if (src.includes('amplitude')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'amplitude';
+          } else if (src.includes('mixpanel')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'mixpanel';
+          } else if (src.includes('segment')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'segment';
+          } else if (src.includes('hotjar')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'hotjar';
+          } else if (src.includes('clarity.ms') || src.includes('clarity.microsoft')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'microsoft-clarity';
+          } else if (src.includes('fathom')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'fathom';
+          } else if (src.includes('umami')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'umami';
+          }
         }
       },
 
@@ -179,6 +205,19 @@ function parseHtmlFile(filePath) {
         }
         if (state.inScript && state.scriptType === 'application/ld+json') {
           state.scriptContent += text;
+        }
+        // Detect inline analytics scripts
+        if (state.inScript && !state.hasAnalytics && text.length > 10) {
+          const t = text.toLowerCase();
+          if (t.includes('gtag(') || t.includes('ga(') || t.includes('_gaq')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'google-analytics';
+          } else if (t.includes('plausible')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'plausible';
+          } else if (t.includes('posthog.init')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'posthog';
+          } else if (t.includes('mixpanel.init')) {
+            state.hasAnalytics = true; state.analyticsProvider = 'mixpanel';
+          }
         }
       },
 
@@ -280,6 +319,41 @@ function scanDirectory(rootDir) {
       if (files.length > 1) {
         for (const f of files) {
           findings.push({ file: f, line: 0, severity: 'high', category: 'seo', rule: 'duplicate-meta-description', message: `Duplicate meta description shared with ${files.length - 1} other page(s) — each page needs unique description` });
+        }
+      }
+    }
+  }
+
+  // Cross-page canonical conflict detection
+  if (pageData.length > 1) {
+    const canonicalMap = new Map(); // canonical URL → [files pointing to it]
+    for (const { relFile, state } of pageData) {
+      if (state.canonicalUrl) {
+        const c = state.canonicalUrl.trim().toLowerCase().replace(/\/$/, '');
+        if (!canonicalMap.has(c)) canonicalMap.set(c, []);
+        canonicalMap.get(c).push(relFile);
+      }
+    }
+    // Multiple different pages pointing to the same canonical = potential conflict
+    for (const [, files] of canonicalMap) {
+      if (files.length > 1) {
+        for (const f of files) {
+          findings.push({ file: f, line: 0, severity: 'high', category: 'seo', rule: 'canonical-conflict', message: `${files.length} pages share the same canonical URL — search engines may ignore the wrong pages` });
+        }
+      }
+    }
+    // Page whose canonical points to a different page (self-referencing check)
+    for (const { relFile, state } of pageData) {
+      if (state.canonicalUrl) {
+        const canonical = state.canonicalUrl.trim().toLowerCase();
+        const selfPath = '/' + relFile.replace(/\\/g, '/');
+        // If canonical doesn't contain the file's own path, it might be pointing elsewhere
+        if (!canonical.endsWith(selfPath) && !canonical.endsWith(selfPath.replace(/\.html?$/, '')) && !canonical.endsWith(selfPath.replace(/\/index\.html?$/, '/'))) {
+          // Only flag if it's a relative/absolute path pointing to another local file
+          const isExternal = canonical.startsWith('http');
+          if (!isExternal) {
+            findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'canonical-points-elsewhere', message: `Canonical URL "${state.canonicalUrl}" points to a different page — this page may be de-indexed` });
+          }
         }
       }
     }
@@ -450,6 +524,11 @@ function scanDirectory(rootDir) {
     const hasSpeakable = allJsonLd.includes('speakable') || allJsonLd.includes('SpeakableSpecification');
     const hasHowTo = allJsonLd.includes('HowTo');
     const hasArticle = allJsonLd.includes('Article') || allJsonLd.includes('BlogPosting') || allJsonLd.includes('NewsArticle');
+
+    // Analytics tracking check
+    if (!state.hasAnalytics) {
+      findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'no-analytics', message: 'No analytics tracking detected (GA4, Plausible, PostHog, etc.) — you cannot measure traffic or conversions' });
+    }
 
     if (!hasFaqPage) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'aeo', rule: 'missing-faqpage-schema', message: 'No FAQPage schema — missed opportunity for featured snippets and voice answers' });

@@ -73,6 +73,18 @@ Lighthouse audits via headless Chrome. Auto-fixes image formats, defers non-crit
 ### Security
 Dependency audit (npm/pnpm), secret scanning, OWASP Top 10 checklist, HTTP security header validation. Blocks ship if critical vulnerabilities are found.
 
+### Deploy
+Pre-flight checks (env validation, migration safety, bundle size) → audit → deploy → health check. Closes the loop from code to production. Supports Vercel (git push), Railway, Fly.io, Cloudflare Workers, and CI/CD pipelines.
+
+### Content Quality
+Readability scoring (Flesch-Kincaid), keyword density analysis, GEO heading optimization, thin content detection, wall-of-text warnings. Optional target keyword tracking.
+
+### Production Health
+Post-deploy health checks: HTTP status, response time, SSL certificate validity and expiry, redirect chain detection, security header audit. Catches issues before users do.
+
+### Bundle Analysis
+Build output size tracking with history, heavy dependency detection with lighter alternatives, source map warnings, unoptimized image detection. Saves reports for before/after comparison.
+
 ### Browser Testing
 Playwright smoke tests auto-generated from your routes. Runs login, navigation, and form flows. Outputs pass/fail per route with screenshots on failure.
 
@@ -86,11 +98,16 @@ Generates a CLAUDE.md from your project structure if none exists. Audits existin
 | Command | Description |
 |---|---|
 | `/ship` | Full pre-deploy audit — runs all checks and returns the scorecard |
+| `/deploy` | Pre-flight checks → deploy → health check (closes the audit-to-production loop) |
 | `/review` | Code review of staged changes or a PR |
 | `/design` | Generate a UI component from a description |
 | `/seo` | Run SEO/GEO/AEO audit only |
 | `/perf` | Run Lighthouse performance audit only |
 | `/security` | Run security scan only |
+| `/health` | Health check a production URL (status, SSL, response time, headers) |
+| `/content` | Content quality analysis (readability, keyword density, GEO scoring) |
+| `/redirects` | Check URLs for redirect chains, loops, and mixed protocols |
+| `/bundle` | Track bundle size, detect heavy dependencies, compare builds |
 | `/test` | Generate and run Playwright smoke tests |
 | `/workflow` | Access the 14 workflow skills interactively |
 | `/claude-md` | Create or audit CLAUDE.md for this project |
@@ -118,10 +135,10 @@ No configuration required. Ultraship reads your project structure, package.json,
 
 | Layer | Count | Details |
 |---|---|---|
-| Skills | 20 | 14 workflow + 6 specialist skills |
+| Skills | 21 | 14 workflow + 7 specialist skills (incl. deploy) |
 | Agents | 5 | ship, review, seo, security, browser |
-| Commands | 9 | /ship, /review, /design, /seo, /perf, /security, /test, /workflow, /claude-md |
-| Tools | 9 | audit, scan, lighthouse, playwright, diff, schema, sitemap, headers, secrets |
+| Commands | 14 | /ship, /deploy, /review, /design, /seo, /perf, /security, /health, /content, /redirects, /bundle, /test, /workflow, /claude-md |
+| Tools | 16 | SEO scanner, content scorer, OG validator, redirect checker, Lighthouse, health check, env validator, migration checker, bundle tracker, audit history, GSC client, Bing client, secret scanner, sitemap/robots/structured-data generators |
 | Hook | 1 | pre-commit hook that blocks on critical security findings |
 | MCP Servers | 2 | context7 (live docs), playwright (browser automation) |
 

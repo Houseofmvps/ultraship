@@ -112,15 +112,88 @@ function main() {
         id: audit.id,
         severity: audit.score <= 0.49 ? 'high' : 'medium',
         savings_ms: Math.round(audit.details.overallSavingsMs || 0),
+        savings_bytes: Math.round(audit.details.overallSavingsBytes || 0),
         message: audit.title,
+        description: audit.description ? audit.description.replace(/\[.*?\]\(.*?\)/g, '').trim().slice(0, 200) : '',
       }))
       .sort((a, b) => b.savings_ms - a.savings_ms)
       .slice(0, 10);
 
+    // Extract Core Web Vitals metrics
+    const cwv = {};
+    if (audits['largest-contentful-paint']) cwv.lcp = { value: audits['largest-contentful-paint'].numericValue, unit: 'ms', score: audits['largest-contentful-paint'].score };
+    if (audits['interactive']) cwv.tti = { value: audits['interactive'].numericValue, unit: 'ms', score: audits['interactive'].score };
+    if (audits['cumulative-layout-shift']) cwv.cls = { value: audits['cumulative-layout-shift'].numericValue, unit: '', score: audits['cumulative-layout-shift'].score };
+    if (audits['total-blocking-time']) cwv.tbt = { value: audits['total-blocking-time'].numericValue, unit: 'ms', score: audits['total-blocking-time'].score };
+    if (audits['first-contentful-paint']) cwv.fcp = { value: audits['first-contentful-paint'].numericValue, unit: 'ms', score: audits['first-contentful-paint'].score };
+    if (audits['speed-index']) cwv.si = { value: audits['speed-index'].numericValue, unit: 'ms', score: audits['speed-index'].score };
+
+    // Extract diagnostics (failed audits that aren't opportunities)
+    const diagnostics = Object.values(audits)
+      .filter(audit => {
+        return (
+          audit.score !== null &&
+          audit.score < 1 &&
+          audit.details &&
+          audit.details.type !== 'opportunity' &&
+          audit.id !== 'largest-contentful-paint' &&
+          audit.id !== 'cumulative-layout-shift' &&
+          audit.id !== 'total-blocking-time' &&
+          audit.id !== 'first-contentful-paint' &&
+          audit.id !== 'speed-index' &&
+          audit.id !== 'interactive'
+        );
+      })
+      .map(audit => ({
+        id: audit.id,
+        severity: audit.score === 0 ? 'high' : 'medium',
+        message: audit.title,
+        description: audit.description ? audit.description.replace(/\[.*?\]\(.*?\)/g, '').trim().slice(0, 200) : '',
+      }))
+      .slice(0, 15);
+
+    // Extract LCP element if available
+    const lcpAudit = audits['largest-contentful-paint-element'];
+    let lcpElement = null;
+    if (lcpAudit && lcpAudit.details && lcpAudit.details.items && lcpAudit.details.items[0]) {
+      const item = lcpAudit.details.items[0];
+      lcpElement = item.node ? item.node.snippet || item.node.selector : null;
+    }
+
+    // Extract unused JS/CSS
+    const unusedJs = audits['unused-javascript'];
+    const unusedCss = audits['unused-css-rules'];
+    const wastedResources = {};
+    if (unusedJs && unusedJs.details && unusedJs.details.overallSavingsBytes) {
+      wastedResources.unused_js_kb = Math.round(unusedJs.details.overallSavingsBytes / 1024);
+    }
+    if (unusedCss && unusedCss.details && unusedCss.details.overallSavingsBytes) {
+      wastedResources.unused_css_kb = Math.round(unusedCss.details.overallSavingsBytes / 1024);
+    }
+
+    // Extract third-party impact
+    const thirdParty = audits['third-party-summary'];
+    let thirdPartyImpact = null;
+    if (thirdParty && thirdParty.details && thirdParty.details.items) {
+      thirdPartyImpact = thirdParty.details.items
+        .map(item => ({
+          entity: item.entity,
+          transfer_size_kb: Math.round((item.transferSize || 0) / 1024),
+          blocking_time_ms: Math.round(item.blockingTime || 0),
+        }))
+        .filter(item => item.blocking_time_ms > 50 || item.transfer_size_kb > 50)
+        .slice(0, 5);
+    }
+
     const result = {
       url,
       scores,
+      core_web_vitals: cwv,
+      lcp_element: lcpElement,
+      wasted_resources: wastedResources,
+      third_party_impact: thirdPartyImpact,
       opportunities,
+      diagnostics,
       error: null,
     };
 

@@ -13,6 +13,22 @@ Examine the project to determine type:
 - **Landing page**: Static HTML or SSG config, minimal backend logic → emphasize SEO + perf
 - **Full-stack**: Both frontend and backend code → run everything
 
+## Step 1b: Pre-Flight Checks
+
+Run these before auditing:
+
+**Environment Validation:**
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/env-validator.mjs <project-directory>
+```
+If missing env vars → flag as critical finding.
+
+**Migration Safety:**
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/migration-checker.mjs <project-directory>
+```
+If pending migrations → flag as warning.
+
 ## Step 2: Dispatch Auditors
 
 Use the ultraship:dispatching-parallel-agents skill to run these agents:
@@ -22,6 +38,13 @@ Use the ultraship:dispatching-parallel-agents skill to run these agents:
 3. **security-auditor** — Run dep audit + secret scan + OWASP pattern check
 4. **code-reviewer** — Review staged changes or recent commits for quality
 5. **browser-verifier** — Smoke-test the running app with Playwright (skip for API-only)
+
+Additional checks (run inline, not as agents):
+6. **content-scorer** — Readability and content quality analysis (skip for API-only)
+7. **og-validator** — Social preview tag validation (skip for API-only)
+8. **bundle-tracker** — Bundle size analysis and heavy dependency detection
+9. **code-profiler** — N+1 queries, sync I/O, memory leaks, missing indexes
+10. **dep-doctor** — Unused and outdated dependency detection
 
 ## Step 3: Collect & Score
 

@@ -60,12 +60,25 @@ If missing, generate middleware snippet for the project's framework:
 - **Express**: helmet middleware
 - **Next.js**: next.config.js headers
 
-### Step 5: Apply Fixes
+### Step 5: Dependency Health
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/dep-doctor.mjs <project-directory>
+```
+
+Report:
+- **Unused production deps** → recommend removal (reduces attack surface + install size)
+- **Unused dev deps** → suggest cleanup
+- **Pinned versions** → suggest using ^ for patch updates
+- **Outdated major versions** → flag security risk of old packages
+
+### Step 6: Apply Fixes
 
 - Auto-fix safe dependency updates
 - Add .env to .gitignore if missing
 - Replace dangerous patterns with safe alternatives
 - Generate security header middleware file
+- Remove confirmed unused dependencies
 
 ## Key Principle
 

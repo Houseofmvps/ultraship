@@ -24,26 +24,66 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/lighthouse-runner.mjs <url>
 
 Parse JSON output for scores and opportunities.
 
-### Step 3: Report Scores
+### Step 3: Report Scores & Core Web Vitals
 
 Present all four Lighthouse scores:
-- Performance (LCP, INP, CLS, FCP, TTFB, SI)
-- Accessibility
-- Best Practices
-- SEO
+- Performance (target 90+)
+- Accessibility (target 90+)
+- Best Practices (target 90+)
+- SEO (target 100)
 
-### Step 4: Apply Fixes
+Report Core Web Vitals with targets:
+- **LCP** (Largest Contentful Paint): target <2.5s — report the LCP element from `lcp_element`
+- **TBT** (Total Blocking Time): target <200ms — proxy for INP
+- **CLS** (Cumulative Layout Shift): target <0.1
+- **FCP** (First Contentful Paint): target <1.8s
+- **SI** (Speed Index): target <3.4s
 
-For each opportunity found, apply fixes using Edit tool:
+### Step 4: Identify Root Causes
 
-- **Render-blocking resources** → add `defer` attribute to non-critical scripts
-- **Images not lazy-loaded** → add `loading="lazy"` to below-fold `<img>` tags
+Before fixing, identify what's actually causing problems:
+
+**LCP too high?** Check `lcp_element` in results — fix THAT specific element:
+- If it's an `<img>`: preload it, use WebP, add fetchpriority="high"
+- If it's text: check web font loading, add font-display: swap
+- If it's a background image: preload via `<link rel="preload">`
+
+**CLS too high?** Check diagnostics for layout shift sources:
+- Images without width/height → add dimensions (scanner already checks this)
+- Dynamic content injected above fold → reserve space with CSS
+- Web fonts causing FOUT → add font-display: optional or swap
+
+**Unused resources?** Check `wasted_resources`:
+- `unused_js_kb` > 100KB → code splitting or tree shaking needed
+- `unused_css_kb` > 50KB → purge unused CSS (PurgeCSS, Tailwind purge)
+
+**Third-party scripts slow?** Check `third_party_impact`:
+- Analytics blocking >100ms → defer/async load
+- Ad scripts blocking >200ms → lazy load below fold
+- Chat widgets → load on user interaction, not page load
+
+### Step 5: Apply Fixes
+
+For each opportunity, apply fixes using Edit tool:
+
+**Performance fixes (high impact first):**
+- **Render-blocking resources** → add `defer` or `async` to non-critical scripts
+- **Unused JavaScript** → recommend code splitting, dynamic imports, tree shaking
+- **Unused CSS** → recommend PurgeCSS or Tailwind purge config
+- **LCP image not preloaded** → add `<link rel="preload" as="image" href="...">`
+- **Images not lazy-loaded** → add `loading="lazy"` to below-fold images
 - **Images without dimensions** → add `width` and `height` attributes
 - **No preconnect** → add `<link rel="preconnect" href="...">` for external origins
 - **Font display** → add `font-display: swap` to @font-face declarations
-- **Unminified CSS/JS** → recommend build tool config (not auto-applied)
+- **Third-party scripts** → defer non-essential scripts, lazy load on interaction
 
-### Step 5: Graceful Degradation
+**Accessibility fixes:**
+- Missing alt text (also caught by SEO scanner)
+- Missing form labels → add `<label>` elements
+- Low contrast → adjust colors
+- Missing landmark regions → add `<main>`, `<nav>`, `<footer>`
+
+### Step 6: Graceful Degradation
 
 - **No Chrome**: report "Chrome needed for Lighthouse. Install Chrome or Chromium."
 - **Lighthouse timeout**: return partial results with warning
@@ -51,4 +91,4 @@ For each opportunity found, apply fixes using Edit tool:
 
 ## Key Principle
 
-**Fix, don't just audit.** Apply every automated fix possible.
+**Fix, don't just audit.** Identify the specific elements causing problems. Apply every automated fix possible. For build-tool changes (code splitting, tree shaking), provide exact config recommendations.

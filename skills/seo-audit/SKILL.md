@@ -50,17 +50,84 @@ For each finding, apply the appropriate fix:
 - Missing FAQ schema → create FAQPage structured data from page content
 - Snippet optimization → restructure key answers to 40-60 words
 
-### Phase 4: GSC/Bing Submit (Optional)
+### Phase 4: Search Engine Registration (GSC + Bing)
 
-If environment variables are configured:
+**Google Search Console** (requires ULTRASHIP_GSC_CREDENTIALS):
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/tools/gsc-client.mjs submit-sitemap <sitemap-url>
-node ${CLAUDE_PLUGIN_ROOT}/tools/bing-webmaster.mjs submit-sitemap <sitemap-url>
+# Submit sitemap
+node ${CLAUDE_PLUGIN_ROOT}/tools/gsc-client.mjs submit-sitemap <site-url> <sitemap-url>
+
+# Check if pages are indexed
+node ${CLAUDE_PLUGIN_ROOT}/tools/gsc-client.mjs inspect-url <site-url> <page-url>
+
+# See what keywords you rank for
+node ${CLAUDE_PLUGIN_ROOT}/tools/gsc-client.mjs query <site-url> 28
+
+# List all submitted sitemaps
+node ${CLAUDE_PLUGIN_ROOT}/tools/gsc-client.mjs list-sitemaps <site-url>
 ```
+
+**Bing Webmaster Tools** (requires ULTRASHIP_BING_KEY):
+```bash
+# Submit sitemap (also powers DuckDuckGo + ChatGPT Search)
+node ${CLAUDE_PLUGIN_ROOT}/tools/bing-webmaster.mjs submit-sitemap <site-url> <sitemap-url>
+
+# Submit specific URLs for fast indexing
+node ${CLAUDE_PLUGIN_ROOT}/tools/bing-webmaster.mjs submit-url <site-url> <page-url>
+
+# Batch submit multiple URLs
+node ${CLAUDE_PLUGIN_ROOT}/tools/bing-webmaster.mjs submit-url-batch <site-url> <url1> <url2> ...
+
+# Check URL traffic
+node ${CLAUDE_PLUGIN_ROOT}/tools/bing-webmaster.mjs url-info <site-url> <page-url>
+```
+
+If credentials are not set, show setup instructions from the tool's error output. Do NOT skip this phase — submitting sitemaps to both GSC and Bing is critical for indexing speed.
+
+**Why Bing matters for AI search:** Bing's index powers ChatGPT Search, DuckDuckGo, and Yahoo. Submitting your sitemap to Bing directly improves AI search visibility.
+
+### Phase 4b: Content Quality Analysis
+
+Run content scoring on all pages:
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/content-scorer.mjs <project-directory>
+```
+
+For pages with a known target keyword:
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/content-scorer.mjs <project-directory> --keyword=<keyword>
+```
+
+Report readability scores (Flesch-Kincaid), keyword density, thin content, and GEO heading optimization.
+
+### Phase 4c: Social Preview Validation
+
+Validate Open Graph tags and image accessibility:
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/og-validator.mjs <project-directory>
+```
+
+Fix missing OG tags, broken OG images, and oversized preview images.
+
+### Phase 4d: Redirect Audit
+
+If a production URL is available, check for redirect chains:
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/redirect-checker.mjs --sitemap=<sitemap-url>
+```
+
+Fix redirect chains (consolidate to single hop), convert 302s to 301s, and resolve mixed HTTP/HTTPS.
 
 ### Phase 5: Verify
 
 Re-run the scanner to confirm fixes and report before/after scores.
+
+Save scores for historical comparison:
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/audit-history.mjs save <project-dir> seo <score>
+node ${CLAUDE_PLUGIN_ROOT}/tools/audit-history.mjs save <project-dir> geo <score>
+node ${CLAUDE_PLUGIN_ROOT}/tools/audit-history.mjs save <project-dir> aeo <score>
+```
 
 ### Phase 6: AI Search Content Strategy
 
@@ -121,6 +188,38 @@ For each existing content page, recommend one of:
 - Dashboards / app pages: target Lighthouse 70+ (not search-indexed)
 - API-only backends: skip Lighthouse entirely
 
+### Phase 8: Domain Authority & Backlink Strategy
+
+Ultraship cannot check backlinks (requires paid APIs like Ahrefs/Semrush with massive crawl indexes). Instead, provide strategic guidance that a $10K/month SEO consultant would give:
+
+**Internal Link Optimization (we CAN automate):**
+The scanner already detects orphan pages and pages with zero internal links. After fixing those:
+- Ensure every important page has 3+ internal links pointing to it
+- Use descriptive anchor text with keywords (not "click here" or "read more")
+- Add contextual links within content, not just navigation
+- Create hub pages that link to all related content (topic clusters)
+
+**Backlink Acquisition Strategy (guidance for user):**
+
+*High-value link building tactics (ranked by ROI):*
+1. **Create link-worthy assets** — original research, data studies, industry surveys, free tools, calculators. These attract natural links.
+2. **Guest posting** — write for authoritative sites in your niche. One link from a DR60+ site > 100 links from spam sites.
+3. **Broken link building** — find broken links on competitor sites, offer your content as replacement.
+4. **HARO/Qwoted/Featured** — respond to journalist queries to earn media mentions with backlinks.
+5. **Competitor backlink analysis** — use Ahrefs/Semrush free trials to find where competitors get links, then target the same sources.
+6. **Strategic partnerships** — co-create content with complementary businesses, cross-link naturally.
+
+*What NOT to do:*
+- Never buy links (Google penalizes this)
+- Never use PBNs (private blog networks)
+- Never spam forum/comment links
+- Never use automated link building tools
+
+**Domain Authority Monitoring (guidance for user):**
+- Check DA/DR monthly via free Ahrefs Webmaster Tools or Moz free tier
+- Track referring domains, not just total backlinks (10 links from 10 domains > 100 links from 1 domain)
+- Monitor for toxic backlinks quarterly and disavow via GSC if needed
+
 ## Key Principle
 
-**Fix, don't just audit.** Every finding should have a concrete fix applied. Every content page should have a strategy to be cited by AI. Every client engagement should include a content audit alongside technical fixes.
+**Fix, don't just audit.** Every finding should have a concrete fix applied. Every content page should have a strategy to be cited by AI. Every client engagement should include technical fixes + content audit + backlink strategy.
