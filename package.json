@@ -9,6 +9,38 @@
     "type": "git",
     "url": "https://github.com/Houseofmvps/ultraship"
   },
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "claude",
+    "seo",
+    "geo",
+    "aeo",
+    "lighthouse",
+    "security",
+    "code-review",
+    "deploy",
+    "indie-hacker",
+    "saas",
+    "ai",
+    "developer-tools",
+    "performance",
+    "browser-testing",
+    "workflow"
+  ],
+  "files": [
+    ".claude-plugin/",
+    "skills/",
+    "agents/",
+    "commands/",
+    "tools/",
+    "hooks/",
+    ".mcp.json",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "CLAUDE.md"
+  ],
   "dependencies": {
     "htmlparser2": "^9.1.0"
   }

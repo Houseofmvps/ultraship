@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify tools load without errors
+        run: |
+          for tool in tools/*.mjs; do
+            echo "Testing: $tool"
+            node -e "import('./$tool')" 2>&1 || exit 1
+          done
+
+      - name: Run tool smoke tests
+        run: |
+          # SEO scanner - empty directory should return 0 findings
+          result=$(node tools/seo-scanner.mjs /tmp)
+          echo "$result" | node -e "
+            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if (typeof d.files_scanned !== 'number') process.exit(1);
+          "
+          echo "seo-scanner: OK"
+
+          # Content scorer - empty directory
+          result=$(node tools/content-scorer.mjs /tmp)
+          echo "$result" | node -e "
+            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if (!Array.isArray(d.files)) process.exit(1);
+          "
+          echo "content-scorer: OK"
+
+          # Env validator - no .env.example
+          result=$(node tools/env-validator.mjs /tmp)
+          echo "$result" | node -e "
+            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if (typeof d.status !== 'string') process.exit(1);
+          "
+          echo "env-validator: OK"
+
+          # Bundle tracker - empty dir
+          result=$(node tools/bundle-tracker.mjs /tmp)
+          echo "$result" | node -e "
+            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if (typeof d !== 'object') process.exit(1);
+          "
+          echo "bundle-tracker: OK"
+
+          # Migration checker
+          result=$(node tools/migration-checker.mjs /tmp)
+          echo "$result" | node -e "
+            const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+            if (typeof d !== 'object') process.exit(1);
+          "
+          echo "migration-checker: OK"
+
+      - name: Verify security module exports
+        run: |
+          node -e "
+            import { validateUrl, checkFileSize, createResponseAccumulator, MAX_RESPONSE_SIZE } from './tools/lib/security.mjs';
+            const tests = [
+              ['http://169.254.169.254/latest/meta-data', false, 'block metadata IP'],
+              ['http://127.0.0.1/admin', false, 'block localhost IP'],
+              ['ftp://example.com', false, 'block non-HTTP'],
+              ['https://example.com', true, 'allow public HTTPS'],
+              ['http://metadata.google.internal', false, 'block cloud metadata'],
+              ['http://10.0.0.1', false, 'block 10.x'],
+              ['http://192.168.1.1', false, 'block 192.168.x'],
+              ['http://172.16.0.1', false, 'block 172.16.x'],
+            ];
+            for (const [url, expected, label] of tests) {
+              const r = validateUrl(url);
+              if (r.valid !== expected) { console.error('FAIL:', label); process.exit(1); }
+            }
+            console.log('All security tests passed');
+          "
+
+      - name: Verify plugin manifest versions match
+        run: |
+          node -e "
+            import { readFileSync } from 'fs';
+            const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+            const plugin = JSON.parse(readFileSync('.claude-plugin/plugin.json', 'utf8'));
+            const marketplace = JSON.parse(readFileSync('.claude-plugin/marketplace.json', 'utf8'));
+            if (plugin.version !== pkg.version) {
+              console.error('Mismatch: plugin.json=' + plugin.version + ' package.json=' + pkg.version);
+              process.exit(1);
+            }
+            if (marketplace.plugins[0].version !== pkg.version) {
+              console.error('Mismatch: marketplace.json=' + marketplace.plugins[0].version);
+              process.exit(1);
+            }
+            console.log('Versions synced: ' + pkg.version);
+          "
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm audit
+        run: npm audit --omit=dev || true
+
+      - name: Check for hardcoded secrets in source
+        run: |
+          if grep -rn 'AKIA\|sk-\|ghp_\|gho_\|github_pat_\|xoxb-\|xoxp-' tools/ --include='*.mjs' | grep -v 'pattern\|regex\|PATTERN'; then
+            echo "FAIL: Possible hardcoded secrets found"
+            exit 1
+          fi
+          echo "No hardcoded secrets found"
