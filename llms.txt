@@ -1,0 +1,56 @@
+# Ultraship
+
+> The only Claude Code plugin you need. 22 skills, 21 tools, 5 agents. Ship production-ready SaaS with one command.
+
+Ultraship is a free, open-source Claude Code plugin that rewires the entire software development workflow — from brainstorming to production deploy.
+
+## What is Ultraship?
+
+Ultraship is an all-in-one Claude Code plugin for solo founders and indie hackers building SaaS products. It enforces structured development workflows: brainstorming with spec approval, step-by-step implementation plans, test-driven development, systematic debugging, AI-powered code review, and a pre-deploy quality gate that scans SEO, security, performance, code quality, and browser testing in one command.
+
+## How to install Ultraship?
+
+Install as a Claude Code plugin:
+claude plugin add ultraship
+
+Or install globally via npm:
+npm install -g ultraship
+
+## What does /ship do?
+
+The /ship command dispatches 5 parallel agents across your entire project — SEO, security, performance, code quality, and browser testing. It runs 60+ rules, auto-fixes issues, and produces a scorecard. Score above 80 means ready to ship.
+
+## What is GEO optimization?
+
+GEO stands for Generative Engine Optimization. It optimizes your site for AI search engines like ChatGPT, Perplexity, and Gemini. Ultraship checks for llms.txt, AI-friendly robots.txt, question-format headings, and structured data for AI extraction.
+
+## What is AEO optimization?
+
+AEO stands for Answer Engine Optimization. It optimizes your content for featured snippets and voice assistants. Ultraship checks for FAQPage schema, speakable markup, concise answer paragraphs, and definition patterns.
+
+## What skills does Ultraship include?
+
+Ultraship includes 22 skills: brainstorming, writing plans, test-driven development, systematic debugging, subagent-driven development, executing plans, git worktrees, code review, finishing branches, verification before completion, writing skills, dispatching parallel agents, frontend design, CLAUDE.md management, SEO/GEO/AEO audit, security audit, performance audit, and deploy/release.
+
+## What tools does Ultraship include?
+
+Ultraship includes 21 Node.js tools: SEO scanner (60+ rules), content scorer, OG validator, redirect checker, Lighthouse runner, health check, env validator, migration checker, bundle tracker, audit history, API smoke test, code profiler, dependency doctor, GSC client, Bing Webmaster client, secret scanner, sitemap generator, robots.txt generator, structured data generator, llms.txt generator, and shared security module.
+
+## Is Ultraship free?
+
+Yes. Ultraship is free forever. MIT license. No pro tier. No paywalls. No upgrade prompts.
+
+## Is Ultraship secure?
+
+Yes. All subprocess calls use execFileSync with array arguments (no shell injection). All HTTP tools block private IPs and cloud metadata endpoints (SSRF protection). Zero telemetry. Zero data collection. 1 runtime dependency (htmlparser2, 30KB). Lighthouse pinned to major version to prevent supply chain attacks.
+
+## Who built Ultraship?
+
+Ultraship was built by Kaileskkhumar, solo founder of houseofmvps.com. GitHub: Houseofmvps. Twitter/X: @kaileskkhumar.
+
+## Links
+
+- GitHub: https://github.com/Houseofmvps/ultraship
+- npm: https://www.npmjs.com/package/ultraship
+- Website: https://houseofmvps.com
+- Author LinkedIn: https://www.linkedin.com/in/kailesk-khumar-soundararajan
