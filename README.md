@@ -92,18 +92,44 @@ Then in any project:
 
 ---
 
+## What Is Ultraship?
+
+Ultraship is an **all-in-one Claude Code plugin** that turns Claude into a full development team. It's not a single tool — it's **22 skills, 18 commands, 21 tools, 5 agents, and 2 MCP servers** working together as one system.
+
+**Here's what it actually does:**
+
+**1. It thinks before it builds.** Ultraship has a built-in brainstorming skill that walks you through idea-to-spec. It asks questions one at a time, proposes approaches with trade-offs, writes a design doc, reviews it, and then creates a step-by-step implementation plan — all before touching code. No more "Claude built the wrong thing."
+
+**2. It writes code the right way.** Test-driven development is enforced: write failing test, run it, implement, run again, commit. Subagent-driven development dispatches fresh agents per task with two-stage review (spec compliance + code quality). Systematic debugging traces root causes instead of guessing.
+
+**3. It audits everything before you ship.** One `/ship` command runs 5 parallel agents across SEO/GEO/AEO (60+ rules), performance (Lighthouse + Core Web Vitals), security (secrets, deps, OWASP), code quality (N+1, memory leaks, sync I/O), and browser testing (automated smoke tests). Auto-fixes what it can. Gives you a score.
+
+**4. It optimizes for AI search engines.** Ultraship doesn't just check meta tags — it checks if ChatGPT, Perplexity, and Gemini can find and cite your content. It generates `llms.txt`, AI-friendly `robots.txt`, structured data, and sitemaps. Most SEO tools don't even know GEO exists.
+
+**5. It fetches real documentation.** Built-in live docs lookup means Claude gets current, accurate API references for any library — React, Hono, Drizzle, Stripe, anything. No more hallucinated methods that don't exist.
+
+**6. It tests in a real browser.** Built-in browser automation lets Claude navigate your running app, fill forms, click buttons, and verify everything works — without you writing test files.
+
+**7. It manages your project memory.** Auto-creates and maintains `CLAUDE.md` so Claude always knows your project's stack, conventions, and decisions. Alerts you when it's stale.
+
+**8. It deploys and monitors.** Full pipeline: env validation, migration safety check, bundle analysis, ship audit, deploy, health check, score history. One command.
+
+**Every skill chains together:** brainstorm → plan → TDD → review → ship → deploy → release. That's the Ultraship workflow.
+
+---
+
 ## What Ultraship Replaces
 
-| Plugin you're using now | What Ultraship gives you instead |
+| What you're doing now | What Ultraship gives you instead |
 |---|---|
-| **superpowers** | 14 workflow skills: brainstorming, TDD, debugging, planning, code review, git worktrees |
-| **context7** | Live documentation lookups via integrated MCP server |
-| **playwright** | Smoke test generation and browser test execution |
-| **code-review plugins** | PR review with confidence scoring, severity tagging, inline comments |
-| **frontend-design** | Production-grade UI generation (Tailwind + shadcn/ui) |
-| **claude-md-management** | CLAUDE.md auto-creation, auditing, and revision |
+| **Multiple workflow plugins** | 14 built-in workflow skills: brainstorming, TDD, debugging, planning, code review, git worktrees |
+| **Searching outdated docs** | Live documentation lookups via built-in MCP server — always current, never hallucinated |
+| **Manual browser testing** | Automated smoke tests and full browser automation built in |
+| **Separate code review plugins** | PR review with confidence scoring, severity tagging, inline comments |
+| **Generic UI generators** | Production-grade frontend design (Tailwind + shadcn/ui) |
+| **No project memory** | CLAUDE.md auto-creation, auditing, and revision to keep Claude aligned |
 
-**One install. All six. Plus 14 more tools they don't have.**
+**One install. Everything. Plus 21 specialized tools they don't have.**
 
 ---
 
@@ -118,7 +144,7 @@ The flagship command. Dispatches 5 parallel agents, runs 10 inline checks, auto-
 - Performance: Lighthouse via headless Chrome, Core Web Vitals, bundle size analysis
 - Security: dependency vulnerabilities, secret scanning, OWASP patterns, HTTP headers
 - Code Quality: N+1 queries, sync I/O in handlers, memory leaks, unused deps
-- Browser: Playwright smoke tests on your running app
+- Browser: automated smoke tests on your running app
 
 **What it auto-fixes:**
 - Missing meta tags, broken canonical URLs, OG tag issues
@@ -269,9 +295,9 @@ Determines version bump from commit messages, generates changelog, bumps `packag
 
 ---
 
-### /workflow: 14 Workflow Skills (Powered by Superpowers)
+### /workflow: 14 Built-In Workflow Skills
 
-Ultraship bundles the full **Superpowers** skill suite. These aren't just prompts — they're structured, multi-step workflows that enforce discipline:
+These aren't just prompts — they're structured, multi-step workflows that enforce discipline at every stage of development:
 
 | Skill | What it does |
 |---|---|
@@ -294,13 +320,13 @@ These skills chain together naturally: **brainstorm** -> **write plan** -> **TDD
 
 ---
 
-### Context7: Live Documentation MCP Server
+### Live Documentation Lookup
 
-Ultraship includes the **Context7** MCP server by Upstash. Instead of Claude hallucinating outdated API docs, Context7 fetches **real, current documentation** for any library on the fly.
+Ultraship includes a built-in MCP server that fetches **real, current documentation** for any library on the fly — no more hallucinated APIs.
 
 **How it works:**
 - You ask Claude to use a library (React, Hono, Drizzle, Stripe, etc.)
-- Context7 fetches the latest docs from the library's actual documentation site
+- Ultraship fetches the latest docs from the library's actual documentation site
 - Claude gets accurate, version-correct API references in its context
 
 **Why this matters for indie hackers:**
@@ -310,9 +336,9 @@ Ultraship includes the **Context7** MCP server by Upstash. Instead of Claude hal
 
 ---
 
-### Playwright: Browser Testing MCP Server
+### Browser Testing & Automation
 
-Ultraship includes the **Playwright** MCP server by Anthropic. This gives Claude full browser automation capabilities:
+Ultraship includes a built-in browser automation MCP server that gives Claude full control of a real browser:
 
 **What it can do:**
 - Navigate to your running app and take screenshots
@@ -403,7 +429,7 @@ You type /ship
     |   |-- Perf Auditor --- Lighthouse, Core Web Vitals
     |   |-- Security ------- Deps, secrets, OWASP, headers
     |   |-- Code Reviewer -- Quality, N+1, memory leaks
-    |   +-- Browser -------- Playwright smoke tests
+    |   +-- Browser -------- automated smoke tests
     |
     |-- Runs inline checks:
     |   |-- Content quality (readability, keyword density)
@@ -441,7 +467,7 @@ ultraship/
 | **Agents** | 5 | Ship orchestrator, code reviewer, SEO auditor, security auditor, browser verifier |
 | **Commands** | 18 | /ship, /deploy, /review, /design, /seo, /perf, /security, /health, /content, /redirects, /bundle, /release, /profile, /deps, /test, /workflow, /claude-md, /brainstorm |
 | **Tools** | 21 | SEO scanner (60+ rules), content scorer, OG validator, redirect checker, Lighthouse runner, health check, env validator, migration checker, bundle tracker, audit history, API smoke test, code profiler, dep doctor, GSC client, Bing client, secret scanner, sitemap/robots/structured-data/llms-txt generators, shared security module |
-| **MCP Servers** | 2 | Context7 (live docs), Playwright (browser automation) |
+| **MCP Servers** | 2 | Live documentation lookup, browser automation |
 
 ---
 
@@ -452,8 +478,8 @@ ultraship/
 | Runtime | Node.js (ESM) |
 | HTML parsing | htmlparser2 (SAX-based, ~30KB) |
 | Performance | Lighthouse via headless Chrome |
-| Browser testing | Playwright MCP |
-| Documentation | Context7 MCP |
+| Browser testing | Built-in browser automation MCP |
+| Documentation | Built-in live docs MCP |
 | Build step | None: tools run directly as `.mjs` files |
 | Dependencies | 1 (`htmlparser2`) |
 
@@ -506,14 +532,6 @@ Building MVPs and shipping SaaS products as a one-person team. Ultraship was bor
 [![Website](https://img.shields.io/badge/Website-houseofmvps.com-green?style=flat-square&logo=google-chrome&logoColor=white)](https://houseofmvps.com)
 
 </div>
-
----
-
-## Credits
-
-- **[Superpowers](https://github.com/anthropics/claude-plugins-official)** by Jesse Vincent - workflow skills foundation (MIT license)
-- **[Context7](https://github.com/upstash/context7)** by Upstash - live documentation MCP server
-- **[Playwright MCP](https://github.com/anthropics/claude-plugins-official)** by Anthropic - browser automation
 
 ---
 
