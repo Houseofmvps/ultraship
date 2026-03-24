@@ -18,7 +18,7 @@
 [![houseofmvps.com](https://img.shields.io/badge/houseofmvps.com-Website-green?style=for-the-badge&logo=google-chrome&logoColor=white)](https://houseofmvps.com)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-orange?style=for-the-badge&logo=anthropic)](https://github.com/Houseofmvps/ultraship)
 
-**Built by [Kaileskkhumar](https://x.com/kaileskkhumar), solo founder of [houseofmvps.com](https://houseofmvps.com)**
+**Built by [Kaileskkhumar](https://www.linkedin.com/in/kailesk-khumar-soundararajan), solo founder of [houseofmvps.com](https://houseofmvps.com)**
 
 *One indie hacker. One plugin. Everything you need to ship.*
 
@@ -385,7 +385,7 @@ Ultraship is built for **builders who ship fast and ship alone**:
 
 <div align="center">
 
-**[Kaileskkhumar](https://x.com/kaileskkhumar)** - Solo founder of **[houseofmvps.com](https://houseofmvps.com)**
+**[Kaileskkhumar](https://www.linkedin.com/in/kailesk-khumar-soundararajan)** - Solo founder of **[houseofmvps.com](https://houseofmvps.com)**
 
 Building MVPs and shipping SaaS products as a one-person team. Ultraship was born from the frustration of juggling six different Claude Code plugins while trying to ship production-ready products fast.
 
