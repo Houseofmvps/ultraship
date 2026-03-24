@@ -1,6 +1,6 @@
 {
   "name": "ultraship",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "All-in-one Claude Code plugin. Ship production-ready SaaS with one command.",
   "type": "module",
   "author": "Houseofmvps",
