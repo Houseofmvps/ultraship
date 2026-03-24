@@ -91,6 +91,36 @@ After technical fixes, advise on content-level optimizations that the scanner ca
 
 **Key test:** "If your content can't answer a question clearly in 30 seconds, AI engines won't select it for generated answers."
 
+### Phase 7: Content Audit Framework
+
+For SEO specialists working on client sites, provide a content audit after the technical scan:
+
+**Content Health Assessment:**
+- Flag pages with <300 words as thin content — recommend consolidation or expansion
+- Identify pages with duplicate titles/descriptions — each page must be unique
+- Find orphan pages (0 internal links pointing to them) — add links or consider removing
+- Check internal link distribution — important pages should have 3+ internal links
+
+**Competitor Gap Analysis Guidance:**
+After technical fixes, advise the user to:
+1. Search their top 5 target keywords in ChatGPT, Perplexity, and Google AI Overviews
+2. Note which competitors are cited — study their content structure
+3. Identify topics competitors cover that the client site doesn't
+4. Create "definitive answer" content for each gap — direct, structured, quotable
+
+**Content Update/Consolidate/Delete Decision Framework:**
+For each existing content page, recommend one of:
+- **Update**: Has traffic potential but content is outdated or thin → refresh with current data
+- **Consolidate**: Multiple pages targeting the same keyword → merge into one authoritative page
+- **Delete/Redirect**: Zero traffic, zero backlinks, no strategic value → 301 redirect to relevant page
+- **Leave**: Performing well, no changes needed
+
+**Page Speed Budget by Page Type:**
+- Landing pages / homepage: target Lighthouse 90+
+- Blog posts / content pages: target Lighthouse 85+
+- Dashboards / app pages: target Lighthouse 70+ (not search-indexed)
+- API-only backends: skip Lighthouse entirely
+
 ## Key Principle
 
-**Fix, don't just audit.** Every finding should have a concrete fix applied. Every content page should have a strategy to be cited by AI.
+**Fix, don't just audit.** Every finding should have a concrete fix applied. Every content page should have a strategy to be cited by AI. Every client engagement should include a content audit alongside technical fixes.

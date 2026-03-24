@@ -35,19 +35,23 @@ function parseHtmlFile(filePath) {
 
   const state = {
     hasTitle: false,
+    titleText: '',
     hasMetaDescription: false,
+    metaDescriptionText: '',
     hasViewport: false,
     hasCharset: false,
     hasOgTitle: false,
     hasOgDescription: false,
     hasOgImage: false,
+    ogImageUrl: '',
     hasOgUrl: false,
     hasTwitterCard: false,
     hasTwitterImage: false,
     hasCanonical: false,
     hasNoindex: false,
-    hasNoodp: false,
+    hasHreflang: false,
     h1Count: 0,
+    h1Text: '',
     headingLevels: [],
     imagesWithoutAlt: 0,
     imagesWithoutDimensions: 0,
@@ -58,12 +62,21 @@ function parseHtmlFile(filePath) {
     h2Texts: [],
     inH2: false,
     currentH2Text: '',
+    inH1: false,
+    currentH1Text: '',
+    internalLinks: [],
+    externalLinks: [],
+    brokenLinkCandidates: [],
     jsonLdScripts: 0,
     jsonLdContent: [],
     inScript: false,
     scriptType: '',
     scriptContent: '',
     inTitle: false,
+    bodyTextLength: 0,
+    inBody: false,
+    inStyle: false,
+    wordCount: 0,
   };
 
   const parser = new Parser(
@@ -82,14 +95,14 @@ function parseHtmlFile(filePath) {
           const content = attrs.content || '';
           const charset = attrs.charset || '';
 
-          if (nameAttr === 'description' && content) state.hasMetaDescription = true;
+          if (nameAttr === 'description' && content) { state.hasMetaDescription = true; state.metaDescriptionText = content; }
           if (nameAttr === 'viewport') state.hasViewport = true;
           if (nameAttr === 'robots' && content.toLowerCase().includes('noindex')) state.hasNoindex = true;
           if (nameAttr === 'googlebot' && content.toLowerCase().includes('noindex')) state.hasNoindex = true;
           if (charset || httpEquiv === 'content-type') state.hasCharset = true;
           if (propAttr === 'og:title' && content) state.hasOgTitle = true;
           if (propAttr === 'og:description' && content) state.hasOgDescription = true;
-          if (propAttr === 'og:image' && content) state.hasOgImage = true;
+          if (propAttr === 'og:image' && content) { state.hasOgImage = true; state.ogImageUrl = content; }
           if (propAttr === 'og:url' && content) state.hasOgUrl = true;
           if (nameAttr === 'twitter:card' && content) state.hasTwitterCard = true;
           if (nameAttr === 'twitter:image' && content) state.hasTwitterImage = true;
@@ -98,6 +111,20 @@ function parseHtmlFile(filePath) {
         if (tag === 'link') {
           const rel = (attrs.rel || '').toLowerCase();
           if (rel === 'canonical' && attrs.href) state.hasCanonical = true;
+          if (rel === 'alternate' && attrs.hreflang) state.hasHreflang = true;
+        }
+
+        if (tag === 'body') state.inBody = true;
+        if (tag === 'style') state.inStyle = true;
+
+        // Track internal/external links
+        if (tag === 'a' && attrs.href) {
+          const href = attrs.href;
+          if (href.startsWith('http://') || href.startsWith('https://')) {
+            state.externalLinks.push(href);
+          } else if (href.startsWith('/') || href.startsWith('./') || (!href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('tel:'))) {
+            state.internalLinks.push(href);
+          }
         }
 
         // Heading tracking
@@ -105,7 +132,7 @@ function parseHtmlFile(filePath) {
         if (headingMatch) {
           const level = parseInt(headingMatch[1], 10);
           state.headingLevels.push(level);
-          if (level === 1) state.h1Count++;
+          if (level === 1) { state.h1Count++; state.inH1 = true; state.currentH1Text = ''; }
           if (level === 2) {
             state.inH2 = true;
             state.currentH2Text = '';
@@ -138,9 +165,17 @@ function parseHtmlFile(filePath) {
       ontext(text) {
         if (state.inTitle && text.trim()) {
           state.hasTitle = true;
+          state.titleText += text;
+        }
+        if (state.inH1) {
+          state.currentH1Text += text;
         }
         if (state.inH2) {
           state.currentH2Text += text;
+        }
+        if (state.inBody && !state.inScript && !state.inStyle && text.trim()) {
+          const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+          state.wordCount += words.length;
         }
         if (state.inScript && state.scriptType === 'application/ld+json') {
           state.scriptContent += text;
@@ -152,11 +187,18 @@ function parseHtmlFile(filePath) {
         if (tag === 'title') {
           state.inTitle = false;
         }
+        if (tag === 'h1' && state.inH1) {
+          state.h1Text = state.currentH1Text.trim();
+          state.inH1 = false;
+          state.currentH1Text = '';
+        }
         if (tag === 'h2' && state.inH2) {
           state.h2Texts.push(state.currentH2Text.trim());
           state.inH2 = false;
           state.currentH2Text = '';
         }
+        if (tag === 'body') state.inBody = false;
+        if (tag === 'style') state.inStyle = false;
         if (tag === 'script') {
           if (state.scriptType === 'application/ld+json' && state.scriptContent.trim()) {
             state.jsonLdScripts++;
@@ -200,12 +242,59 @@ function scanDirectory(rootDir) {
   // Find all HTML files
   const htmlFiles = findHtmlFiles(absRoot);
 
-  // Per-file SEO checks
+  // Parse all files first for cross-page analysis
+  const pageData = [];
   for (const filePath of htmlFiles) {
     const state = parseHtmlFile(filePath);
     if (!state) continue;
-
     const relFile = path.relative(absRoot, filePath);
+    pageData.push({ relFile, state });
+  }
+
+  // Cross-page duplicate detection
+  const titleMap = new Map();
+  const descMap = new Map();
+  for (const { relFile, state } of pageData) {
+    if (state.titleText.trim()) {
+      const t = state.titleText.trim().toLowerCase();
+      if (!titleMap.has(t)) titleMap.set(t, []);
+      titleMap.get(t).push(relFile);
+    }
+    if (state.metaDescriptionText.trim()) {
+      const d = state.metaDescriptionText.trim().toLowerCase();
+      if (!descMap.has(d)) descMap.set(d, []);
+      descMap.get(d).push(relFile);
+    }
+  }
+
+  // Flag duplicate titles/descriptions (only when multiple pages exist)
+  if (pageData.length > 1) {
+    for (const [title, files] of titleMap) {
+      if (files.length > 1) {
+        for (const f of files) {
+          findings.push({ file: f, line: 0, severity: 'high', category: 'seo', rule: 'duplicate-title', message: `Duplicate <title> shared with ${files.length - 1} other page(s) — each page needs a unique title` });
+        }
+      }
+    }
+    for (const [desc, files] of descMap) {
+      if (files.length > 1) {
+        for (const f of files) {
+          findings.push({ file: f, line: 0, severity: 'high', category: 'seo', rule: 'duplicate-meta-description', message: `Duplicate meta description shared with ${files.length - 1} other page(s) — each page needs unique description` });
+        }
+      }
+    }
+  }
+
+  // Collect all internal link targets for orphan page detection
+  const allInternalTargets = new Set();
+  for (const { state } of pageData) {
+    for (const link of state.internalLinks) {
+      allInternalTargets.add(link.replace(/\/$/, '').replace(/^\.\//, '/'));
+    }
+  }
+
+  // Per-file SEO checks
+  for (const { relFile, state } of pageData) {
 
     // Critical: noindex blocks ALL search engines and AI bots
     if (state.hasNoindex) {
@@ -215,9 +304,23 @@ function scanDirectory(rootDir) {
 
     if (!state.hasTitle) {
       findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'missing-title', message: 'No <title> tag found' });
+    } else {
+      const titleLen = state.titleText.trim().length;
+      if (titleLen > 60) {
+        findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'title-too-long', message: `Title is ${titleLen} chars (max 60) — will be truncated in search results` });
+      } else if (titleLen < 20) {
+        findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'title-too-short', message: `Title is only ${titleLen} chars — too short, missing keywords and context` });
+      }
     }
     if (!state.hasMetaDescription) {
       findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'missing-meta-description', message: 'No <meta name="description"> found' });
+    } else {
+      const descLen = state.metaDescriptionText.trim().length;
+      if (descLen > 160) {
+        findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'meta-description-too-long', message: `Meta description is ${descLen} chars (max 160) — will be truncated in SERPs` });
+      } else if (descLen < 70) {
+        findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'meta-description-too-short', message: `Meta description is only ${descLen} chars — aim for 140-160 for best CTR` });
+      }
     }
     if (!state.hasViewport) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'missing-viewport', message: 'No <meta name="viewport"> found' });
@@ -277,6 +380,34 @@ function scanDirectory(rootDir) {
     if (state.jsonLdScripts === 0) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'missing-json-ld', message: 'No JSON-LD structured data found' });
     }
+
+    // Thin content detection (pages with <300 words rank poorly)
+    if (state.wordCount > 0 && state.wordCount < 300) {
+      findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'thin-content', message: `Only ${state.wordCount} words on page — thin content ranks poorly (aim for 300+ words)` });
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'thin-content-ai', message: `Only ${state.wordCount} words — AI engines need substantial content to extract and cite` });
+    }
+
+    // Internal link analysis
+    if (state.internalLinks.length === 0 && pageData.length > 1) {
+      findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'no-internal-links', message: 'Page has zero internal links — crawlers cannot discover other pages from here' });
+    }
+
+    // Orphan page detection (no other page links to this one)
+    if (pageData.length > 1) {
+      const normalizedFile = '/' + relFile.replace(/\\/g, '/').replace(/index\.html?$/, '').replace(/\.html?$/, '');
+      const isLinkedTo = allInternalTargets.has(normalizedFile) ||
+        allInternalTargets.has(normalizedFile + '/') ||
+        allInternalTargets.has('/' + relFile) ||
+        allInternalTargets.has('./' + relFile);
+      // Don't flag the main index page as orphan
+      if (!isLinkedTo && relFile !== 'index.html' && relFile !== 'index.htm') {
+        findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'orphan-page', message: 'Orphan page — no internal links point here, invisible to crawlers' });
+      }
+    }
+
+    // Hreflang check (only flag if multiple languages detected but no hreflang)
+    // We track if ANY page has hreflang; absence is only an issue for international sites
+    // For now, just track presence — will use in project-level check below
 
     // GEO: JSON-LD presence and quality
     if (state.jsonLdScripts === 0) {
