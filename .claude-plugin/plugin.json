@@ -9,5 +9,14 @@
   "homepage": "https://github.com/Houseofmvps/ultraship",
   "repository": "https://github.com/Houseofmvps/ultraship",
   "license": "MIT",
-  "keywords": ["ship", "seo", "performance", "security", "workflow", "code-review", "lighthouse", "builder"]
+  "keywords": [
+    "ship",
+    "seo",
+    "performance",
+    "security",
+    "workflow",
+    "code-review",
+    "lighthouse",
+    "builder"
+  ]
 }
