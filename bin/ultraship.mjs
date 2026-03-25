@@ -2,15 +2,24 @@
 // Ultraship standalone CLI — run audits without Claude Code
 // Usage: npx ultraship <command> [path]
 
-import { execFileSync } from 'child_process';
-import { readFileSync } from 'fs';
+import { execFileSync, execFile } from 'child_process';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve, join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TOOLS_DIR = join(__dirname, '..', 'tools');
 
+// ANSI colors
+const C = {
+  red: '\x1b[1;31m', green: '\x1b[1;32m', yellow: '\x1b[1;33m',
+  blue: '\x1b[1;34m', magenta: '\x1b[1;35m', cyan: '\x1b[1;36m',
+  white: '\x1b[1;37m', dim: '\x1b[2m', bold: '\x1b[1m', nc: '\x1b[0m',
+};
+
 const COMMANDS = {
+  ship: { desc: 'Full pre-deploy audit + scorecard' },
+  init: { desc: 'Scaffold CLAUDE.md for your project' },
   seo: { tool: 'seo-scanner.mjs', desc: 'Run SEO/GEO/AEO audit' },
   security: { tool: 'secret-scanner.mjs', desc: 'Scan for leaked secrets' },
   perf: { tool: 'bundle-tracker.mjs', desc: 'Analyze bundle size' },
@@ -29,34 +38,268 @@ const command = args[0];
 const target = args[1] || process.cwd();
 
 function getVersion() {
-  const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
-  return pkg.version;
+  return JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8')).version;
 }
 
 function printHelp() {
   console.log(`
-  ultraship v${getVersion()} — Ship production-ready SaaS
+  ${C.cyan}${C.bold}ultraship${C.nc} v${getVersion()} — Ship production-ready SaaS
 
   Usage: ultraship <command> [path|url]
 
-  Commands:`);
+  ${C.bold}Commands:${C.nc}`);
   for (const [name, { desc }] of Object.entries(COMMANDS)) {
-    console.log(`    ${name.padEnd(14)} ${desc}`);
+    console.log(`    ${C.green}${name.padEnd(14)}${C.nc} ${desc}`);
   }
-  console.log(`
-    version        Show version
-    help           Show this help
+  console.log(`    ${C.dim}version${C.nc}        Show version
+    ${C.dim}help${C.nc}           Show this help
 
-  Examples:
-    ultraship seo .                    Audit current directory for SEO issues
-    ultraship security ./my-project    Scan project for leaked secrets
+  ${C.bold}Examples:${C.nc}
+    ultraship ship .                   Full audit with scorecard
+    ultraship init                     Scaffold CLAUDE.md
+    ultraship seo .                    SEO/GEO/AEO audit
+    ultraship security ./my-project    Scan for leaked secrets
     ultraship health https://myapp.com Check production health
-    ultraship deps .                   Find unused dependencies
 
-  Full plugin: claude plugin add ultraship
-  Docs: https://github.com/Houseofmvps/ultraship
+  ${C.bold}Full plugin:${C.nc} claude plugin add ultraship
+  ${C.dim}https://github.com/Houseofmvps/ultraship${C.nc}
 `);
 }
+
+// ── Run tool async (returns promise) ──
+function runToolAsync(toolFile, dir) {
+  return new Promise((res) => {
+    execFile('node', [join(TOOLS_DIR, toolFile), dir], {
+      encoding: 'utf8', timeout: 60000,
+    }, (err, stdout) => {
+      try { res(JSON.parse(stdout || (err && err.stdout) || '{}')); }
+      catch { res(null); }
+    });
+  });
+}
+
+// ── /ship: the scorecard ──
+async function runShip(dir) {
+  const resolvedDir = resolve(dir);
+  console.log(`\n  ${C.cyan}${C.bold}⚡ ULTRASHIP${C.nc} ${C.dim}v${getVersion()}${C.nc}`);
+  console.log(`  ${C.dim}${'─'.repeat(45)}${C.nc}\n`);
+
+  // Run all audits in parallel
+  process.stdout.write(`  ${C.yellow}▸ Running 5 audits in parallel...${C.nc}`);
+
+  const [seo, secrets, profile, bundle, env] = await Promise.all([
+    runToolAsync('seo-scanner.mjs', resolvedDir),
+    runToolAsync('secret-scanner.mjs', resolvedDir),
+    runToolAsync('code-profiler.mjs', resolvedDir),
+    runToolAsync('bundle-tracker.mjs', resolvedDir),
+    runToolAsync('env-validator.mjs', resolvedDir),
+  ]);
+
+  console.log(` ${C.green}done${C.nc}\n`);
+
+  // Calculate scores
+  function calcSeoScore(data) {
+    if (!data || !data.findings) return 100;
+    const findings = data.findings;
+    let deductions = 0;
+    for (const f of findings) {
+      if (f.severity === 'critical') deductions += 8;
+      else if (f.severity === 'high') deductions += 5;
+      else if (f.severity === 'medium') deductions += 3;
+      else if (f.severity === 'low') deductions += 1;
+    }
+    return Math.max(0, 100 - deductions);
+  }
+
+  function calcSecurityScore(data) {
+    if (!data || !data.findings) return 100;
+    let deductions = 0;
+    for (const f of data.findings) {
+      if (f.severity === 'critical') deductions += 15;
+      else if (f.severity === 'high') deductions += 10;
+      else if (f.severity === 'medium') deductions += 5;
+    }
+    return Math.max(0, 100 - deductions);
+  }
+
+  function calcQualityScore(data) {
+    if (!data || !data.findings) return 100;
+    let deductions = 0;
+    for (const f of data.findings) {
+      if (f.severity === 'critical') deductions += 10;
+      else if (f.severity === 'high') deductions += 6;
+      else if (f.severity === 'medium') deductions += 3;
+      else deductions += 1;
+    }
+    return Math.max(0, 100 - deductions);
+  }
+
+  function calcEnvScore(data) {
+    if (!data || !data.success) return 100;
+    const issues = (data.missing || []).length + (data.empty || []).length + (data.placeholder || []).length;
+    return Math.max(0, 100 - issues * 10);
+  }
+
+  function calcBundleScore(data) {
+    if (!data || !data.success) return 100;
+    const heavyDeps = (data.heavy_dependencies || []).length;
+    const totalMB = (data.total_size || 0) / (1024 * 1024);
+    let deductions = heavyDeps * 8;
+    if (totalMB > 5) deductions += 15;
+    else if (totalMB > 2) deductions += 8;
+    return Math.max(0, 100 - deductions);
+  }
+
+  const seoScore = calcSeoScore(seo);
+  const securityScore = calcSecurityScore(secrets);
+  const qualityScore = calcQualityScore(profile);
+  const envScore = calcEnvScore(env);
+  const bundleScore = calcBundleScore(bundle);
+
+  // Performance = average of bundle + env (no Lighthouse in CLI — needs Chrome)
+  const perfScore = Math.round((bundleScore + envScore) / 2);
+
+  const overall = Math.round((seoScore + securityScore + qualityScore + perfScore) / 4);
+
+  // Count issues
+  const totalFindings = (seo?.findings?.length || 0) + (secrets?.findings?.length || 0) +
+    (profile?.findings?.length || 0) + (env?.missing?.length || 0) + (env?.empty?.length || 0);
+
+  function bar(score) {
+    const filled = Math.round(score / 100 * 12);
+    return '█'.repeat(filled) + '░'.repeat(12 - filled);
+  }
+
+  function scoreColor(score) {
+    if (score >= 80) return C.green;
+    if (score >= 60) return C.yellow;
+    return C.red;
+  }
+
+  function printRow(label, score) {
+    const c = scoreColor(score);
+    console.log(`  ${C.white}${C.bold}║${C.nc}  ${label.padEnd(16)} ${c}${C.bold}${String(score).padStart(3)}${C.nc}/100  ${c}${bar(score)}${C.nc}  ${C.white}${C.bold}║${C.nc}`);
+  }
+
+  const status = overall >= 80;
+  const statusText = status
+    ? `${C.green}${C.bold}✅ READY TO SHIP${C.nc}`
+    : `${C.red}${C.bold}❌ NOT READY${C.nc}`;
+
+  console.log(`  ${C.white}${C.bold}╔══════════════════════════════════════════╗${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}      ${C.cyan}${C.bold}U L T R A S H I P   S C O R E${C.nc}       ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
+  printRow('SEO/GEO/AEO', seoScore);
+  printRow('Security', securityScore);
+  printRow('Code Quality', qualityScore);
+  printRow('Performance', perfScore);
+  console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}   OVERALL        ${scoreColor(overall)}${C.bold}${String(overall).padStart(3)}${C.nc}/100                 ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}   STATUS         ${statusText}       ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}  ${C.dim}Issues: ${totalFindings} findings across 5 audits${C.nc}       ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}╚══════════════════════════════════════════╝${C.nc}`);
+
+  console.log(`\n  ${C.dim}Tip: Run individual audits for details:${C.nc}`);
+  console.log(`  ${C.dim}  ultraship seo ${dir}${C.nc}`);
+  console.log(`  ${C.dim}  ultraship security ${dir}${C.nc}`);
+  console.log(`  ${C.dim}  ultraship profile ${dir}${C.nc}\n`);
+
+  process.exit(status ? 0 : 1);
+}
+
+// ── /init: scaffold CLAUDE.md ──
+function runInit(dir) {
+  const resolvedDir = resolve(dir);
+  const claudeMd = join(resolvedDir, 'CLAUDE.md');
+
+  if (existsSync(claudeMd)) {
+    console.log(`\n  ${C.yellow}CLAUDE.md already exists${C.nc} at ${claudeMd}`);
+    console.log(`  ${C.dim}Use /revise-claude-md in Claude Code to update it.${C.nc}\n`);
+    process.exit(0);
+  }
+
+  // Detect project
+  let projectName = 'My Project';
+  let stack = [];
+  let packageManager = 'npm';
+
+  const pkgPath = join(resolvedDir, 'package.json');
+  if (existsSync(pkgPath)) {
+    try {
+      const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+      projectName = pkg.name || projectName;
+      const allDeps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+
+      if (allDeps.next) stack.push('Next.js');
+      else if (allDeps.react) stack.push('React');
+      else if (allDeps.vue) stack.push('Vue');
+      else if (allDeps.svelte || allDeps['@sveltejs/kit']) stack.push('Svelte');
+      if (allDeps.express) stack.push('Express');
+      if (allDeps.hono) stack.push('Hono');
+      if (allDeps.fastify) stack.push('Fastify');
+      if (allDeps.typescript) stack.push('TypeScript');
+      if (allDeps.tailwindcss) stack.push('Tailwind CSS');
+      if (allDeps.drizzle || allDeps['drizzle-orm']) stack.push('Drizzle ORM');
+      if (allDeps.prisma || allDeps['@prisma/client']) stack.push('Prisma');
+      if (allDeps.vite) stack.push('Vite');
+    } catch {}
+  }
+
+  if (existsSync(join(resolvedDir, 'pnpm-lock.yaml'))) packageManager = 'pnpm';
+  else if (existsSync(join(resolvedDir, 'yarn.lock'))) packageManager = 'yarn';
+  else if (existsSync(join(resolvedDir, 'bun.lockb'))) packageManager = 'bun';
+
+  // Detect monorepo
+  const isMonorepo = existsSync(join(resolvedDir, 'pnpm-workspace.yaml')) ||
+    existsSync(join(resolvedDir, 'lerna.json'));
+
+  // Detect test runner
+  let testRunner = '';
+  const pkgCheck = existsSync(pkgPath) ? readFileSync(pkgPath, 'utf8') : '';
+  if (pkgCheck.includes('vitest')) testRunner = 'vitest';
+  else if (pkgCheck.includes('jest')) testRunner = 'jest';
+  else if (pkgCheck.includes('"test"')) testRunner = `${packageManager} test`;
+
+  // Generate CLAUDE.md
+  const lines = [
+    `# ${projectName}`,
+    '',
+    '## Project Structure',
+    '',
+    `- Package manager: ${packageManager}`,
+  ];
+
+  if (stack.length) lines.push(`- Stack: ${stack.join(', ')}`);
+  if (isMonorepo) lines.push('- Monorepo: yes');
+  if (testRunner) lines.push(`- Tests: \`${testRunner}\``);
+
+  lines.push('', '## Conventions', '', '- [Add your coding conventions here]');
+  lines.push('', '## Commands', '');
+
+  if (testRunner) lines.push(`- Run tests: \`${testRunner}\``);
+  lines.push(`- Install deps: \`${packageManager} install\``);
+
+  const devScript = pkgCheck.includes('"dev"');
+  const buildScript = pkgCheck.includes('"build"');
+  if (devScript) lines.push(`- Dev server: \`${packageManager}${packageManager === 'npm' ? ' run' : ''} dev\``);
+  if (buildScript) lines.push(`- Build: \`${packageManager}${packageManager === 'npm' ? ' run' : ''} build\``);
+
+  lines.push('', '## Key Files', '', '- [Add important files and their purpose]');
+  lines.push('');
+
+  writeFileSync(claudeMd, lines.join('\n'));
+
+  console.log(`\n  ${C.green}${C.bold}✓ Created CLAUDE.md${C.nc} for ${C.cyan}${projectName}${C.nc}`);
+  console.log(`  ${C.dim}Detected: ${stack.join(', ') || 'no frameworks'} · ${packageManager}${isMonorepo ? ' · monorepo' : ''}${C.nc}`);
+  console.log(`\n  ${C.dim}Edit CLAUDE.md to add your conventions, then Claude Code will follow them.${C.nc}\n`);
+}
+
+// ── Routing ──
 
 if (!command || command === 'help' || command === '--help' || command === '-h') {
   printHelp();
@@ -68,39 +311,35 @@ if (command === 'version' || command === '--version' || command === '-v') {
   process.exit(0);
 }
 
-const cmd = COMMANDS[command];
-if (!cmd) {
-  console.error(`Unknown command: ${command}\nRun "ultraship help" for available commands.`);
-  process.exit(1);
-}
+if (command === 'ship') {
+  runShip(target);
+} else if (command === 'init') {
+  runInit(target);
+} else {
+  const cmd = COMMANDS[command];
+  if (!cmd || !cmd.tool) {
+    console.error(`Unknown command: ${command}\nRun "ultraship help" for available commands.`);
+    process.exit(1);
+  }
 
-const toolPath = join(TOOLS_DIR, cmd.tool);
-const resolvedTarget = target.startsWith('http') ? target : resolve(target);
-
-try {
-  const output = execFileSync('node', [toolPath, resolvedTarget], {
-    encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe'],
-    timeout: 60000,
-  });
+  const toolPath = join(TOOLS_DIR, cmd.tool);
+  const resolvedTarget = target.startsWith('http') ? target : resolve(target);
 
   try {
-    const parsed = JSON.parse(output);
-    console.log(JSON.stringify(parsed, null, 2));
-  } catch {
-    process.stdout.write(output);
-  }
-} catch (err) {
-  if (err.stdout) {
+    const output = execFileSync('node', [toolPath, resolvedTarget], {
+      encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 60000,
+    });
     try {
-      const parsed = JSON.parse(err.stdout);
-      console.log(JSON.stringify(parsed, null, 2));
+      console.log(JSON.stringify(JSON.parse(output), null, 2));
     } catch {
-      process.stdout.write(err.stdout);
+      process.stdout.write(output);
     }
+  } catch (err) {
+    if (err.stdout) {
+      try { console.log(JSON.stringify(JSON.parse(err.stdout), null, 2)); }
+      catch { process.stdout.write(err.stdout); }
+    }
+    if (err.stderr) process.stderr.write(err.stderr);
+    process.exit(err.status || 1);
   }
-  if (err.stderr) {
-    process.stderr.write(err.stderr);
-  }
-  process.exit(err.status || 1);
 }

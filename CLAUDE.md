@@ -9,7 +9,7 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 skills/           — 22 skills (16 workflow + 6 specialist)
 agents/           — 5 agents (ship, review, seo, security, browser)
 commands/         — 17 slash commands (/ship, /seo, /perf, /review, /deploy, /health, etc.)
-tools/            — 21 Node.js tools (scanner, lighthouse, profiler, dep-doctor, GSC, Bing, generators, etc.)
+tools/            — 20 Node.js tools (scanner, lighthouse, profiler, dep-doctor, GSC, Bing, generators, etc.)
 hooks/            — Pre-commit security hook
 docs/             — Documentation
 ```

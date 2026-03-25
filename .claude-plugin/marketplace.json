@@ -1,6 +1,6 @@
 {
   "name": "ultraship",
-  "description": "All-in-one builder toolkit for Claude Code. 22 skills, 21 tools, 5 agents. Ship production-ready SaaS with /ship.",
+  "description": "All-in-one builder toolkit for Claude Code. 22 skills, 20 tools, 5 agents. Ship production-ready SaaS with /ship.",
   "owner": {
     "name": "Houseofmvps",
     "email": "houseofmvps2024@gmail.com",
@@ -10,7 +10,7 @@
     {
       "name": "ultraship",
       "description": "Workflow + code review + frontend design + SEO/GEO/AEO + Lighthouse + security + browser testing",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "source": "./"
     }
   ]

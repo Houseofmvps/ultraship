@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — All-in-one Claude Code Plugin" width="100%"/>
 
-### The only Claude Code plugin you need. 22 skills. 21 tools. 5 agents. Ship production-ready SaaS with one command.
+### The only Claude Code plugin you need. 22 skills. 20 tools. 5 agents. Ship production-ready SaaS with one command.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -104,7 +104,7 @@ Ultraship is built with Ultraship. First `/ship` run on [houseofmvps.com](https:
 | Category | Count | Highlights |
 |---|---|---|
 | **Skills** | 22 | Brainstorming, TDD, debugging, planning, code review, frontend design, verification |
-| **Tools** | 21 | SEO scanner (60+ rules), Lighthouse runner, secret scanner, bundle tracker, code profiler |
+| **Tools** | 20 | SEO scanner (60+ rules), Lighthouse runner, secret scanner, bundle tracker, code profiler |
 | **Agents** | 5 | Ship orchestrator, SEO auditor, security auditor, perf auditor, browser verifier |
 | **Commands** | 17 | `/ship` `/seo` `/secure` `/perf` `/deploy` `/review` `/health` `/bundle` `/profile` `/deps` and more |
 | **MCP Servers** | 2 | Live library docs (Context7), browser automation (Playwright) |

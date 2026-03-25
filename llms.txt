@@ -1,6 +1,6 @@
 # Ultraship
 
-> The only Claude Code plugin you need. 22 skills, 21 tools, 5 agents. Ship production-ready SaaS with one command.
+> The only Claude Code plugin you need. 22 skills, 20 tools, 5 agents. Ship production-ready SaaS with one command.
 
 Ultraship is a free, open-source Claude Code plugin that rewires the entire software development workflow — from brainstorming to production deploy.
 
