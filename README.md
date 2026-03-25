@@ -63,13 +63,37 @@ Then in Claude Code:
 
 ---
 
+## How It Works
+
+**Everything is automatic.** You don't invoke skills manually — Ultraship detects what you're doing and activates the right skill at the right time. You just talk to Claude normally. Ultraship handles the discipline.
+
+```
+You: "I want to add Stripe webhooks"
+                    ↓
+    Brainstorming activates → asks clarifying questions → writes spec
+                    ↓
+    Planning activates → breaks spec into bite-sized tasks
+                    ↓
+    TDD activates → writes failing test first, then implementation
+                    ↓
+    Code review activates → catches issues before you merge
+                    ↓
+    /ship → scores your project → READY TO SHIP
+```
+
+**The agent checks for relevant skills before every action. These are mandatory workflows, not suggestions.** You don't need to remember commands or follow checklists. Your coding agent just has Ultraship.
+
+Every skill listed below activates automatically based on context. Slash commands (`/ship`, `/seo`, etc.) exist as manual overrides when you want to trigger something specific — but you'll rarely need them.
+
+---
+
 ## What Ultraship Does: A to Z
 
-Ultraship covers your entire workflow — from the first idea to production monitoring. Here's everything it does, in order.
+### 1. Brainstorming
 
-### 1. Brainstorming (`/brainstorm`)
+> *Activates automatically when you describe something to build.*
 
-You say "I want to add X." Ultraship doesn't let you jump straight to code. The brainstorming skill:
+You say "I want to add X." Ultraship doesn't let Claude jump straight to code. It:
 
 - Asks clarifying questions to understand what you actually need
 - Proposes 2-3 approaches with trade-offs (speed vs. scalability, simple vs. flexible)
@@ -78,9 +102,11 @@ You say "I want to add X." Ultraship doesn't let you jump straight to code. The 
 
 **Why it matters:** Most bugs come from building the wrong thing, not building it wrong.
 
-### 2. Planning (`/write-plan`)
+### 2. Planning
 
-Once you approve the spec, Ultraship breaks it into bite-sized implementation steps:
+> *Activates automatically after a spec is approved.*
+
+Ultraship breaks the approved spec into bite-sized implementation steps:
 
 - Exact file paths and code changes for each step
 - Test commands to verify each step works
@@ -88,9 +114,11 @@ Once you approve the spec, Ultraship breaks it into bite-sized implementation st
 - Every step is scoped to 2-5 minutes of work
 - Dependencies between steps are mapped so nothing is done out of order
 
-### 3. Test-Driven Development (automatic)
+### 3. Test-Driven Development
 
-The TDD skill activates automatically during implementation. It enforces red-green-refactor:
+> *Activates automatically during any implementation.*
+
+Enforces red-green-refactor on every feature and bugfix:
 
 - **Red:** Write the failing test first — no implementation code until the test exists
 - **Green:** Write the minimum code to make the test pass
@@ -99,7 +127,9 @@ The TDD skill activates automatically during implementation. It enforces red-gre
 
 This isn't optional. Ultraship won't let you skip the test.
 
-### 4. Implementation (`/execute-plan`)
+### 4. Implementation
+
+> *Activates automatically when a plan exists.*
 
 Executes the plan step by step with built-in review checkpoints:
 
@@ -108,59 +138,63 @@ Executes the plan step by step with built-in review checkpoints:
 - Dispatches parallel agents for independent tasks (e.g., writing tests and updating docs simultaneously)
 - Tracks progress with task lists so you always know where you are
 
-### 5. Frontend Design (automatic)
+### 5. Frontend Design
 
-When you're building UI, the frontend design skill activates:
+> *Activates automatically when building UI components or pages.*
 
 - Creates distinctive, production-grade interfaces — not generic AI-looking templates
 - Uses your existing stack (React + Tailwind + shadcn/ui or whatever you have)
 - Handles responsive design, accessibility, animations, and dark mode
 - Produces polished code that looks like a human designer built it
 
-### 6. Systematic Debugging (automatic)
+### 6. Systematic Debugging
 
-When something breaks, the debugging skill takes over:
+> *Activates automatically when something breaks or a test fails.*
 
 - Reproduces the bug first — no guessing
 - Narrows down the root cause systematically (not "try this and see")
 - Verifies the fix doesn't break anything else
 - Writes a regression test so the bug never comes back
 
-### 7. Code Review (`/review`)
+### 7. Code Review
 
-Reviews pull requests with confidence scoring:
+> *Activates automatically after completing a major implementation step.*
+
+Reviews code with confidence scoring:
 
 - Rates each finding with confidence level (how sure it is this is actually a problem)
 - Catches N+1 queries, missing error handling, security issues, performance anti-patterns
 - Distinguishes between real issues and style preferences
 - Provides specific fix suggestions, not vague "consider refactoring"
 
-### 8. Refactoring (automatic)
+### 8. Refactoring
 
-When refactoring is needed, the refactoring skill ensures safety:
+> *Activates automatically when restructuring code.*
 
 - Verifies behavior doesn't change (tests must still pass)
 - Handles renames, extractions, and structural changes cleanly
 - Avoids over-engineering — only changes what needs changing
 
-### 9. API Design (automatic)
+### 9. API Design
 
-When designing APIs, Ultraship enforces consistency:
+> *Activates automatically when creating or modifying API endpoints.*
 
 - REST or RPC conventions applied uniformly
 - Request/response schemas validated
 - Error handling patterns standardized
 - Versioning strategy considered upfront
 
-### 10. Data Modeling (automatic)
+### 10. Data Modeling
 
-When working with databases, the data modeling skill activates:
+> *Activates automatically when working with database schemas.*
 
 - Schema design with proper indexes, constraints, and relations
 - Migration safety checks (Drizzle, Prisma, Knex)
 - Identifies missing foreign key indexes before they cause slow queries
 
-### 11. SEO / GEO / AEO Audit (`/seo`)
+### 11. SEO / GEO / AEO Audit
+
+> *Activates automatically when working on web pages or HTML content. Also available as `/seo`.*
 
 **60+ rules** across three search optimization layers:
 
@@ -172,7 +206,9 @@ When working with databases, the data modeling skill activates:
 
 Plus: content scoring (Flesch-Kincaid readability), OG tag validation with image reachability, redirect chain detection, analytics detection (12 providers), cross-page canonical conflict detection.
 
-### 12. Security Audit (`/secure`)
+### 12. Security Audit
+
+> *Activates automatically when working on auth, secrets, or dependencies. Also available as `/secure`.*
 
 | Check | Details |
 |---|---|
@@ -183,7 +219,9 @@ Plus: content scoring (Flesch-Kincaid readability), OG tag validation with image
 
 Reports issues with exact `file:line` locations and fix guidance.
 
-### 13. Code Profiling (`/profile`)
+### 13. Code Profiling
+
+> *Runs automatically as part of `/ship`. Also available as `/profile`.*
 
 Static analysis for backend anti-patterns:
 
@@ -195,7 +233,9 @@ Static analysis for backend anti-patterns:
 - **Sequential awaits** — independent `await`s that should be `Promise.all()`
 - **ReDoS risk** — dynamic RegExp from user input in handlers
 
-### 14. Bundle Size Tracking (`/bundle`)
+### 14. Bundle Size Tracking
+
+> *Runs automatically as part of `/ship`. Also available as `/bundle`.*
 
 - Analyzes `dist/`, `build/`, `.next/`, `out/` directories (monorepo-aware)
 - Reports JS/CSS/image sizes with top 10 largest files
@@ -203,14 +243,18 @@ Static analysis for backend anti-patterns:
 - Saves reports for before/after comparison
 - Warns on unexpected growth between builds
 
-### 15. Performance Audit (`/perf`)
+### 15. Performance Audit
+
+> *Activates automatically when optimizing site speed. Also available as `/perf`.*
 
 - Runs Lighthouse via headless Chrome
 - Extracts Core Web Vitals (LCP, FID, CLS) and diagnostics
 - Identifies render-blocking resources, unoptimized images, missing compression
 - Auto-fix suggestions for common issues
 
-### 16. Content Quality (`/content`)
+### 16. Content Quality
+
+> *Runs automatically as part of SEO audit. Also available as `/content`.*
 
 - **Flesch Reading Ease** and **Flesch-Kincaid Grade Level**
 - Keyword density analysis with optional target keyword
@@ -219,14 +263,18 @@ Static analysis for backend anti-patterns:
 - GEO heading analysis: are your H2s phrased as questions for AI search?
 - Weighted scoring: word count, heading structure, readability, and quality deductions
 
-### 17. Dependency Health (`/deps`)
+### 17. Dependency Health
+
+> *Runs automatically as part of `/ship`. Also available as `/deps`.*
 
 - Detects unused dependencies via import graph analysis (not just grep — traces reachability from entry points)
 - Identifies dead wrapper files (e.g., shadcn/ui components imported by nothing)
 - Flags outdated packages with latest versions
 - Works across monorepo workspace packages
 
-### 18. Deploy Pipeline (`/deploy`)
+### 18. Deploy Pipeline
+
+> *Available as `/deploy`. Runs full pre-flight + deploy + post-deploy.*
 
 ```
 Pre-flight checks -> /ship audit -> Deploy -> Health check -> Score saved
@@ -241,7 +289,9 @@ Pre-flight checks -> /ship audit -> Deploy -> Health check -> Score saved
 | **Deploy** | `git push` (Vercel), `railway up`, or custom command |
 | **Health check** | Hits production URL: status, response time, SSL cert, security headers |
 
-### 19. Production Health Check (`/health`)
+### 19. Production Health Check
+
+> *Available as `/health`. Checks your live production URL.*
 
 ```bash
 /health https://yourapp.com
@@ -249,9 +299,11 @@ Pre-flight checks -> /ship audit -> Deploy -> Health check -> Score saved
 
 Checks: HTTP status, response time, SSL certificate validity and expiry (issuer, subject, days remaining), redirect chains, 6 security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).
 
-### 20. Ship Scorecard (`/ship`)
+### 20. Ship Scorecard
 
-The flagship command. Runs 5 tools in parallel, scores 4 categories, produces the final scorecard:
+> *The flagship command. Run `/ship` when you're ready to deploy.*
+
+Runs 5 tools in parallel, scores 4 categories, produces the final scorecard:
 
 - **SEO/GEO/AEO** (seo-scanner + content-scorer + og-validator)
 - **Security** (secret-scanner + dep audit)
@@ -260,41 +312,53 @@ The flagship command. Runs 5 tools in parallel, scores 4 categories, produces th
 
 Score >= 80? Ship it. Below 80? Fix the flagged issues and run again.
 
-### 21. Release (`/release`)
+### 21. Release
+
+> *Available as `/release`. Handles the full publish pipeline.*
 
 - Generates changelog from git commits
 - Bumps version (patch/minor/major) across package.json, plugin.json, marketplace.json
 - Creates GitHub release with release notes
 - Publishes to npm
 
-### 22. Generators (automatic)
+### 22. Generators
 
-Ultraship generates missing SEO infrastructure:
+> *Activate automatically when SEO infrastructure is missing.*
+
+Ultraship generates what's missing:
 
 - **sitemap.xml** — generated from your HTML files and routes
 - **robots.txt** — AI-friendly (allows GPTBot, PerplexityBot, ClaudeBot, etc.)
 - **llms.txt** — makes your project discoverable by AI assistants
 - **structured data** — JSON-LD schema markup for your pages
 
-### 23. Git Workflow (automatic)
+### 23. Git Workflow
+
+> *Activates automatically during branching, commits, and PRs.*
 
 - Smart branching strategy (feature branches, clean history)
 - Commit message conventions enforced
 - PR creation with summary and test plan
 - Merge strategy guidance (rebase vs. merge vs. squash)
 
-### 24. CLAUDE.md Management (`/revise-claude-md`)
+### 24. CLAUDE.md Management
+
+> *Activates at session start if CLAUDE.md is stale. Also available as `/revise-claude-md`.*
 
 Updates your project's CLAUDE.md with learnings from the current session — conventions discovered, decisions made, patterns established. Future sessions start smarter.
 
-### 25. Browser Testing (via Playwright MCP)
+### 25. Browser Testing
+
+> *Available via Playwright MCP. Activates when verifying deployed pages.*
 
 - Navigate, click, fill forms, take screenshots
 - Verify deployed pages render correctly
 - Test OAuth flows, redirects, form submissions
 - Visual regression catching
 
-### 26. Live Documentation (via Context7 MCP)
+### 26. Live Documentation
+
+> *Available via Context7 MCP. Activates when you need library docs.*
 
 - Pulls up-to-date docs for any library while you code
 - No more outdated Stack Overflow answers or hallucinated APIs
