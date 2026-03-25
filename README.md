@@ -106,17 +106,17 @@ Then in Claude Code:
 
 ## Dogfooded in Production
 
-First `/ship` run on [SaveMRR](https://savemrr.co) (AI retention platform for indie SaaS — Hono + React + Drizzle monorepo):
+`/ship` on [SaveMRR](https://savemrr.co) (AI retention platform for indie SaaS — Hono + React + Drizzle pnpm monorepo):
 
-**Backend + Dashboard (80 files, 41 route handlers):**
+**Backend + Dashboard (5 workspace packages, 41 route handlers):**
 
 | Metric | Score |
 |---|---|
 | SEO/GEO/AEO | 63/100 |
 | Security | 100/100 |
-| Code Quality | 7/100 |
+| Code Quality | 70/100 |
 | Bundle Size | 100/100 |
-| Overall | **68/100** |
+| Overall | **83/100 — READY TO SHIP** |
 
 **Landing Page (29 pre-rendered HTML pages):**
 
@@ -124,16 +124,18 @@ First `/ship` run on [SaveMRR](https://savemrr.co) (AI retention platform for in
 |---|---|
 | SEO/GEO/AEO | 52/100 |
 | Security | 100/100 |
-| Code Quality | 100/100 |
+| Code Quality | 67/100 |
 | Bundle Size | 92/100 |
-| Overall | **86/100** |
+| Overall | **78/100 — NEEDS WORK** |
 
-**217 findings across both audits.** What it caught:
+**227 findings across both audits.** What it caught:
 
-- **9 N+1 query patterns** — database inserts inside loops in route handlers
-- **179 SEO issues** — missing speakable schema, orphan pages, title/description length, missing H1s, no question-format headings for AI search
+- **1 real N+1 query** in a background job (9 seed-data loops correctly downgraded to low priority)
+- **33 unused dependencies** in landing page — dead shadcn/ui wrapper files detected via import graph analysis
+- **153 SEO issues** — missing structured data, title/description length, no question-format headings for AI search
 - **1 memory leak** — module-scoped array with `.push()` growing unbounded
-- **1 heavy dependency** — `moment.js` detected in landing page bundle (dayjs is 2KB)
+- **1 heavy dependency** — `date-fns` detected in landing page bundle
+- **SSL certificate** — valid, Let's Encrypt, 84 days until expiry
 
 One command found all of this. No manual checklist. No guessing.
 
