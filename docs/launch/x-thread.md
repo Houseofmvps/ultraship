@@ -66,7 +66,7 @@ Technical details for the nerds:
 → No telemetry, no phone-home
 → SSRF protection on every HTTP tool
 → execFileSync everywhere (no shell injection)
-→ 59 unit tests
+→ 108 unit tests
 → CI on Node 18, 20, 22
 → MIT license
 

@@ -22,7 +22,7 @@ Technical decisions:
 - 1 runtime dependency (htmlparser2, 30KB SAX parser). I wanted zero supply chain surface area.
 - All subprocess calls use execFileSync with array args — no shell injection possible.
 - SSRF protection on every HTTP tool. Private IPs, cloud metadata endpoints, and non-HTTP schemes are blocked.
-- 59 unit tests running on Node 18, 20, 22.
+- 108 unit tests running on Node 18, 20, 22.
 - No telemetry. No analytics. No phone-home.
 
 It also works standalone via npx:

@@ -51,7 +51,7 @@ npx ultraship security .
 
 - 22 skills, 20 tools, 5 agents, 17 commands
 - 1 dependency (htmlparser2)
-- 59 unit tests
+- 108 unit tests
 - MIT license, free forever
 - No telemetry
 

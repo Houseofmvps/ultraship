@@ -19,6 +19,30 @@ function checkUrl(url, followRedirects = 3) {
 
     const req = mod.request(url, { method: 'GET', timeout: 10000 }, (res) => {
       const responseTime = Date.now() - startTime;
+
+      // Capture SSL cert immediately before body consumption destroys the socket
+      let ssl = null;
+      if (isHttps && res.socket) {
+        try {
+          const getPeerCert = res.socket.getPeerCertificate || res.connection?.getPeerCertificate;
+          if (getPeerCert) {
+            const cert = getPeerCert.call(res.socket);
+            if (cert && Object.keys(cert).length > 0) {
+              const expiresAt = cert.valid_to ? new Date(cert.valid_to) : null;
+              const daysUntilExpiry = expiresAt ? Math.floor((expiresAt - Date.now()) / 86400000) : null;
+              ssl = {
+                valid: daysUntilExpiry !== null ? daysUntilExpiry > 0 : null,
+                expires: cert.valid_to || null,
+                days_until_expiry: daysUntilExpiry,
+                issuer: cert.issuer ? (cert.issuer.O || cert.issuer.CN || null) : null,
+                subject: cert.subject ? (cert.subject.CN || null) : null,
+                warning: daysUntilExpiry !== null && daysUntilExpiry <= 30 ? `SSL expires in ${daysUntilExpiry} days` : null,
+              };
+            }
+          }
+        } catch { /* ignore */ }
+      }
+
       const acc = createResponseAccumulator();
       res.on('data', (chunk) => { acc.onData(chunk); });
       res.on('end', () => {
@@ -35,25 +59,6 @@ function checkUrl(url, followRedirects = 3) {
             redirects: [{ from: url, to: redirectUrl, status: res.statusCode }, ...(result.redirects || [])],
           })));
           return;
-        }
-
-        // SSL info
-        let ssl = null;
-        if (isHttps && res.socket && res.socket.getPeerCertificate) {
-          try {
-            const cert = res.socket.getPeerCertificate();
-            if (cert && cert.valid_to) {
-              const expiresAt = new Date(cert.valid_to);
-              const daysUntilExpiry = Math.floor((expiresAt - Date.now()) / 86400000);
-              ssl = {
-                valid: daysUntilExpiry > 0,
-                expires: cert.valid_to,
-                days_until_expiry: daysUntilExpiry,
-                issuer: cert.issuer ? cert.issuer.O : null,
-                warning: daysUntilExpiry <= 30 ? `SSL expires in ${daysUntilExpiry} days` : null,
-              };
-            }
-          } catch { /* ignore */ }
         }
 
         // Security headers

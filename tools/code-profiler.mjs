@@ -45,6 +45,42 @@ function isRouteHandler(content, filePath) {
   return false;
 }
 
+// Files where DB-in-loop patterns are expected and non-critical
+function isNonProductionFile(filePath) {
+  const rel = filePath.toLowerCase();
+  return (
+    rel.includes('seed') || rel.includes('fixture') ||
+    rel.includes('test') || rel.includes('spec') || rel.includes('__test') ||
+    rel.includes('migration') || rel.includes('migrate') ||
+    rel.includes('/scripts/') || rel.includes('/demo')
+  );
+}
+
+// Check if a specific line is inside a seed/demo/test function context
+// Scans backwards for the nearest route/function definition and checks for seed keywords
+function isInSeedContext(lines, lineIndex) {
+  const SEED_KEYWORDS = /seed|demo|populate|fixture|mock|fake|sample|generate.*data|test.*data/i;
+  const ROUTE_DEF = /\.(get|post|put|delete|patch|all)\s*\(/;
+  const FUNC_DEF = /(?:function|const|let|var)\s+\w+.*(?:=>|\{)|(?:async\s+function)/;
+
+  for (let i = lineIndex; i >= Math.max(0, lineIndex - 500); i--) {
+    const line = lines[i];
+    // Found a route definition — check if it's seed-related
+    if (ROUTE_DEF.test(line)) {
+      // Check this line and a few lines around it for seed keywords
+      for (let j = Math.max(0, i - 2); j <= Math.min(lines.length - 1, i + 2); j++) {
+        if (SEED_KEYWORDS.test(lines[j])) return true;
+      }
+      return false; // Found a route but not seed-related
+    }
+    // Check if any line on the way up has clear seed context
+    if (SEED_KEYWORDS.test(line) && FUNC_DEF.test(line)) return true;
+    // Comment indicating seed context
+    if (/^\s*\/\/.*(?:seed|demo|populate|test data)/i.test(line)) return true;
+  }
+  return false;
+}
+
 // Patterns that indicate synchronous file/process operations in user code
 // These are string patterns we SEARCH FOR in analyzed files — we do not call them
 const SYNC_PATTERNS = [
@@ -64,6 +100,7 @@ function analyzeFile(filePath, relPath, content) {
   const findings = [];
   const lines = content.split('\n');
   const isHandler = isRouteHandler(content, relPath);
+  const isNonProd = isNonProductionFile(relPath);
 
   // === N+1 Query Detection ===
   // Block-based loops: for, for..of, while, forEach/map with braces
@@ -141,9 +178,13 @@ function analyzeFile(filePath, relPath, content) {
     const insideAnyLoop = insideBlockLoop || insideCallbackLoop || sameLineCallback;
 
     if (insideAnyLoop && queryPatterns.some(p => p.test(line))) {
+      // Downgrade severity for seed/test/migration files or seed function context
+      const inSeedCtx = isNonProd || isInSeedContext(lines, i);
+      const severity = inSeedCtx ? 'low' : 'critical';
+      const suffix = inSeedCtx ? ' (in seed/test context — low priority)' : '';
       findings.push({
-        file: relPath, line: i + 1, severity: 'critical', category: 'n+1',
-        message: 'Database query inside loop — N+1 pattern detected. Use batch query (findMany/IN clause) instead',
+        file: relPath, line: i + 1, severity, category: 'n+1',
+        message: `Database query inside loop — N+1 pattern detected. Use batch query (findMany/IN clause) instead${suffix}`,
         code: trimmed.slice(0, 120),
       });
     }

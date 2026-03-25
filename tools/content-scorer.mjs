@@ -213,13 +213,35 @@ function analyzeContent(html, filePath, keyword) {
     }
   }
 
-  let score = 100;
-  for (const f of findings) {
-    if (f.severity === 'critical') score -= 20;
-    else if (f.severity === 'high') score -= 10;
-    else if (f.severity === 'medium') score -= 5;
-    else score -= 2;
+  // Weighted scoring: positive signals earn points, issues deduct
+  // Word count: 0-35 points (300+ words = full marks)
+  const wordScore = wordCount >= 800 ? 35 : wordCount >= 500 ? 30 : wordCount >= 300 ? 25 : wordCount >= 100 ? Math.round(wordCount / 100 * 8) : Math.round(wordCount / 20);
+
+  // Heading structure: 0-20 points
+  let headingScore = 0;
+  if (headings.length > 0) headingScore += 10;
+  if (h2s.length >= 2) headingScore += 5;
+  if (questionH2s.length > 0) headingScore += 5;
+
+  // Readability: 0-25 points
+  let readScore = 0;
+  if (readability !== null) {
+    if (readability >= 60) readScore = 25;
+    else if (readability >= 40) readScore = 15;
+    else readScore = 5;
   }
+
+  // Base quality: 0-20 points (no issues = full marks)
+  let qualityScore = 20;
+  for (const f of findings) {
+    if (f.severity === 'critical') qualityScore -= 10;
+    else if (f.severity === 'high') qualityScore -= 5;
+    else if (f.severity === 'medium') qualityScore -= 3;
+    else qualityScore -= 1;
+  }
+  qualityScore = Math.max(0, qualityScore);
+
+  const score = Math.min(100, Math.max(0, wordScore + headingScore + readScore + qualityScore));
 
   return {
     file: filePath,

@@ -65,12 +65,15 @@ function detectUnusedDeps(dir) {
   const prodDeps = Object.keys(pkg.dependencies || {});
   const devDeps = Object.keys(pkg.devDependencies || {});
 
-  // Read all source files and collect imports
+  // Read all source files, track per-file code for import graph analysis
   const codeFiles = findCodeFiles(dir);
+  const fileContents = new Map(); // filePath -> code
   let allCode = '';
   for (const file of codeFiles) {
     try {
-      allCode += readFileSync(file, 'utf8') + '\n';
+      const code = readFileSync(file, 'utf8');
+      fileContents.set(file, code);
+      allCode += code + '\n';
     } catch { /* skip */ }
   }
 
@@ -82,8 +85,75 @@ function detectUnusedDeps(dir) {
   for (const cf of configFiles) {
     const p = join(dir, cf);
     if (existsSync(p)) {
-      try { allCode += readFileSync(p, 'utf8') + '\n'; } catch { /* skip */ }
+      try {
+        const code = readFileSync(p, 'utf8');
+        fileContents.set(p, code);
+        allCode += code + '\n';
+      } catch { /* skip */ }
     }
+  }
+
+  // Build import graph: collect all local import targets across all files
+  const allImportTargets = new Set(); // normalized import targets (without extension)
+  for (const [, code] of fileContents) {
+    const importRegex = /(?:from\s+|require\s*\(\s*)['"]([^'"]+)['"]/g;
+    let m;
+    while ((m = importRegex.exec(code)) !== null) {
+      const target = m[1];
+      if (target.startsWith('.') || target.startsWith('@/') || target.startsWith('~/')) {
+        // Normalize: strip leading ./ @/ ~/, strip extension
+        const clean = target.replace(/^(?:\.\/|@\/|~\/)/, '').replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/, '');
+        allImportTargets.add(clean);
+        // Also add without /index suffix
+        allImportTargets.add(clean.replace(/\/index$/, ''));
+      }
+    }
+  }
+
+  // Check if a file is reachable (imported by any other file in the project)
+  function isFileReachable(filePath) {
+    const rel = relative(dir, filePath).replace(/\\/g, '/');
+    const noExt = rel.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/, '');
+    const noIndex = noExt.replace(/\/index$/, '');
+    // Entry point files are always reachable
+    const basename = filePath.split('/').pop();
+    if (['page.tsx', 'page.ts', 'page.jsx', 'layout.tsx', 'layout.ts',
+         'main.tsx', 'main.ts', 'App.tsx', 'App.ts', 'index.tsx', 'index.ts',
+         'index.js', 'main.js'].includes(basename)) return true;
+    // Route files are always reachable
+    if (rel.includes('/routes/') || rel.includes('/api/') || rel.includes('/pages/')) return true;
+    // Config files are always reachable
+    if (rel.includes('config')) return true;
+    // Check if any other file imports this one
+    for (const target of allImportTargets) {
+      if (target === noExt || target === noIndex ||
+          target === `src/${noExt}` || target === `src/${noIndex}` ||
+          noExt.endsWith(`/${target}`) || noIndex.endsWith(`/${target}`)) return true;
+    }
+    return false;
+  }
+
+  // Find which files import each dep
+  function findDepImportFiles(dep) {
+    const aliases = IMPORT_ALIASES[dep] || [dep];
+    const files = [];
+    for (const [filePath, code] of fileContents) {
+      for (const alias of aliases) {
+        if (code.includes(`'${alias}'`) || code.includes(`"${alias}"`) ||
+            code.includes(`'${alias}/`) || code.includes(`"${alias}/`)) {
+          files.push(filePath);
+          break;
+        }
+      }
+      // Scoped package check
+      if (dep.startsWith('@') && !files.includes(filePath)) {
+        if (code.includes(`'${dep}'`) || code.includes(`"${dep}"`) ||
+            code.includes(`'${dep}/`) || code.includes(`"${dep}/`)) {
+          files.push(filePath);
+        }
+      }
+    }
+    return files;
   }
 
   const unused = [];
@@ -98,13 +168,11 @@ function detectUnusedDeps(dir) {
     for (const alias of aliases) {
       if (allCode.includes(`'${alias}'`) || allCode.includes(`"${alias}"`)) return true;
       if (allCode.includes(`'${alias}/`) || allCode.includes(`"${alias}/`)) return true;
-      // require() style
       if (allCode.includes(`require('${alias}')`) || allCode.includes(`require("${alias}")`)) return true;
     }
 
     // Scoped packages — check base import
     if (dep.startsWith('@')) {
-      const scope = dep.split('/')[0];
       if (allCode.includes(`'${dep}'`) || allCode.includes(`"${dep}"`)) return true;
       if (allCode.includes(`'${dep}/`) || allCode.includes(`"${dep}/`)) return true;
     }
@@ -112,9 +180,19 @@ function detectUnusedDeps(dir) {
     return false;
   }
 
+  // Check if a dep is only used in dead (unreachable) wrapper files
+  function isDeadCode(dep) {
+    const importFiles = findDepImportFiles(dep);
+    if (importFiles.length === 0) return true; // not imported at all
+    // If ALL files that import this dep are unreachable, it's dead code
+    return importFiles.every(f => !isFileReachable(f));
+  }
+
   for (const dep of prodDeps) {
     if (!isUsed(dep)) {
       unused.push({ name: dep, type: 'production', severity: 'high', message: `"${dep}" is in dependencies but not imported anywhere — remove to reduce install size` });
+    } else if (isDeadCode(dep)) {
+      unused.push({ name: dep, type: 'production', severity: 'medium', message: `"${dep}" is only imported in unused wrapper files — remove if those components are not needed` });
     }
   }
 

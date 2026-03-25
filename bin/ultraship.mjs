@@ -167,10 +167,13 @@ async function runShip(dir) {
     }
     // Dep-doctor: unused deps and outdated deps
     if (depsData && !depsData._failed) {
-      const unused = depsData.unused?.length || 0;
+      const unusedList = depsData.unused || [];
       const outdated = depsData.outdated?.length || 0;
-      deductions += unused * 3; // unused deps = medium issue
-      deductions += outdated * 1; // outdated = low issue
+      for (const u of unusedList) {
+        if (u.severity === 'high') deductions += 3; // truly unused — not imported at all
+        else deductions += 1; // dead wrapper deps — bloat only, lower impact
+      }
+      deductions += outdated * 1;
     }
     return Math.max(0, 100 - deductions);
   }

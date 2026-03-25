@@ -22,7 +22,7 @@ The best part? It works without Claude Code too:
 
 npx ultraship ship .
 
-22 skills. 20 tools. 5 agents. 1 dependency. 59 tests. MIT license.
+22 skills. 20 tools. 5 agents. 1 dependency. 108 tests. MIT license.
 
 Free forever. No pro tier. No paywalls.
 
