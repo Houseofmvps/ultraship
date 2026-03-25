@@ -72,8 +72,22 @@ function runToolAsync(toolFile, dir) {
     execFile('node', [join(TOOLS_DIR, toolFile), dir], {
       encoding: 'utf8', timeout: 60000,
     }, (err, stdout) => {
-      try { res(JSON.parse(stdout || (err && err.stdout) || '{}')); }
-      catch { res(null); }
+      if (err && err.killed) {
+        // Tool timed out
+        res({ _error: `${toolFile} timed out (>60s)`, _failed: true, findings: [] });
+        return;
+      }
+      const raw = stdout || (err && err.stdout) || '';
+      if (!raw.trim()) {
+        // Tool produced no output (crashed)
+        res({ _error: `${toolFile} produced no output`, _failed: true, findings: [] });
+        return;
+      }
+      try {
+        res(JSON.parse(raw));
+      } catch {
+        res({ _error: `${toolFile} returned invalid JSON`, _failed: true, findings: [] });
+      }
     });
   });
 }
@@ -81,89 +95,109 @@ function runToolAsync(toolFile, dir) {
 // ── /ship: the scorecard ──
 async function runShip(dir) {
   const resolvedDir = resolve(dir);
+  if (!existsSync(resolvedDir)) {
+    console.error(`\n  ${C.red}${C.bold}Error:${C.nc} Directory not found: ${resolvedDir}\n`);
+    process.exit(1);
+  }
   console.log(`\n  ${C.cyan}${C.bold}⚡ ULTRASHIP${C.nc} ${C.dim}v${getVersion()}${C.nc}`);
   console.log(`  ${C.dim}${'─'.repeat(45)}${C.nc}\n`);
 
   // Run all audits in parallel
-  process.stdout.write(`  ${C.yellow}▸ Running 5 audits in parallel...${C.nc}`);
+  process.stdout.write(`  ${C.yellow}▸ Running audits in parallel...${C.nc}`);
 
-  const [seo, secrets, profile, bundle, env] = await Promise.all([
+  const [seo, secrets, profile, deps, bundle] = await Promise.all([
     runToolAsync('seo-scanner.mjs', resolvedDir),
     runToolAsync('secret-scanner.mjs', resolvedDir),
     runToolAsync('code-profiler.mjs', resolvedDir),
+    runToolAsync('dep-doctor.mjs', resolvedDir),
     runToolAsync('bundle-tracker.mjs', resolvedDir),
-    runToolAsync('env-validator.mjs', resolvedDir),
   ]);
 
   console.log(` ${C.green}done${C.nc}\n`);
 
-  // Calculate scores
-  function calcSeoScore(data) {
-    if (!data || !data.findings) return 100;
-    const findings = data.findings;
+  // Track which audits failed
+  const failures = [];
+  if (seo?._failed) failures.push(`SEO: ${seo._error}`);
+  if (secrets?._failed) failures.push(`Security: ${secrets._error}`);
+  if (profile?._failed) failures.push(`Code Quality: ${profile._error}`);
+  if (deps?._failed) failures.push(`Dependencies: ${deps._error}`);
+  if (bundle?._failed) failures.push(`Bundle: ${bundle._error}`);
+
+  // Calculate scores — failed tools return null (excluded from overall)
+  function calcFindingsScore(data, deductionMap, dedupeByRule = false) {
+    if (!data || data._failed) return null;
+    if (!data.findings) return 100;
     let deductions = 0;
-    for (const f of findings) {
-      if (f.severity === 'critical') deductions += 8;
-      else if (f.severity === 'high') deductions += 5;
-      else if (f.severity === 'medium') deductions += 3;
-      else if (f.severity === 'low') deductions += 1;
+    if (dedupeByRule) {
+      // SEO: same rule on N pages = one deduction (it's one fix, not N fixes)
+      const seenRules = new Set();
+      for (const f of data.findings) {
+        const ruleKey = f.rule || f.category || f.message;
+        if (!seenRules.has(ruleKey)) {
+          seenRules.add(ruleKey);
+          deductions += deductionMap[f.severity] || 0;
+        }
+      }
+    } else {
+      for (const f of data.findings) {
+        deductions += deductionMap[f.severity] || 0;
+      }
     }
     return Math.max(0, 100 - deductions);
   }
 
-  function calcSecurityScore(data) {
-    if (!data || !data.findings) return 100;
+  // SEO: 60+ rules, dedupe by rule, lighter weights
+  const seoScore = calcFindingsScore(seo, { critical: 5, high: 3, medium: 1, low: 0 }, true);
+  // Security: leaked secrets are severe
+  const securityScore = calcFindingsScore(secrets, { critical: 15, high: 10, medium: 5 });
+
+  // Code Quality: profiler findings + dep-doctor findings combined
+  function calcQualityScore(profileData, depsData) {
     let deductions = 0;
-    for (const f of data.findings) {
-      if (f.severity === 'critical') deductions += 15;
-      else if (f.severity === 'high') deductions += 10;
-      else if (f.severity === 'medium') deductions += 5;
+    // Profiler findings (N+1, sync I/O, memory leaks, etc.)
+    if (profileData && !profileData._failed && profileData.findings) {
+      for (const f of profileData.findings) {
+        if (f.severity === 'critical') deductions += 10;
+        else if (f.severity === 'high') deductions += 6;
+        else if (f.severity === 'medium') deductions += 3;
+        else deductions += 1;
+      }
+    } else if (!profileData || profileData._failed) {
+      return null;
+    }
+    // Dep-doctor: unused deps and outdated deps
+    if (depsData && !depsData._failed) {
+      const unused = depsData.unused?.length || 0;
+      const outdated = depsData.outdated?.length || 0;
+      deductions += unused * 3; // unused deps = medium issue
+      deductions += outdated * 1; // outdated = low issue
     }
     return Math.max(0, 100 - deductions);
   }
+  const qualityScore = calcQualityScore(profile, deps);
 
-  function calcQualityScore(data) {
-    if (!data || !data.findings) return 100;
-    let deductions = 0;
-    for (const f of data.findings) {
-      if (f.severity === 'critical') deductions += 10;
-      else if (f.severity === 'high') deductions += 6;
-      else if (f.severity === 'medium') deductions += 3;
-      else deductions += 1;
-    }
-    return Math.max(0, 100 - deductions);
-  }
-
-  function calcEnvScore(data) {
-    if (!data || !data.success) return 100;
-    const issues = (data.missing || []).length + (data.empty || []).length + (data.placeholder || []).length;
-    return Math.max(0, 100 - issues * 10);
-  }
-
+  // Bundle: size + heavy dependency detection
   function calcBundleScore(data) {
-    if (!data || !data.success) return 100;
-    const heavyDeps = (data.heavy_dependencies || []).length;
-    const totalMB = (data.total_size || 0) / (1024 * 1024);
+    if (!data || data._failed) return null;
+    if (!data.success) return 100; // no build output = nothing to check
+    const heavyDeps = data.dependencies?.heavy_deps?.length || data.heavy_dependencies?.length || 0;
+    const totalBytes = data.bundle?.total_bytes || data.total_size || 0;
+    const totalMB = totalBytes / (1024 * 1024);
     let deductions = heavyDeps * 8;
     if (totalMB > 5) deductions += 15;
     else if (totalMB > 2) deductions += 8;
     return Math.max(0, 100 - deductions);
   }
-
-  const seoScore = calcSeoScore(seo);
-  const securityScore = calcSecurityScore(secrets);
-  const qualityScore = calcQualityScore(profile);
-  const envScore = calcEnvScore(env);
   const bundleScore = calcBundleScore(bundle);
 
-  // Performance = average of bundle + env (no Lighthouse in CLI — needs Chrome)
-  const perfScore = Math.round((bundleScore + envScore) / 2);
-
-  const overall = Math.round((seoScore + securityScore + qualityScore + perfScore) / 4);
+  // Calculate overall — only from audits that actually ran
+  const scores = [seoScore, securityScore, qualityScore, bundleScore].filter(s => s !== null);
+  const overall = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+  const hasFailures = failures.length > 0;
 
   // Count issues
   const totalFindings = (seo?.findings?.length || 0) + (secrets?.findings?.length || 0) +
-    (profile?.findings?.length || 0) + (env?.missing?.length || 0) + (env?.empty?.length || 0);
+    (profile?.findings?.length || 0) + (deps?.unused?.length || 0) + (deps?.outdated?.length || 0);
 
   function bar(score) {
     const filled = Math.round(score / 100 * 12);
@@ -177,14 +211,21 @@ async function runShip(dir) {
   }
 
   function printRow(label, score) {
+    if (score === null) {
+      console.log(`  ${C.white}${C.bold}║${C.nc}  ${label.padEnd(16)} ${C.red}${C.bold}FAIL${C.nc}       ${C.red}${'░'.repeat(12)}${C.nc}  ${C.white}${C.bold}║${C.nc}`);
+      return;
+    }
     const c = scoreColor(score);
     console.log(`  ${C.white}${C.bold}║${C.nc}  ${label.padEnd(16)} ${c}${C.bold}${String(score).padStart(3)}${C.nc}/100  ${c}${bar(score)}${C.nc}  ${C.white}${C.bold}║${C.nc}`);
   }
 
-  const status = overall >= 80;
-  const statusText = status
-    ? `${C.green}${C.bold}✅ READY TO SHIP${C.nc}`
-    : `${C.red}${C.bold}❌ NOT READY${C.nc}`;
+  // If any audit failed, never show READY TO SHIP
+  const status = !hasFailures && overall >= 80;
+  const statusText = hasFailures
+    ? `${C.red}${C.bold}⚠  INCOMPLETE${C.nc}`
+    : status
+      ? `${C.green}${C.bold}✅ READY TO SHIP${C.nc}`
+      : `${C.red}${C.bold}❌ NOT READY${C.nc}`;
 
   console.log(`  ${C.white}${C.bold}╔══════════════════════════════════════════╗${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}      ${C.cyan}${C.bold}U L T R A S H I P   S C O R E${C.nc}       ${C.white}${C.bold}║${C.nc}`);
@@ -193,7 +234,7 @@ async function runShip(dir) {
   printRow('SEO/GEO/AEO', seoScore);
   printRow('Security', securityScore);
   printRow('Code Quality', qualityScore);
-  printRow('Performance', perfScore);
+  printRow('Bundle Size', bundleScore);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
@@ -201,15 +242,25 @@ async function runShip(dir) {
   console.log(`  ${C.white}${C.bold}║${C.nc}   STATUS         ${statusText}       ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
-  console.log(`  ${C.white}${C.bold}║${C.nc}  ${C.dim}Issues: ${totalFindings} findings across 5 audits${C.nc}       ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}  ${C.dim}Issues: ${totalFindings} findings across ${scores.length}/${4} audits${C.nc}      ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╚══════════════════════════════════════════╝${C.nc}`);
+
+  if (hasFailures) {
+    console.log(`\n  ${C.red}${C.bold}Audits that failed to run:${C.nc}`);
+    for (const f of failures) {
+      console.log(`  ${C.red}  ✗ ${f}${C.nc}`);
+    }
+    console.log(`  ${C.dim}Re-run to retry. Score is based on ${scores.length} of 4 audits.${C.nc}`);
+  }
 
   console.log(`\n  ${C.dim}Tip: Run individual audits for details:${C.nc}`);
   console.log(`  ${C.dim}  ultraship seo ${dir}${C.nc}`);
   console.log(`  ${C.dim}  ultraship security ${dir}${C.nc}`);
   console.log(`  ${C.dim}  ultraship profile ${dir}${C.nc}\n`);
 
-  process.exit(status ? 0 : 1);
+  // Always exit 0 — the scorecard ran successfully.
+  // Low scores are not errors. Exit 1 is reserved for actual failures (bad paths, crashes).
+  process.exit(0);
 }
 
 // ── /init: scaffold CLAUDE.md ──
@@ -324,6 +375,12 @@ if (command === 'ship') {
 
   const toolPath = join(TOOLS_DIR, cmd.tool);
   const resolvedTarget = target.startsWith('http') ? target : resolve(target);
+
+  // Validate directory exists for non-URL targets
+  if (!target.startsWith('http') && !existsSync(resolvedTarget)) {
+    console.error(`Error: Path not found: ${resolvedTarget}`);
+    process.exit(1);
+  }
 
   try {
     const output = execFileSync('node', [toolPath, resolvedTarget], {

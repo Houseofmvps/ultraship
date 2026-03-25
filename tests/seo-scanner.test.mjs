@@ -101,4 +101,24 @@ describe('seo-scanner', () => {
     const result = runScanner(tmpDir);
     assert.equal(result.files_scanned, 1, 'Should only scan 1 file, skipping node_modules');
   });
+
+  it('scans dist/ when it contains HTML files (pre-rendered sites)', () => {
+    const distDir = path.join(tmpDir, 'dist');
+    fs.mkdirSync(distDir, { recursive: true });
+    fs.writeFileSync(path.join(distDir, 'index.html'), `<!DOCTYPE html>
+<html><head><title>Pre-rendered</title></head><body><h1>Hello</h1></body></html>`);
+    fs.writeFileSync(path.join(distDir, 'about.html'), `<!DOCTYPE html>
+<html><head><title>About</title></head><body><h1>About</h1></body></html>`);
+    const result = runScanner(tmpDir);
+    assert.equal(result.files_scanned, 2, 'Should scan HTML files inside dist/');
+  });
+
+  it('skips dist/ when it has no HTML files (compiled JS only)', () => {
+    const distDir = path.join(tmpDir, 'dist');
+    fs.mkdirSync(distDir, { recursive: true });
+    fs.writeFileSync(path.join(distDir, 'bundle.js'), 'console.log("compiled")');
+    fs.writeFileSync(path.join(tmpDir, 'index.html'), '<html><head><title>Main</title></head><body><h1>Hi</h1></body></html>');
+    const result = runScanner(tmpDir);
+    assert.equal(result.files_scanned, 1, 'Should skip dist/ with only JS files');
+  });
 });

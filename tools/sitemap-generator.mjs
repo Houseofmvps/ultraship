@@ -4,6 +4,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { findWorkspacePackages } from './lib/monorepo.mjs';
 
 const dir = process.argv[2] || '.';
 const baseUrl = (process.argv[3] || 'https://example.com').replace(/\/$/, '');
@@ -70,15 +71,17 @@ function scanStaticHtml(staticDir) {
   }
 }
 
-// Scan Next.js app/ and pages/ directories
-scanNextApp(path.join(absDir, 'app'));
-scanNextApp(path.join(absDir, 'src', 'app'));
-scanNextPages(path.join(absDir, 'pages'));
-scanNextPages(path.join(absDir, 'src', 'pages'));
+// Scan all workspace packages in monorepos
+const packages = findWorkspacePackages(absDir);
+for (const pkgDir of packages) {
+  scanNextApp(path.join(pkgDir, 'app'));
+  scanNextApp(path.join(pkgDir, 'src', 'app'));
+  scanNextPages(path.join(pkgDir, 'pages'));
+  scanNextPages(path.join(pkgDir, 'src', 'pages'));
 
-// Scan static HTML output directories
-for (const staticDirName of ['public', 'dist', 'build', 'out']) {
-  scanStaticHtml(path.join(absDir, staticDirName));
+  for (const staticDirName of ['public', 'dist', 'build', 'out']) {
+    scanStaticHtml(path.join(pkgDir, staticDirName));
+  }
 }
 
 const sortedRoutes = Array.from(routes).sort();

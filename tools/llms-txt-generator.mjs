@@ -4,28 +4,32 @@
 
 import fs from 'fs';
 import path from 'path';
+import { findWorkspacePackages } from './lib/monorepo.mjs';
 
 const dir = process.argv[2] || '.';
 const absDir = path.resolve(dir);
 
-// Read package.json
+// Read package.json from root and all workspace packages
 let pkgName = 'Unknown Project';
 let pkgDescription = '';
-let pkgDeps = [];
+let pkgDeps = new Set();
 
-const pkgPath = path.join(absDir, 'package.json');
-if (fs.existsSync(pkgPath)) {
+const packages = findWorkspacePackages(absDir);
+for (const pkgDir of packages) {
+  const pkgPath = path.join(pkgDir, 'package.json');
+  if (!fs.existsSync(pkgPath)) continue;
   try {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-    pkgName = pkg.name || pkgName;
-    pkgDescription = pkg.description || '';
-    const allDeps = {
-      ...(pkg.dependencies || {}),
-      ...(pkg.devDependencies || {}),
-    };
-    pkgDeps = Object.keys(allDeps);
+    // Use root package for name/description
+    if (pkgDir === absDir) {
+      pkgName = pkg.name || pkgName;
+      pkgDescription = pkg.description || pkgDescription;
+    }
+    const allDeps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+    for (const d of Object.keys(allDeps)) pkgDeps.add(d);
   } catch {}
 }
+pkgDeps = Array.from(pkgDeps);
 
 // Read README.md
 let readmeText = '';

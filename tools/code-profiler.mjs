@@ -66,45 +66,81 @@ function analyzeFile(filePath, relPath, content) {
   const isHandler = isRouteHandler(content, relPath);
 
   // === N+1 Query Detection ===
-  const loopPatterns = [
+  // Block-based loops: for, for..of, while, forEach/map with braces
+  const blockLoopPatterns = [
     /\bfor\s*\(/,
-    /\.forEach\s*\(/,
-    /\.map\s*\(/,
     /\bfor\s+.*\bof\b/,
     /\bwhile\s*\(/,
   ];
+  // Callback loops: .forEach(...) and .map(...) — may be braceless arrows
+  const callbackLoopPattern = /\.(forEach|map)\s*\(/;
+
+  // Query patterns — must be actual DB calls, not ORM query builder chaining
   const queryPatterns = [
     /\.findOne\s*\(/, /\.findFirst\s*\(/, /\.findUnique\s*\(/,
     /\.find\s*\(/, /\.findMany\s*\(/,
     /\.query\s*\(/, /\.execute\s*\(/,
-    /\.select\s*\(/, /\.where\s*\(/,
     /await\s+db\./, /await\s+prisma\./,
-    /\.from\s*\(/,
   ];
 
-  let insideLoop = 0;
-  let braceDepthAtLoopStart = 0;
+  // Track loops using absolute paren and brace depth
+  // Block loops (for/while): tracked by brace depth
+  // Callback loops (.map/.forEach): tracked by paren depth
+  const blockLoopStack = [];   // each entry: braceDepth when loop was detected
+  const callbackLoopStack = []; // each entry: absolute parenDepth at the opening ( of .map(
   let braceDepth = 0;
+  let parenDepth = 0;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
     if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) continue;
 
+    // Detect loops BEFORE counting delimiters on this line
+    const isBlockLoop = blockLoopPatterns.some(p => p.test(line));
+    const callbackMatch = callbackLoopPattern.test(line);
+
+    if (isBlockLoop) {
+      blockLoopStack.push(braceDepth);
+    }
+
+    if (callbackMatch) {
+      // The callback lives inside the parens of .map(...) or .forEach(...)
+      // Record current parenDepth — callback closes when depth returns to this level
+      callbackLoopStack.push(parenDepth);
+    }
+
+    // Count delimiters on this line
     for (const ch of line) {
       if (ch === '{') braceDepth++;
+      if (ch === '(') parenDepth++;
       if (ch === '}') {
         braceDepth--;
-        if (insideLoop > 0 && braceDepth < braceDepthAtLoopStart) insideLoop--;
+        while (blockLoopStack.length > 0 && braceDepth <= blockLoopStack[blockLoopStack.length - 1]) {
+          blockLoopStack.pop();
+        }
+      }
+      if (ch === ')') {
+        parenDepth--;
+        while (callbackLoopStack.length > 0 && parenDepth <= callbackLoopStack[callbackLoopStack.length - 1]) {
+          callbackLoopStack.pop();
+        }
       }
     }
 
-    if (loopPatterns.some(p => p.test(line))) {
-      insideLoop++;
-      braceDepthAtLoopStart = braceDepth;
-    }
+    // After counting delimiters: check if we're still inside any loop
+    // For the CURRENT line, if a callback opened and closed on the same line,
+    // it's already been popped. But if the query is on the same line as the .map(),
+    // it was inside the callback when the paren depth was higher.
+    // Solution: check BEFORE popping. Instead, we check if this line had a callback
+    // AND a query pattern — if the .map() opened and the query is inside the parens.
+    const insideBlockLoop = blockLoopStack.length > 0;
+    const insideCallbackLoop = callbackLoopStack.length > 0;
+    // Special case: callback opened AND closed on same line (e.g., ids.map(id => db.find(id)))
+    const sameLineCallback = callbackMatch && !insideCallbackLoop;
+    const insideAnyLoop = insideBlockLoop || insideCallbackLoop || sameLineCallback;
 
-    if (insideLoop > 0 && queryPatterns.some(p => p.test(line))) {
+    if (insideAnyLoop && queryPatterns.some(p => p.test(line))) {
       findings.push({
         file: relPath, line: i + 1, severity: 'critical', category: 'n+1',
         message: 'Database query inside loop — N+1 pattern detected. Use batch query (findMany/IN clause) instead',

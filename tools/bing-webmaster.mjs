@@ -19,6 +19,7 @@
 //   4. Set ULTRASHIP_BING_KEY=your-api-key
 
 import https from 'https';
+import { validateUrl } from './lib/security.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -76,6 +77,12 @@ async function main() {
 
   const siteUrl = process.argv[3];
 
+  // Validate user-provided URLs
+  if (siteUrl) {
+    const check = validateUrl(siteUrl);
+    if (!check.valid) error(`Invalid site URL: ${check.reason}`);
+  }
+
   switch (command) {
     case 'submit-sitemap': {
       const sitemapUrl = process.argv[4];
@@ -115,6 +122,8 @@ async function main() {
     case 'submit-url': {
       const pageUrl = process.argv[4];
       if (!siteUrl || !pageUrl) error('Usage: submit-url <site-url> <page-url>');
+      const pageCheck = validateUrl(pageUrl);
+      if (!pageCheck.valid) error(`Invalid page URL: ${pageCheck.reason}`);
       try {
         await apiRequest('PUT', `SubmitUrl`, apiKey, {
           siteUrl,
@@ -130,6 +139,10 @@ async function main() {
     case 'submit-url-batch': {
       const urls = process.argv.slice(4);
       if (!siteUrl || urls.length === 0) error('Usage: submit-url-batch <site-url> <url1> <url2> ...');
+      for (const u of urls) {
+        const batchCheck = validateUrl(u);
+        if (!batchCheck.valid) error(`Invalid URL "${u}": ${batchCheck.reason}`);
+      }
       try {
         await apiRequest('PUT', `SubmitUrlBatch`, apiKey, {
           siteUrl,
@@ -145,6 +158,8 @@ async function main() {
     case 'url-info': {
       const pageUrl = process.argv[4];
       if (!siteUrl || !pageUrl) error('Usage: url-info <site-url> <page-url>');
+      const urlCheck = validateUrl(pageUrl);
+      if (!urlCheck.valid) error(`Invalid page URL: ${urlCheck.reason}`);
       try {
         const result = await apiRequest('GET', `GetUrlTrafficInfo&siteUrl=${encodeURIComponent(siteUrl)}&url=${encodeURIComponent(pageUrl)}`, apiKey);
         output({

@@ -6,6 +6,7 @@
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, relative, extname } from 'path';
+import { findWorkspacePackages } from './lib/monorepo.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -108,10 +109,6 @@ function detectUnusedDeps(dir) {
       if (allCode.includes(`'${dep}/`) || allCode.includes(`"${dep}/`)) return true;
     }
 
-    // Simple string search as fallback (handles dynamic requires, config references)
-    const simpleName = dep.replace(/^@.*\//, '');
-    if (allCode.includes(simpleName)) return true;
-
     return false;
   }
 
@@ -191,20 +188,41 @@ function main() {
     process.exit(0);
   }
 
-  const unusedResult = detectUnusedDeps(dir);
-  const outdatedResult = detectOutdated(dir);
+  // Scan all workspace packages in monorepos
+  const packages = findWorkspacePackages(dir);
+  let allUnused = [];
+  let allOutdated = [];
+  let totalProd = 0;
+  let totalDev = 0;
 
-  const allFindings = [...unusedResult.unused, ...outdatedResult.outdated];
+  for (const pkgDir of packages) {
+    const pkgPath = join(pkgDir, 'package.json');
+    if (!existsSync(pkgPath)) continue;
+
+    const unusedResult = detectUnusedDeps(pkgDir);
+    const outdatedResult = detectOutdated(pkgDir);
+
+    // Tag findings with their workspace package
+    const label = pkgDir === dir ? '(root)' : relative(dir, pkgDir);
+    for (const u of unusedResult.unused) u.package = label;
+    for (const o of outdatedResult.outdated) o.package = label;
+
+    allUnused.push(...unusedResult.unused);
+    allOutdated.push(...outdatedResult.outdated);
+    totalProd += unusedResult.total_deps || 0;
+    totalDev += unusedResult.total_dev_deps || 0;
+  }
 
   output({
     success: true,
-    total_production_deps: unusedResult.total_deps,
-    total_dev_deps: unusedResult.total_dev_deps,
-    unused_count: unusedResult.unused.length,
-    outdated_count: outdatedResult.outdated.length,
-    total_findings: allFindings.length,
-    unused: unusedResult.unused,
-    outdated: outdatedResult.outdated,
+    packages_scanned: packages.length,
+    total_production_deps: totalProd,
+    total_dev_deps: totalDev,
+    unused_count: allUnused.length,
+    outdated_count: allOutdated.length,
+    total_findings: allUnused.length + allOutdated.length,
+    unused: allUnused,
+    outdated: allOutdated,
   });
 }
 

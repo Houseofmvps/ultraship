@@ -4,6 +4,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { findWorkspacePackages } from './lib/monorepo.mjs';
 
 const dir = process.argv[2] || '.';
 const absDir = path.resolve(dir);
@@ -14,18 +15,24 @@ const schemaType = typeArg ? typeArg.replace('--type=', '') : 'Organization';
 const validTypes = ['Organization', 'SoftwareApplication', 'Product', 'FAQPage', 'HowTo'];
 const resolvedType = validTypes.includes(schemaType) ? schemaType : 'Organization';
 
-// Read package.json
+// Read package.json — prefer root, fall back to first workspace with a description
 let pkgName = 'Unknown';
 let pkgDescription = '';
 let pkgHomepage = '';
 
-const pkgPath = path.join(absDir, 'package.json');
-if (fs.existsSync(pkgPath)) {
+const packages = findWorkspacePackages(absDir);
+for (const pkgDir of packages) {
+  const pkgPath = path.join(pkgDir, 'package.json');
+  if (!fs.existsSync(pkgPath)) continue;
   try {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-    pkgName = pkg.name || pkgName;
-    pkgDescription = pkg.description || '';
-    pkgHomepage = pkg.homepage || '';
+    if (pkgDir === absDir) {
+      pkgName = pkg.name || pkgName;
+      pkgDescription = pkg.description || pkgDescription;
+      pkgHomepage = pkg.homepage || pkgHomepage;
+    } else if (!pkgDescription && pkg.description) {
+      pkgDescription = pkg.description;
+    }
   } catch {}
 }
 

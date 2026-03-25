@@ -20,6 +20,7 @@
 import https from 'https';
 import fs from 'fs';
 import crypto from 'crypto';
+import { validateUrl } from './lib/security.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -138,6 +139,12 @@ async function main() {
 
   const siteUrl = process.argv[3];
 
+  // Validate user-provided URLs
+  if (siteUrl) {
+    const check = validateUrl(siteUrl);
+    if (!check.valid) error(`Invalid site URL: ${check.reason}`);
+  }
+
   switch (command) {
     case 'submit-sitemap': {
       const sitemapUrl = process.argv[4];
@@ -177,6 +184,8 @@ async function main() {
     case 'inspect-url': {
       const pageUrl = process.argv[4];
       if (!siteUrl || !pageUrl) error('Usage: inspect-url <site-url> <page-url>');
+      const pageCheck = validateUrl(pageUrl);
+      if (!pageCheck.valid) error(`Invalid page URL: ${pageCheck.reason}`);
       try {
         const result = await apiRequest('POST', '/v1/urlInspection/index:inspect', token, {
           inspectionUrl: pageUrl,

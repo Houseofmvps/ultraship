@@ -6,6 +6,7 @@
 
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from 'fs';
 import { join, relative, extname } from 'path';
+import { findWorkspacePackages } from './lib/monorepo.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -108,8 +109,42 @@ function main() {
     process.exit(0);
   }
 
-  const buildOutput = findBuildOutput(dir);
-  const depAnalysis = analyzeDependencies(dir);
+  // Search root and all workspace packages for build output
+  let buildOutput = findBuildOutput(dir);
+  if (!buildOutput) {
+    for (const pkgDir of findWorkspacePackages(dir)) {
+      if (pkgDir === dir) continue;
+      const found = findBuildOutput(pkgDir);
+      if (found) {
+        buildOutput = { dir: relative(dir, found.path), path: found.path };
+        break;
+      }
+    }
+  }
+
+  // Aggregate dependencies from all workspace packages
+  const packages = findWorkspacePackages(dir);
+  let depAnalysis = analyzeDependencies(dir);
+  if (!depAnalysis || (depAnalysis.production_deps === 0 && depAnalysis.dev_deps === 0)) {
+    let allProd = new Set(), allDev = new Set(), allHeavy = [];
+    for (const pkgDir of packages) {
+      const da = analyzeDependencies(pkgDir);
+      if (!da) continue;
+      // Merge dep counts
+      const pkgPath = join(pkgDir, 'package.json');
+      if (existsSync(pkgPath)) {
+        const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+        for (const d of Object.keys(pkg.dependencies || {})) allProd.add(d);
+        for (const d of Object.keys(pkg.devDependencies || {})) allDev.add(d);
+      }
+      for (const h of da.heavy_deps) {
+        if (!allHeavy.find(x => x.dependency === h.dependency)) allHeavy.push(h);
+      }
+    }
+    if (allProd.size > 0 || allDev.size > 0) {
+      depAnalysis = { production_deps: allProd.size, dev_deps: allDev.size, heavy_deps: allHeavy };
+    }
+  }
   const findings = [];
 
   let bundleAnalysis = null;

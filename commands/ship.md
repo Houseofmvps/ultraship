@@ -4,118 +4,63 @@ description: Run all auditors and produce a ship-readiness scorecard
 
 # /ship — Pre-Deploy Quality Gate
 
-Run all Ultraship auditors and produce a screenshot-shareable scorecard.
+Run all Ultraship auditors in parallel and produce a screenshot-shareable scorecard.
 
-## Step 1: Detect Project Type
+## What It Runs
 
-Examine the project to determine type:
-- **API-only**: No HTML files, no index.html, no frontend framework config (next.config, vite.config, astro.config) → skip SEO and browser test
-- **Landing page**: Static HTML or SSG config, minimal backend logic → emphasize SEO + perf
-- **Full-stack**: Both frontend and backend code → run everything
+4 scored categories from 5 tools, all in parallel:
 
-## Step 1b: Pre-Flight Checks
+| Category | Tools | What it checks |
+|---|---|---|
+| **SEO/GEO/AEO** | seo-scanner | Meta tags, headings, structured data, OG tags, llms.txt, AI crawler access, canonical URLs, cross-page analysis |
+| **Security** | secret-scanner | AWS keys, Stripe keys, GitHub tokens, private keys, DB URLs, JWT secrets in source files |
+| **Code Quality** | code-profiler + dep-doctor | N+1 queries, sync I/O in handlers, memory leaks, unbounded queries, unused/outdated dependencies |
+| **Bundle Size** | bundle-tracker | Build output size, heavy dependency detection (moment→dayjs, lodash→native, axios→fetch) |
 
-Run these before auditing:
+## How to Run
 
-**Environment Validation:**
+**In Claude Code:**
+```
+/ship
+```
+
+**Standalone CLI:**
 ```bash
-node ${CLAUDE_PLUGIN_ROOT}/tools/env-validator.mjs <project-directory>
-```
-If missing env vars → flag as critical finding.
-
-**Migration Safety:**
-```bash
-node ${CLAUDE_PLUGIN_ROOT}/tools/migration-checker.mjs <project-directory>
-```
-If pending migrations → flag as warning.
-
-## Step 2: Dispatch Auditors
-
-Use the ultraship:dispatching-parallel-agents skill to run these agents:
-
-1. **seo-auditor** — Scan all HTML files for SEO/GEO/AEO issues (skip for API-only)
-2. **perf-auditor** — Run Lighthouse against the running app
-3. **security-auditor** — Run dep audit + secret scan + OWASP pattern check
-4. **code-reviewer** — Review staged changes or recent commits for quality
-5. **browser-verifier** — Smoke-test the running app with Playwright (skip for API-only)
-
-Additional checks (run inline, not as agents):
-6. **content-scorer** — Readability and content quality analysis (skip for API-only)
-7. **og-validator** — Social preview tag validation (skip for API-only)
-8. **bundle-tracker** — Bundle size analysis and heavy dependency detection
-9. **code-profiler** — N+1 queries, sync I/O, memory leaks, missing indexes
-10. **dep-doctor** — Unused and outdated dependency detection
-
-## Step 3: Collect & Score
-
-Each agent returns JSON with category, scores, and findings.
-
-**Scoring algorithm:**
-- Start at 100 per category
-- Deduct per finding: critical=-20, high=-10, medium=-5, low=-2, info=0
-- Floor at 0
-- Browser test is pass/fail (not scored numerically)
-
-**Weight distribution by project type:**
-- **Full-stack**: SEO 25%, Performance 25%, Security 25%, Code Quality 25%
-- **API-only**: Security 40%, Code Quality 40%, Performance 20%
-- **Landing page**: SEO 40%, Performance 40%, Security 20%
-
-**Overall** = weighted average of category scores (rounded to nearest integer)
-
-## Step 4: Auto-Fix
-
-Apply fixes for SEO, security, and code quality findings:
-- Use the ultraship:seo-audit skill for SEO fixes
-- Use the ultraship:security-audit skill for security fixes
-- Performance fixes require manual review (don't re-run Lighthouse)
-
-Count total fixes applied.
-
-## Step 5: Output Scorecard
-
-Format the scorecard exactly like this (adjust numbers to actual scores):
-
-```
-====================================
-  ULTRASHIP SCORECARD
-====================================
-  SEO/GEO/AEO    92/100  [==========-]
-  Performance     87/100  [========---]
-  Security        95/100  [==========-]
-  Code Quality    88/100  [========---]
-  Browser Test    PASS
-
-  OVERALL         90/100
-  STATUS          READY TO SHIP
-====================================
-  Fixed: 7 issues auto-resolved
-  Remaining: 2 manual items
-====================================
+npx ultraship ship .
+npx ultraship ship /path/to/project
 ```
 
-**Progress bar**: each `=` represents ~9 points on an 11-character bar. Calculate: `Math.round(score / 9)` filled chars, rest are `-`.
+## Scoring
+
+- Each category starts at 100, deducts per finding based on severity
+- SEO deduplicates by rule (same issue on N pages = one deduction)
+- Failed tools show as `FAIL` and are excluded from the overall average
+- Overall = average of categories that successfully ran
 
 **Status thresholds:**
-- >= 80: "READY TO SHIP"
-- 60-79: "NEEDS WORK"
-- < 60: "NOT READY"
+- >= 80: READY TO SHIP
+- 60-79: NEEDS WORK
+- < 60: NOT READY
 
-For API-only projects, omit the SEO and Browser Test lines. Adjust weights accordingly.
+## After the Scorecard
 
-## Step 6: CI Check (Optional)
+The scorecard tells you what's wrong. To fix issues:
 
-If `.github/workflows/` exists, check CI status:
-```bash
-gh run list --limit 1 --json status,conclusion
-```
-If CI is failing, add a warning below the scorecard:
-```
-  ⚠ CI: Latest run FAILED
-```
+1. Run individual audit commands for detailed findings:
+   - `ultraship seo .` — full SEO findings with file:line locations
+   - `ultraship security .` — all detected secrets
+   - `ultraship profile .` — N+1 queries, sync I/O, memory leaks
+   - `ultraship deps .` — unused and outdated packages
+
+2. In Claude Code, use the corresponding skills which include fix guidance:
+   - `/seo` — SEO audit with fix suggestions
+   - `/secure` — security audit with fix suggestions
+   - `/profile` — code quality fixes
+
+3. Re-run `/ship` to verify your score improved.
 
 ## Key Principles
 
-- **Fix, don't just audit** — auto-resolve everything possible
-- **Never block on missing tools** — if Chrome is missing, skip Lighthouse gracefully
-- **Scorecard is the product** — make it beautiful and screenshot-worthy
+- **Detect and report honestly** — tools find issues, Claude helps fix them
+- **Never block on missing tools** — if a tool fails, score excludes it and shows FAIL
+- **Scorecard is evidence** — screenshot-shareable proof of ship-readiness

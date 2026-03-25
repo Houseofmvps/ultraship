@@ -5,7 +5,8 @@
 // Safe: reads files only, no shell execution
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
-import { join } from 'path';
+import { join, relative } from 'path';
+import { findWorkspacePackages } from './lib/monorepo.mjs';
 
 function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
@@ -192,8 +193,32 @@ function main() {
     process.exit(0);
   }
 
-  const orm = detectOrm(dir);
-  if (!orm) {
+  // Scan all workspace packages in monorepos
+  const packages = findWorkspacePackages(dir);
+  const results = [];
+
+  for (const pkgDir of packages) {
+    const orm = detectOrm(pkgDir);
+    if (!orm) continue;
+
+    let result;
+    switch (orm) {
+      case 'drizzle': result = checkDrizzle(pkgDir); break;
+      case 'prisma': result = checkPrisma(pkgDir); break;
+      case 'knex': result = checkKnex(pkgDir); break;
+      default:
+        result = {
+          orm,
+          findings: [{ severity: 'info', message: `${orm} detected but migration checking not yet supported — only Drizzle, Prisma, and Knex are supported` }],
+        };
+    }
+
+    const label = pkgDir === dir ? '(root)' : relative(dir, pkgDir);
+    result.package = label;
+    results.push(result);
+  }
+
+  if (results.length === 0) {
     output({
       success: true,
       orm: null,
@@ -203,24 +228,15 @@ function main() {
     process.exit(0);
   }
 
-  let result;
-  switch (orm) {
-    case 'drizzle': result = checkDrizzle(dir); break;
-    case 'prisma': result = checkPrisma(dir); break;
-    case 'knex': result = checkKnex(dir); break;
-    default:
-      result = {
-        orm,
-        findings: [{ severity: 'info', message: `${orm} detected but migration checking not yet supported — only Drizzle, Prisma, and Knex are supported` }],
-      };
-  }
-
-  const deploy_safe = result.findings.filter(f => f.severity === 'critical').length === 0;
+  const allFindings = results.flatMap(r => r.findings.map(f => ({ ...f, package: r.package })));
+  const deploy_safe = allFindings.filter(f => f.severity === 'critical').length === 0;
 
   output({
     success: true,
+    packages_with_orm: results.length,
     deploy_safe,
-    ...result,
+    results,
+    findings: allFindings,
   });
 }
 

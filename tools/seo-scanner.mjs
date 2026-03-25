@@ -4,9 +4,24 @@ import fs from 'fs';
 import path from 'path';
 import { checkFileSize } from './lib/security.mjs';
 
-const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'build']);
+const ALWAYS_SKIP = new Set(['node_modules', '.git', '.next']);
+// dist/ and build/ are skipped UNLESS they contain HTML files (pre-rendered sites)
+const MAYBE_SKIP = new Set(['dist', 'build']);
 
-function findHtmlFiles(dir) {
+function dirHasHtml(dirPath) {
+  try {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    for (const e of entries) {
+      if (e.isFile() && /\.html?$/i.test(e.name)) return true;
+      if (e.isDirectory() && !ALWAYS_SKIP.has(e.name)) {
+        if (dirHasHtml(path.join(dirPath, e.name))) return true;
+      }
+    }
+  } catch { /* skip */ }
+  return false;
+}
+
+function findHtmlFiles(dir, skipOverrides) {
   const results = [];
   let entries;
   try {
@@ -16,9 +31,9 @@ function findHtmlFiles(dir) {
   }
   for (const entry of entries) {
     if (entry.isDirectory()) {
-      if (!SKIP_DIRS.has(entry.name)) {
-        results.push(...findHtmlFiles(path.join(dir, entry.name)));
-      }
+      if (ALWAYS_SKIP.has(entry.name)) continue;
+      if (MAYBE_SKIP.has(entry.name) && !(skipOverrides && skipOverrides.has(entry.name))) continue;
+      results.push(...findHtmlFiles(path.join(dir, entry.name), skipOverrides));
     } else if (entry.isFile() && /\.html?$/i.test(entry.name)) {
       results.push(path.join(dir, entry.name));
     }
@@ -283,8 +298,19 @@ function scanDirectory(rootDir) {
   const findings = [];
   const absRoot = path.resolve(rootDir);
 
+  // Check if dist/ or build/ contain HTML (pre-rendered sites should be scanned)
+  const includeOutputDirs = new Set();
+  for (const name of MAYBE_SKIP) {
+    const candidate = path.join(absRoot, name);
+    try {
+      if (fs.statSync(candidate).isDirectory() && dirHasHtml(candidate)) {
+        includeOutputDirs.add(name);
+      }
+    } catch { /* doesn't exist */ }
+  }
+
   // Find all HTML files
-  const htmlFiles = findHtmlFiles(absRoot);
+  const htmlFiles = findHtmlFiles(absRoot, includeOutputDirs);
 
   // Parse all files first for cross-page analysis
   const pageData = [];
@@ -473,13 +499,17 @@ function scanDirectory(rootDir) {
 
     // Orphan page detection (no other page links to this one)
     if (pageData.length > 1) {
-      const normalizedFile = '/' + relFile.replace(/\\/g, '/').replace(/index\.html?$/, '').replace(/\.html?$/, '');
+      // Strip build output prefixes (dist/, build/) so paths match link targets
+      let normalizedFile = relFile.replace(/\\/g, '/');
+      normalizedFile = normalizedFile.replace(/^(dist|build)\//, '');
+      normalizedFile = '/' + normalizedFile.replace(/index\.html?$/, '').replace(/\.html?$/, '');
       const isLinkedTo = allInternalTargets.has(normalizedFile) ||
-        allInternalTargets.has(normalizedFile + '/') ||
-        allInternalTargets.has('/' + relFile) ||
-        allInternalTargets.has('./' + relFile);
+        allInternalTargets.has(normalizedFile.replace(/\/$/, '')) ||
+        allInternalTargets.has(normalizedFile + '/');
       // Don't flag the main index page as orphan
-      if (!isLinkedTo && relFile !== 'index.html' && relFile !== 'index.htm') {
+      const isIndex = relFile === 'index.html' || relFile === 'index.htm' ||
+        relFile === 'dist/index.html' || relFile === 'build/index.html';
+      if (!isLinkedTo && !isIndex) {
         findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'orphan-page', message: 'Orphan page — no internal links point here, invisible to crawlers' });
       }
     }

@@ -14,12 +14,38 @@ function output(data) {
   process.stdout.write(JSON.stringify(data, null, 2) + '\n');
 }
 
+const ALWAYS_SKIP = new Set(['node_modules', '.git', '.next', 'coverage', '.cache']);
+const MAYBE_SKIP = new Set(['dist', 'build']);
+
+function dirHasHtml(dirPath) {
+  try {
+    for (const entry of readdirSync(dirPath)) {
+      const p = join(dirPath, entry);
+      try {
+        const s = statSync(p);
+        if (s.isFile() && (entry.endsWith('.html') || entry.endsWith('.htm'))) return true;
+        if (s.isDirectory() && !entry.startsWith('.') && dirHasHtml(p)) return true;
+      } catch { /* skip */ }
+    }
+  } catch { /* skip */ }
+  return false;
+}
+
 function findHtmlFiles(dir) {
+  const includeOverrides = new Set();
+  for (const name of MAYBE_SKIP) {
+    const p = join(dir, name);
+    try {
+      if (statSync(p).isDirectory() && dirHasHtml(p)) includeOverrides.add(name);
+    } catch { /* skip */ }
+  }
+
   const files = [];
   function walk(d) {
     try {
       for (const entry of readdirSync(d)) {
-        if (entry.startsWith('.') || entry === 'node_modules' || entry === 'dist') continue;
+        if (entry.startsWith('.') || ALWAYS_SKIP.has(entry)) continue;
+        if (MAYBE_SKIP.has(entry) && !includeOverrides.has(entry)) continue;
         const p = join(d, entry);
         try {
           const s = statSync(p);
