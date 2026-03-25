@@ -1,8 +1,11 @@
 {
   "name": "ultraship",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "The only Claude Code plugin you need. 22 skills, 21 tools, 5 agents. Brainstorm, plan, TDD, review, audit, and ship production-ready SaaS.",
   "type": "module",
+  "bin": {
+    "ultraship": "bin/ultraship.mjs"
+  },
   "author": "Houseofmvps",
   "license": "MIT",
   "repository": {
@@ -29,6 +32,7 @@
     "workflow"
   ],
   "files": [
+    "bin/",
     ".claude-plugin/",
     "skills/",
     "agents/",
@@ -42,6 +46,9 @@
     "CLAUDE.md",
     "llms.txt"
   ],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
   "dependencies": {
     "htmlparser2": "^9.1.0"
   }

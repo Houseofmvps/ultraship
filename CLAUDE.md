@@ -6,10 +6,10 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
-skills/           — 20 skills (14 workflow + 6 specialist)
+skills/           — 22 skills (16 workflow + 6 specialist)
 agents/           — 5 agents (ship, review, seo, security, browser)
-commands/         — 9 slash commands (/ship, /seo, /perf, /review, etc.)
-tools/            — 9 Node.js tools (scanner, lighthouse, GSC, Bing, generators)
+commands/         — 17 slash commands (/ship, /seo, /perf, /review, /deploy, /health, etc.)
+tools/            — 21 Node.js tools (scanner, lighthouse, profiler, dep-doctor, GSC, Bing, generators, etc.)
 hooks/            — Pre-commit security hook
 docs/             — Documentation
 ```
@@ -38,6 +38,8 @@ docs/             — Documentation
 | `api-smoke-test.mjs` | API endpoint smoke testing (status codes, response times, CORS) |
 | `gsc-client.mjs` | Google Search Console API (JWT auth via service account) |
 | `bing-webmaster.mjs` | Bing Webmaster API (API key auth) |
+| `code-profiler.mjs` | Static analysis for N+1 queries, sync I/O, memory leaks, unbounded queries |
+| `dep-doctor.mjs` | Detects unused/outdated dependencies, recommends removals |
 | `secret-scanner.mjs` | Detects leaked secrets, skips .env.example files |
 | `sitemap-generator.mjs` | Generates sitemap.xml from HTML files |
 | `robots-generator.mjs` | Generates AI-friendly robots.txt (allows GPTBot, PerplexityBot, etc.) |
