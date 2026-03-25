@@ -4,8 +4,10 @@ import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { fileURLToPath } from 'url';
 
-const TOOL = path.join(import.meta.dirname, '..', 'tools', 'secret-scanner.mjs');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const TOOL = path.join(__dirname, '..', 'tools', 'secret-scanner.mjs');
 
 function runScanner(dir) {
   const out = execFileSync('node', [TOOL, dir], { encoding: 'utf8' });
