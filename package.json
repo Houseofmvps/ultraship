@@ -1,6 +1,6 @@
 {
   "name": "ultraship",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "The only Claude Code plugin you need. 22 skills, 20 tools, 5 agents. Brainstorm, plan, TDD, review, audit, and ship production-ready SaaS.",
   "type": "module",
   "bin": {
