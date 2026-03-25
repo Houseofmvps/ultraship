@@ -376,11 +376,9 @@ But building and maintaining something this comprehensive takes real time. Every
 
 **If Ultraship saved you even one hour** — one deployment you didn't have to debug, one leaked secret it caught before production, one SEO issue it found before your launch — I'd be grateful if you considered sponsoring.
 
-Even $5/month tells me this work matters to someone. It keeps the lights on and the updates coming.
-
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_on_GitHub-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/Houseofmvps)
 
-Thanks for using Ultraship. Now go ship something.
+Thanks for using Ultraship. Now go ship something powerful.
 
 *— [Kaileskkhumar](https://www.linkedin.com/in/kailesk-khumar-soundararajan), solo founder of [houseofmvps.com](https://houseofmvps.com)*
 
