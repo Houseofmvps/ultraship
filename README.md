@@ -10,6 +10,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/Houseofmvps/ultraship?style=for-the-badge&logo=github&color=gold)](https://github.com/Houseofmvps/ultraship/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=opensourceinitiative)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/Houseofmvps/ultraship/ci.yml?style=for-the-badge&logo=github&label=Tests)](https://github.com/Houseofmvps/ultraship/actions)
+[![Sponsor](https://img.shields.io/badge/Sponsor-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/Houseofmvps)
 
 ---
 
@@ -32,48 +33,6 @@
 *SEO audit, secret scanning, and the /ship scorecard — all from your terminal.*
 
 </div>
-
----
-
-## The Problem
-
-You're a solo founder. You just spent 3 hours building a feature. Now you need to ship it. Here's what happens next:
-
-- You ask Claude to review your code. It says "looks good" without catching the N+1 query you just introduced.
-- You forget to check if your OG tags work. Your launch post on Twitter shows a broken preview for 6 hours.
-- You deployed without running Lighthouse. Your LCP is 4.2 seconds. Google is already de-ranking you.
-- Your `.env` has a placeholder `sk-...` that made it to production. You find out when Stripe emails you about the leaked key.
-- ChatGPT and Perplexity can't cite your content because you blocked AI crawlers in `robots.txt` and you don't have an `llms.txt`.
-- Your bundle is 2.3MB because `moment.js` is still in there. You didn't know `dayjs` is 2KB.
-- You push to production and pray. No health check. No SSL verification. No security header audit.
-
-That's not shipping. That's gambling.
-
-## The Solution
-
-```bash
-/ship
-```
-
-One command. 5 tools scan your entire project in parallel — SEO, security, code quality, bundle size, and dependency health. Gives you a score:
-
-```
-╔══════════════════════════════════════════╗
-║      U L T R A S H I P   S C O R E      ║
-╠══════════════════════════════════════════╣
-║  SEO/GEO/AEO    92/100  ████████████░   ║
-║  Security        95/100  ████████████░   ║
-║  Code Quality    88/100  ███████████░░   ║
-║  Bundle Size     97/100  ████████████░   ║
-╠══════════════════════════════════════════╣
-║   OVERALL         90/100                 ║
-║   STATUS          READY TO SHIP          ║
-╚══════════════════════════════════════════╝
-```
-
-**Score >= 80?** Ship it. **Below 80?** Fix the remaining items and run again.
-
-But `/ship` is just the final step. Ultraship changes how you build from the very first line of code.
 
 ---
 
@@ -101,43 +60,6 @@ Then in Claude Code:
 ```
 
 **Zero configuration.** Ultraship reads your project structure and self-configures.
-
----
-
-## Dogfooded in Production
-
-`/ship` on [SaveMRR](https://savemrr.co) (AI retention platform for indie SaaS — Hono + React + Drizzle pnpm monorepo):
-
-**Backend + Dashboard (5 workspace packages, 41 route handlers):**
-
-| Metric | Score |
-|---|---|
-| SEO/GEO/AEO | 63/100 |
-| Security | 100/100 |
-| Code Quality | 70/100 |
-| Bundle Size | 100/100 |
-| Overall | **83/100 — READY TO SHIP** |
-
-**Landing Page (29 pre-rendered HTML pages):**
-
-| Metric | Score |
-|---|---|
-| SEO/GEO/AEO | 52/100 |
-| Security | 100/100 |
-| Code Quality | 67/100 |
-| Bundle Size | 92/100 |
-| Overall | **78/100 — NEEDS WORK** |
-
-**227 findings across both audits.** What it caught:
-
-- **1 real N+1 query** in a background job (9 seed-data loops correctly downgraded to low priority)
-- **33 unused dependencies** in landing page — dead shadcn/ui wrapper files detected via import graph analysis
-- **153 SEO issues** — missing structured data, title/description length, no question-format headings for AI search
-- **1 memory leak** — module-scoped array with `.push()` growing unbounded
-- **1 heavy dependency** — `date-fns` detected in landing page bundle
-- **SSL certificate** — valid, Let's Encrypt, 84 days until expiry
-
-One command found all of this. No manual checklist. No guessing.
 
 ---
 
@@ -377,6 +299,103 @@ Updates your project's CLAUDE.md with learnings from the current session — con
 - Pulls up-to-date docs for any library while you code
 - No more outdated Stack Overflow answers or hallucinated APIs
 - Works for any npm package, framework, or tool
+
+---
+
+## Sponsor This Project
+
+I built Ultraship alone — nights and weekends, between building my own SaaS products. No VC funding. No team. Just one person who got tired of shipping blind and decided to fix it for everyone.
+
+This plugin is **free forever.** No pro tier. No paywalls. No "upgrade to unlock." Every feature you just read about — all 20 tools, 22 skills, 5 agents — is yours, completely free.
+
+But building and maintaining something this comprehensive takes real time. Every false positive I fix, every new scanner rule I add, every monorepo edge case I handle — that's time I'm not spending on my own products.
+
+**If Ultraship saved you even one hour** — one deployment you didn't have to debug, one leaked secret it caught before production, one SEO issue it found before your launch — I'd be grateful if you considered sponsoring.
+
+Even $5/month tells me this work matters to someone. It keeps the lights on and the updates coming.
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_on_GitHub-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/Houseofmvps)
+
+Thanks for using Ultraship. Now go ship something.
+
+*— [Kaileskkhumar](https://www.linkedin.com/in/kailesk-khumar-soundararajan), solo founder of [houseofmvps.com](https://houseofmvps.com)*
+
+---
+
+## The Problem
+
+You're a solo founder. You just spent 3 hours building a feature. Now you need to ship it. Here's what happens next:
+
+- You ask Claude to review your code. It says "looks good" without catching the N+1 query you just introduced.
+- You forget to check if your OG tags work. Your launch post on Twitter shows a broken preview for 6 hours.
+- You deployed without running Lighthouse. Your LCP is 4.2 seconds. Google is already de-ranking you.
+- Your `.env` has a placeholder `sk-...` that made it to production. You find out when Stripe emails you about the leaked key.
+- ChatGPT and Perplexity can't cite your content because you blocked AI crawlers in `robots.txt` and you don't have an `llms.txt`.
+- Your bundle is 2.3MB because `moment.js` is still in there. You didn't know `dayjs` is 2KB.
+- You push to production and pray. No health check. No SSL verification. No security header audit.
+
+That's not shipping. That's gambling.
+
+## The Solution
+
+```bash
+/ship
+```
+
+One command. 5 tools scan your entire project in parallel — SEO, security, code quality, bundle size, and dependency health. Gives you a score:
+
+```
+╔══════════════════════════════════════════╗
+║      U L T R A S H I P   S C O R E      ║
+╠══════════════════════════════════════════╣
+║  SEO/GEO/AEO    92/100  ████████████░   ║
+║  Security        95/100  ████████████░   ║
+║  Code Quality    88/100  ███████████░░   ║
+║  Bundle Size     97/100  ████████████░   ║
+╠══════════════════════════════════════════╣
+║   OVERALL         90/100                 ║
+║   STATUS          READY TO SHIP          ║
+╚══════════════════════════════════════════╝
+```
+
+**Score >= 80?** Ship it. **Below 80?** Fix the remaining items and run again.
+
+---
+
+## Dogfooded in Production
+
+`/ship` on [SaveMRR](https://savemrr.co) (AI retention platform for indie SaaS — Hono + React + Drizzle pnpm monorepo):
+
+**Backend + Dashboard (5 workspace packages, 41 route handlers):**
+
+| Metric | Score |
+|---|---|
+| SEO/GEO/AEO | 63/100 |
+| Security | 100/100 |
+| Code Quality | 70/100 |
+| Bundle Size | 100/100 |
+| Overall | **83/100 — READY TO SHIP** |
+
+**Landing Page (29 pre-rendered HTML pages):**
+
+| Metric | Score |
+|---|---|
+| SEO/GEO/AEO | 52/100 |
+| Security | 100/100 |
+| Code Quality | 67/100 |
+| Bundle Size | 92/100 |
+| Overall | **78/100 — NEEDS WORK** |
+
+**227 findings across both audits.** What it caught:
+
+- **1 real N+1 query** in a background job (9 seed-data loops correctly downgraded to low priority)
+- **33 unused dependencies** in landing page — dead shadcn/ui wrapper files detected via import graph analysis
+- **153 SEO issues** — missing structured data, title/description length, no question-format headings for AI search
+- **1 memory leak** — module-scoped array with `.push()` growing unbounded
+- **1 heavy dependency** — `date-fns` detected in landing page bundle
+- **SSL certificate** — valid, Let's Encrypt, 84 days until expiry
+
+One command found all of this. No manual checklist. No guessing.
 
 ---
 
