@@ -1,17 +1,42 @@
 {
   "name": "ultraship",
-  "description": "All-in-one builder toolkit for Claude Code. 22 skills, 20 tools, 5 agents. Ship production-ready SaaS with /ship.",
   "owner": {
     "name": "Houseofmvps",
-    "email": "houseofmvps2024@gmail.com",
-    "url": "https://github.com/Houseofmvps"
+    "email": "houseofmvps2024@gmail.com"
+  },
+  "metadata": {
+    "description": "All-in-one builder toolkit for Claude Code. 22 skills, 20 tools, 5 agents. Ship production-ready SaaS with /ship."
   },
   "plugins": [
     {
       "name": "ultraship",
       "description": "Workflow + code review + frontend design + SEO/GEO/AEO + Lighthouse + security + browser testing",
       "version": "1.4.1",
-      "source": "./"
+      "source": "./",
+      "author": {
+        "name": "Houseofmvps",
+        "email": "houseofmvps2024@gmail.com"
+      },
+      "homepage": "https://github.com/Houseofmvps/ultraship",
+      "repository": "https://github.com/Houseofmvps/ultraship",
+      "license": "MIT",
+      "keywords": [
+        "ship",
+        "seo",
+        "geo",
+        "aeo",
+        "security",
+        "code-review",
+        "lighthouse",
+        "performance",
+        "workflow",
+        "tdd",
+        "deploy",
+        "indie-hacker",
+        "saas",
+        "developer-tools",
+        "browser-testing"
+      ]
     }
   ]
 }
