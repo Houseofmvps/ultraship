@@ -23,6 +23,16 @@
 
 ---
 
+<div align="center">
+
+<img src="assets/demo.gif" alt="Ultraship CLI Demo — SEO audit, secret scanning, scorecard" width="100%"/>
+
+*SEO audit, secret scanning, and the /ship scorecard — all from your terminal.*
+
+</div>
+
+---
+
 ## Quick Start
 
 ```bash
