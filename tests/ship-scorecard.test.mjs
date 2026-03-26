@@ -96,12 +96,12 @@ describe('ultraship ship scorecard', () => {
     assert.match(out, /SEO/, 'Should show SEO row');
     assert.match(out, /Security/, 'Should show Security row');
     assert.match(out, /Quality/, 'Should show Quality row');
-    assert.match(out, /Bundle/, 'Should show Bundle row');
+    assert.match(out, /Performance/, 'Should show Performance row');
     assert.match(out, /OVERALL/, 'Should show OVERALL row');
 
-    // Every score line should contain a number/100 or FAIL
+    // Every score line inside the box should contain a number/100 or FAIL
     const lines = out.split('\n');
-    const scoreLines = lines.filter(l => /SEO|Security|Quality|Bundle/.test(l));
+    const scoreLines = lines.filter(l => /║/.test(l) && /SEO|Security|Quality|Performance/.test(l));
     for (const line of scoreLines) {
       const hasNumber = /\d+\/100/.test(line);
       const hasFail = /FAIL/.test(line);
@@ -124,7 +124,7 @@ describe('ultraship ship scorecard', () => {
     assert.match(envOut, /SEO/, 'Should show SEO row');
     assert.match(envOut, /Security/, 'Should show Security row');
     assert.match(envOut, /Quality/, 'Should show Quality row');
-    assert.match(envOut, /Bundle/, 'Should show Bundle row');
+    assert.match(envOut, /Performance/, 'Should show Performance row');
 
     // Overall should be a number between 0 and 100
     const overallMatch = envOut.match(/OVERALL\s+(\d+)\/100/);
@@ -176,7 +176,7 @@ describe('ultraship ship scorecard', () => {
     assert.ok(overallMatch, 'Should have an OVERALL score');
   });
 
-  it('shows issue count and audit count in the scorecard footer', () => {
+  it('shows scanned/todo footer and tagline in the scorecard', () => {
     let out;
     try {
       out = ship(EMPTY_DIR);
@@ -184,12 +184,14 @@ describe('ultraship ship scorecard', () => {
       out = stripAnsi(err.stdout || '');
     }
 
-    // Footer line: "Issues: N findings across M/4 audits"
-    assert.match(out, /Issues:/, 'Should show Issues count');
-    assert.match(out, /\d+\/4 audits/, 'Should show audit count out of 4');
+    // Footer: "✓ Scanned: N/4 audits completed" and "● Todo: N manual items remaining"
+    assert.match(out, /Scanned:/, 'Should show Scanned line');
+    assert.match(out, /\d+\/4 audits completed/, 'Should show audit count out of 4');
+    assert.match(out, /Todo:/, 'Should show Todo line');
+    assert.match(out, /manual items remaining/, 'Should show remaining items');
   });
 
-  it('shows tips for individual audit commands after the scorecard', () => {
+  it('shows tagline after the scorecard', () => {
     let out;
     try {
       out = ship(EMPTY_DIR);
@@ -197,9 +199,7 @@ describe('ultraship ship scorecard', () => {
       out = stripAnsi(err.stdout || '');
     }
 
-    assert.match(out, /ultraship seo/, 'Should suggest running seo audit');
-    assert.match(out, /ultraship security/, 'Should suggest running security audit');
-    assert.match(out, /ultraship profile/, 'Should suggest running profile audit');
+    assert.match(out, /Ship it\. One command\. Production-ready\./, 'Should show tagline');
   });
 
 });

@@ -103,8 +103,6 @@ async function runShip(dir) {
   console.log(`  ${C.dim}${'─'.repeat(45)}${C.nc}\n`);
 
   // Run all audits in parallel
-  process.stdout.write(`  ${C.yellow}▸ Running audits in parallel...${C.nc}`);
-
   const [seo, secrets, profile, deps, bundle] = await Promise.all([
     runToolAsync('seo-scanner.mjs', resolvedDir),
     runToolAsync('secret-scanner.mjs', resolvedDir),
@@ -113,7 +111,21 @@ async function runShip(dir) {
     runToolAsync('bundle-tracker.mjs', resolvedDir),
   ]);
 
-  console.log(` ${C.green}done${C.nc}\n`);
+  // Count total findings for status lines
+  const totalFindings = (seo?.findings?.length || 0) + (secrets?.findings?.length || 0) +
+    (profile?.findings?.length || 0) + (deps?.unused?.length || 0) + (deps?.outdated?.length || 0);
+
+  // Completed audit names
+  const auditNames = [];
+  if (!seo?._failed) auditNames.push('SEO');
+  if (!bundle?._failed) auditNames.push('Perf');
+  if (!secrets?._failed) auditNames.push('Security');
+  if (!profile?._failed || !deps?._failed) auditNames.push('Quality');
+
+  // Status lines (gif-style)
+  console.log(`  ${C.yellow}▸ Scanning...${C.nc}        ${totalFindings > 0 ? `${C.red}${C.bold}${totalFindings} issues found${C.nc}` : `${C.green}${C.bold}0 issues found${C.nc}`}`);
+  console.log(`  ${C.green}▸ Analyzing...${C.nc}       ${C.green}${auditNames.length} categories scored ${C.bold}✓${C.nc}`);
+  console.log(`  ${C.magenta}▸ ${auditNames.length} audits complete${C.nc}   ${auditNames.join(` ${C.dim}·${C.nc} `)}\n`);
 
   // Track which audits failed
   const failures = [];
@@ -198,10 +210,6 @@ async function runShip(dir) {
   const overall = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
   const hasFailures = failures.length > 0;
 
-  // Count issues
-  const totalFindings = (seo?.findings?.length || 0) + (secrets?.findings?.length || 0) +
-    (profile?.findings?.length || 0) + (deps?.unused?.length || 0) + (deps?.outdated?.length || 0);
-
   function bar(score) {
     const filled = Math.round(score / 100 * 12);
     return '█'.repeat(filled) + '░'.repeat(12 - filled);
@@ -235,9 +243,9 @@ async function runShip(dir) {
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
   printRow('SEO/GEO/AEO', seoScore);
+  printRow('Performance', bundleScore);
   printRow('Security', securityScore);
   printRow('Code Quality', qualityScore);
-  printRow('Bundle Size', bundleScore);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
@@ -245,7 +253,8 @@ async function runShip(dir) {
   console.log(`  ${C.white}${C.bold}║${C.nc}   STATUS         ${statusText}       ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
-  console.log(`  ${C.white}${C.bold}║${C.nc}  ${C.dim}Issues: ${totalFindings} findings across ${scores.length}/${4} audits${C.nc}      ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}  ${C.green}✓ Scanned:${C.nc} ${scores.length}/4 audits completed        ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}  ${C.yellow}● Todo:${C.nc}    ${String(totalFindings).padEnd(3)} manual items remaining   ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╚══════════════════════════════════════════╝${C.nc}`);
 
   if (hasFailures) {
@@ -256,10 +265,7 @@ async function runShip(dir) {
     console.log(`  ${C.dim}Re-run to retry. Score is based on ${scores.length} of 4 audits.${C.nc}`);
   }
 
-  console.log(`\n  ${C.dim}Tip: Run individual audits for details:${C.nc}`);
-  console.log(`  ${C.dim}  ultraship seo ${dir}${C.nc}`);
-  console.log(`  ${C.dim}  ultraship security ${dir}${C.nc}`);
-  console.log(`  ${C.dim}  ultraship profile ${dir}${C.nc}\n`);
+  console.log(`\n  ${C.green}${C.bold}Ship it.${C.nc} One command. Production-ready.\n`);
 
   // Always exit 0 — the scorecard ran successfully.
   // Low scores are not errors. Exit 1 is reserved for actual failures (bad paths, crashes).
