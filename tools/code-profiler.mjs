@@ -180,7 +180,7 @@ function analyzeFile(filePath, relPath, content) {
     if (insideAnyLoop && queryPatterns.some(p => p.test(line))) {
       // Downgrade severity for seed/test/migration files or seed function context
       const inSeedCtx = isNonProd || isInSeedContext(lines, i);
-      const severity = inSeedCtx ? 'low' : 'critical';
+      const severity = inSeedCtx ? 'low' : 'high';
       const suffix = inSeedCtx ? ' (in seed/test context — low priority)' : '';
       findings.push({
         file: relPath, line: i + 1, severity, category: 'n+1',
@@ -267,8 +267,8 @@ function analyzeFile(filePath, relPath, content) {
       const nearby = content.slice(Math.max(0, fkMatch.index - 500), fkMatch.index + 500);
       if (!nearby.includes('index(') && !nearby.includes('.index(')) {
         findings.push({
-          file: relPath, line: lineNum, severity: 'high', category: 'missing-index',
-          message: `Foreign key to ${fkMatch[1]}.${fkMatch[2]} without index — joins on this column will be slow`,
+          file: relPath, line: lineNum, severity: 'medium', category: 'missing-index',
+          message: `Foreign key to ${fkMatch[1]}.${fkMatch[2]} without index — joins will be slow at scale`,
           code: fkMatch[0].slice(0, 120),
         });
       }
@@ -283,8 +283,8 @@ function analyzeFile(filePath, relPath, content) {
         if (!content.includes(`@@index([${field}]`) && !content.includes('@unique')) {
           const lineNum = content.slice(0, relMatch.index).split('\n').length;
           findings.push({
-            file: relPath, line: lineNum, severity: 'high', category: 'missing-index',
-            message: `Relation field "${field}" without @@index — foreign key lookups do full table scans`,
+            file: relPath, line: lineNum, severity: 'medium', category: 'missing-index',
+            message: `Relation field "${field}" without @@index — lookups will be slow at scale`,
             code: relMatch[0].slice(0, 120),
           });
         }
@@ -327,13 +327,17 @@ function analyzeFile(filePath, relPath, content) {
       }
     }
 
-    // Event listeners in handlers
+    // Event listeners in handlers — but not standard req body parsing patterns
     if (isHandler && (/\.addEventListener\s*\(/.test(line) || /\.on\s*\(\s*['"]/.test(line))) {
-      findings.push({
-        file: relPath, line: i + 1, severity: 'medium', category: 'memory-leak',
-        message: 'Event listener in request handler — may accumulate without cleanup',
-        code: trimmed.slice(0, 120),
-      });
+      // req.on('data'), req.on('end'), req.on('error') are standard body parsing — not leaks
+      const isReqBodyParsing = /\b(req|request|res|response)\s*\.\s*on\s*\(\s*['"](data|end|error|close)['"]/i.test(line);
+      if (!isReqBodyParsing) {
+        findings.push({
+          file: relPath, line: i + 1, severity: 'medium', category: 'memory-leak',
+          message: 'Event listener in request handler — may accumulate without cleanup',
+          code: trimmed.slice(0, 120),
+        });
+      }
     }
   }
 
@@ -369,6 +373,8 @@ function analyzeFile(filePath, relPath, content) {
   }
 
   // === Sequential Await (could be parallel) ===
+  // Skip scripts/migration/cleanup files — sequential execution is often intentional there
+  if (!isNonProd && !relPath.includes('/scripts/') && !relPath.includes('cleanup') && !relPath.includes('migrate')) {
   for (let i = 0; i < lines.length - 1; i++) {
     const line = lines[i].trim();
     const nextLine = lines[i + 1]?.trim() || '';
@@ -378,13 +384,14 @@ function analyzeFile(filePath, relPath, content) {
       const firstVar = line.match(/^(?:const|let|var)\s+(\w+)/)?.[1];
       if (firstVar && !nextLine.includes(firstVar)) {
         findings.push({
-          file: relPath, line: i + 1, severity: 'medium', category: 'sequential-await',
-          message: 'Sequential awaits that could run in parallel — use Promise.all()',
+          file: relPath, line: i + 1, severity: 'low', category: 'sequential-await',
+          message: 'Sequential awaits that could run in parallel — consider Promise.all()',
           code: `${line.slice(0, 60)} | ${nextLine.slice(0, 60)}`,
         });
       }
     }
   }
+  } // end sequential-await skip guard
 
   return findings;
 }
@@ -436,13 +443,20 @@ function main() {
     };
   }
 
+  // Deduplicate: same category in same file = one deduction (not N per line)
   let score = 100;
+  const seenCatFile = new Set();
   for (const f of allFindings) {
-    if (f.severity === 'critical') score -= 15;
-    else if (f.severity === 'high') score -= 8;
-    else if (f.severity === 'medium') score -= 3;
-    else if (f.severity === 'low') score -= 1;
+    const key = `${f.category}:${f.file}`;
+    const firstInFile = !seenCatFile.has(key);
+    seenCatFile.add(key);
+    // First finding per category per file gets full deduction, subsequent get half
+    const mult = firstInFile ? 1 : 0.5;
+    if (f.severity === 'high') score -= 5 * mult;
+    else if (f.severity === 'medium') score -= 2 * mult;
+    else if (f.severity === 'low') score -= 0.5 * mult;
   }
+  score = Math.round(score);
 
   output({
     success: true,

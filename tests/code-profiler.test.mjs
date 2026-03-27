@@ -61,7 +61,7 @@ async function loadOrders(users) {
     const result = run(tmp);
     const n1 = result.findings.filter(f => f.category === 'n+1');
     assert.ok(n1.length >= 1, 'should detect at least one N+1 finding');
-    assert.equal(n1[0].severity, 'critical');
+    assert.equal(n1[0].severity, 'high');
   });
 
   it('detects query inside forEach', () => {
@@ -231,7 +231,7 @@ async function loadDashboard() {
     const result = run(tmp);
     const seq = result.findings.filter(f => f.category === 'sequential-await');
     assert.ok(seq.length >= 1, 'should detect sequential awaits');
-    assert.equal(seq[0].severity, 'medium');
+    assert.equal(seq[0].severity, 'low');
   });
 
   it('does NOT flag sequential awaits when second depends on first', () => {
@@ -426,11 +426,11 @@ describe('performance score', () => {
   let tmp;
   after(() => tmp && rmSync(tmp, { recursive: true, force: true }));
 
-  it('subtracts correctly: critical=-15, high=-8, medium=-3', () => {
+  it('subtracts correctly: high=-5, medium=-2, low=-0.5', () => {
     tmp = makeTmpDir('score');
     const apiDir = join(tmp, 'api');
     mkdirSync(apiDir, { recursive: true });
-    // 1 critical (N+1) + 1 high (sync I/O) = 100 - 15 - 8 = 77
+    // 1 high (N+1) + 1 high (sync I/O) = 100 - 5 - 5 = 90
     writeFileSync(join(apiDir, 'controller.ts'), `
 import { readFileSync } from 'fs';
 
@@ -444,11 +444,9 @@ app.get('/data', async (req, res) => {
 `);
     const result = run(tmp);
     assert.ok(result.performance_score < 100, 'score should be below 100');
-    // Should have at least one critical (N+1) and one high (sync-io)
-    const critCount = result.findings.filter(f => f.severity === 'critical').length;
+    // Should have at least two high findings (N+1 + sync-io)
     const highCount = result.findings.filter(f => f.severity === 'high').length;
-    assert.ok(critCount >= 1, 'should have at least one critical finding');
-    assert.ok(highCount >= 1, 'should have at least one high finding');
+    assert.ok(highCount >= 2, 'should have at least two high findings');
   });
 
   it('score never goes below 0', () => {

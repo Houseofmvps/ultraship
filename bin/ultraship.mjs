@@ -168,15 +168,20 @@ async function runShip(dir) {
   const securityScore = calcFindingsScore(secrets, { critical: 15, high: 10, medium: 5 });
 
   // Code Quality: profiler findings + dep-doctor findings combined
+  // Deduplicate: same category in same file = one deduction
   function calcQualityScore(profileData, depsData) {
     let deductions = 0;
     // Profiler findings (N+1, sync I/O, memory leaks, etc.)
     if (profileData && !profileData._failed && profileData.findings) {
+      const seenCatFile = new Set();
       for (const f of profileData.findings) {
-        if (f.severity === 'critical') deductions += 10;
-        else if (f.severity === 'high') deductions += 6;
-        else if (f.severity === 'medium') deductions += 3;
-        else deductions += 1;
+        const key = `${f.category}:${f.file}`;
+        const first = !seenCatFile.has(key);
+        seenCatFile.add(key);
+        const mult = first ? 1 : 0.5;
+        if (f.severity === 'high') deductions += 5 * mult;
+        else if (f.severity === 'medium') deductions += 2 * mult;
+        else deductions += 0.5 * mult;
       }
     } else if (!profileData || profileData._failed) {
       return null;
@@ -186,12 +191,12 @@ async function runShip(dir) {
       const unusedList = depsData.unused || [];
       const outdated = depsData.outdated?.length || 0;
       for (const u of unusedList) {
-        if (u.severity === 'high') deductions += 3; // truly unused — not imported at all
-        else deductions += 1; // dead wrapper deps — bloat only, lower impact
+        if (u.severity === 'high') deductions += 3;
+        else deductions += 1;
       }
       deductions += outdated * 1;
     }
-    return Math.max(0, 100 - deductions);
+    return Math.max(0, Math.round(100 - deductions));
   }
   const qualityScore = calcQualityScore(profile, deps);
 
