@@ -310,7 +310,53 @@ function scanDirectory(rootDir) {
   }
 
   // Find all HTML files
-  const htmlFiles = findHtmlFiles(absRoot, includeOutputDirs);
+  let htmlFiles = findHtmlFiles(absRoot, includeOutputDirs);
+
+  // Deduplicate: when both root and dist/build versions exist, keep only dist/build
+  // e.g. if both "index.html" and "dist/index.html" exist, drop "index.html"
+  const outputDirPrefixes = ['dist/', 'build/'];
+  const distBuildFiles = new Set();
+  for (const f of htmlFiles) {
+    const rel = path.relative(absRoot, f).replace(/\\/g, '/');
+    for (const prefix of outputDirPrefixes) {
+      if (rel.startsWith(prefix)) {
+        distBuildFiles.add(rel.slice(prefix.length)); // e.g. "index.html", "blog/index.html"
+      }
+    }
+  }
+  if (distBuildFiles.size > 0) {
+    htmlFiles = htmlFiles.filter(f => {
+      const rel = path.relative(absRoot, f).replace(/\\/g, '/');
+      // If this file is NOT in dist/build, check if a dist/build version exists
+      const inOutputDir = outputDirPrefixes.some(p => rel.startsWith(p));
+      if (!inOutputDir && distBuildFiles.has(rel)) {
+        return false; // drop root version, keep dist/build version
+      }
+      return true;
+    });
+  }
+
+  // Detect backend-only project: has backend framework deps + zero HTML files
+  if (htmlFiles.length === 0) {
+    const pkgPath = path.join(absRoot, 'package.json');
+    let isBackendOnly = false;
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+      const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+      const backendFrameworks = ['hono', 'express', 'fastify', 'koa', 'nest', '@nestjs/core'];
+      isBackendOnly = backendFrameworks.some(fw => fw in allDeps);
+    } catch { /* no package.json or parse error */ }
+
+    if (isBackendOnly) {
+      return {
+        files_scanned: 0,
+        findings: [],
+        scores: { seo: null, geo: null, aeo: null },
+        skipped: true,
+        reason: 'Backend-only project detected (no HTML files). SEO audit not applicable.',
+      };
+    }
+  }
 
   // Parse all files first for cross-page analysis
   const pageData = [];
@@ -576,7 +622,8 @@ function scanDirectory(rootDir) {
     }
   }
 
-  // Project-level checks
+  // Project-level checks (only when HTML files exist — backend projects don't need these)
+  if (htmlFiles.length > 0) {
   const robotsCandidates = [
     path.join(absRoot, 'robots.txt'),
     path.join(absRoot, 'public', 'robots.txt'),
@@ -669,15 +716,21 @@ function scanDirectory(rootDir) {
     findings.push({ file: 'llms.txt', line: 0, severity: 'medium', category: 'geo', rule: 'missing-llms-txt', message: 'No llms.txt found — AI crawlers cannot understand site structure' });
     findings.push({ file: 'llms.txt', line: 0, severity: 'high', category: 'aeo', rule: 'missing-llms-txt-aeo', message: 'No llms.txt found — required for AEO (Answer Engine Optimization)' });
   }
+  } // end project-level checks (htmlFiles.length > 0)
 
-  // Scoring
-  const severityDeductions = { critical: 20, high: 10, medium: 5, low: 2, info: 0 };
-  const scores = { seo: 100, geo: 100, aeo: 100 };
+  // Scoring: null when no HTML files found, calculated otherwise
+  let scores;
+  if (htmlFiles.length === 0) {
+    scores = { seo: null, geo: null, aeo: null };
+  } else {
+    const severityDeductions = { critical: 20, high: 10, medium: 5, low: 2, info: 0 };
+    scores = { seo: 100, geo: 100, aeo: 100 };
 
-  for (const finding of findings) {
-    const deduction = severityDeductions[finding.severity] ?? 0;
-    if (finding.category in scores) {
-      scores[finding.category] = Math.max(0, scores[finding.category] - deduction);
+    for (const finding of findings) {
+      const deduction = severityDeductions[finding.severity] ?? 0;
+      if (finding.category in scores) {
+        scores[finding.category] = Math.max(0, scores[finding.category] - deduction);
+      }
     }
   }
 

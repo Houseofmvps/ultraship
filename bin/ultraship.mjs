@@ -100,6 +100,7 @@ async function runShip(dir) {
     process.exit(1);
   }
   console.log(`\n  ${C.cyan}${C.bold}⚡ ULTRASHIP${C.nc} ${C.dim}v${getVersion()}${C.nc}`);
+  console.log(`  ${C.dim}Scanning: ${resolvedDir}${C.nc}`);
   console.log(`  ${C.dim}${'─'.repeat(45)}${C.nc}\n`);
 
   // Run all audits in parallel
@@ -117,7 +118,7 @@ async function runShip(dir) {
 
   // Completed audit names
   const auditNames = [];
-  if (!seo?._failed) auditNames.push('SEO');
+  if (!seo?._failed && !seo?.skipped) auditNames.push('SEO');
   if (!bundle?._failed) auditNames.push('Perf');
   if (!secrets?._failed) auditNames.push('Security');
   if (!profile?._failed || !deps?._failed) auditNames.push('Quality');
@@ -158,8 +159,9 @@ async function runShip(dir) {
     return Math.max(0, 100 - deductions);
   }
 
-  // SEO: 60+ rules, dedupe by rule, lighter weights
-  const seoScore = calcFindingsScore(seo, { critical: 5, high: 3, medium: 1, low: 0 }, true);
+  // SEO: if scanner returned skipped (backend project) or null scores, propagate null
+  const seoSkipped = seo?.skipped || (seo?.scores?.seo === null);
+  const seoScore = seoSkipped ? null : calcFindingsScore(seo, { critical: 5, high: 3, medium: 1, low: 0 }, true);
   // Security: leaked secrets are severe
   const securityScore = calcFindingsScore(secrets, { critical: 15, high: 10, medium: 5 });
 
@@ -221,7 +223,11 @@ async function runShip(dir) {
     return C.red;
   }
 
-  function printRow(label, score) {
+  function printRow(label, score, skipped = false) {
+    if (score === null && skipped) {
+      console.log(`  ${C.white}${C.bold}║${C.nc}  ${label.padEnd(16)} ${C.dim}N/A${C.nc}        ${C.dim}${'·'.repeat(12)}${C.nc}  ${C.white}${C.bold}║${C.nc}`);
+      return;
+    }
     if (score === null) {
       console.log(`  ${C.white}${C.bold}║${C.nc}  ${label.padEnd(16)} ${C.red}${C.bold}FAIL${C.nc}       ${C.red}${'░'.repeat(12)}${C.nc}  ${C.white}${C.bold}║${C.nc}`);
       return;
@@ -242,7 +248,7 @@ async function runShip(dir) {
   console.log(`  ${C.white}${C.bold}║${C.nc}      ${C.cyan}${C.bold}U L T R A S H I P   S C O R E${C.nc}       ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
-  printRow('SEO/GEO/AEO', seoScore);
+  printRow('SEO/GEO/AEO', seoScore, seoSkipped);
   printRow('Performance', bundleScore);
   printRow('Security', securityScore);
   printRow('Code Quality', qualityScore);
@@ -265,7 +271,37 @@ async function runShip(dir) {
     console.log(`  ${C.dim}Re-run to retry. Score is based on ${scores.length} of 4 audits.${C.nc}`);
   }
 
-  console.log(`\n  ${C.green}${C.bold}Ship it.${C.nc} One command. Production-ready.\n`);
+  // Show top findings so the scorecard is actionable
+  const allFindings = [
+    ...(seo?.findings || []).map(f => ({ ...f, audit: 'SEO' })),
+    ...(secrets?.findings || []).map(f => ({ ...f, audit: 'Security' })),
+    ...(profile?.findings || []).map(f => ({ ...f, audit: 'Quality' })),
+    ...(deps?.unused || []).map(u => ({ file: u.package || u.name, severity: u.severity || 'medium', message: `Unused dependency: ${u.package || u.name}`, audit: 'Quality' })),
+  ];
+  const sevOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+  allFindings.sort((a, b) => (sevOrder[a.severity] ?? 4) - (sevOrder[b.severity] ?? 4));
+  const topFindings = allFindings.slice(0, 8);
+
+  if (topFindings.length > 0) {
+    console.log(`\n  ${C.bold}Top issues:${C.nc}`);
+    for (const f of topFindings) {
+      const sevColor = f.severity === 'critical' || f.severity === 'high' ? C.red : C.yellow;
+      const loc = f.file ? `${C.dim}${f.file}${f.line ? `:${f.line}` : ''}${C.nc} ` : '';
+      console.log(`  ${sevColor}${f.severity.padEnd(8)}${C.nc} ${loc}${f.message}`);
+    }
+    if (allFindings.length > 8) {
+      console.log(`  ${C.dim}...and ${allFindings.length - 8} more. Run individual commands for full details.${C.nc}`);
+    }
+  }
+
+  // Contextual tagline — only say "Ship it" when it's actually ready
+  if (status) {
+    console.log(`\n  ${C.green}${C.bold}Ship it.${C.nc} One command. Production-ready.\n`);
+  } else if (hasFailures) {
+    console.log(`\n  ${C.yellow}${C.bold}Fix failing audits and re-run.${C.nc}\n`);
+  } else {
+    console.log(`\n  ${C.yellow}${C.bold}Fix the issues above and re-run /ship.${C.nc}\n`);
+  }
 
   // Always exit 0 — the scorecard ran successfully.
   // Low scores are not errors. Exit 1 is reserved for actual failures (bad paths, crashes).
@@ -279,7 +315,7 @@ function runInit(dir) {
 
   if (existsSync(claudeMd)) {
     console.log(`\n  ${C.yellow}CLAUDE.md already exists${C.nc} at ${claudeMd}`);
-    console.log(`  ${C.dim}Use /revise-claude-md in Claude Code to update it.${C.nc}\n`);
+    console.log(`  ${C.dim}Edit it manually, or use /revise-claude-md if you have the Ultraship plugin installed.${C.nc}\n`);
     process.exit(0);
   }
 
@@ -379,6 +415,18 @@ if (command === 'ship') {
   const cmd = COMMANDS[command];
   if (!cmd || !cmd.tool) {
     console.error(`Unknown command: ${command}\nRun "ultraship help" for available commands.`);
+    process.exit(1);
+  }
+
+  // Commands that require a URL, not a directory path
+  const URL_COMMANDS = new Set(['health', 'redirects']);
+  if (URL_COMMANDS.has(command) && !target.startsWith('http')) {
+    // health with no explicit arg defaults to CWD — that's wrong
+    if (!args[1]) {
+      console.error(`Error: ${command} requires a URL.\nUsage: ultraship ${command} https://yourapp.com`);
+    } else {
+      console.error(`Error: ${command} requires a URL, not a directory path.\nUsage: ultraship ${command} https://yourapp.com`);
+    }
     process.exit(1);
   }
 

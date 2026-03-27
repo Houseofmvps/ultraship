@@ -237,11 +237,23 @@ function analyzeFile(filePath, relPath, content) {
     }
 
     if (/SELECT\s+\*/i.test(line) && !/LIMIT/i.test(line)) {
-      findings.push({
-        file: relPath, line: i + 1, severity: 'high', category: 'unbounded',
-        message: 'SELECT * without LIMIT — could return entire table',
-        code: trimmed.slice(0, 120),
-      });
+      // Skip if the SELECT * is inside a comment (JSX {/* */}, block /* */, or line //)
+      const selectMatch = line.match(/SELECT\s+\*/i);
+      const selectIdx = selectMatch ? line.indexOf(selectMatch[0]) : -1;
+      const beforeSelect = selectIdx >= 0 ? line.slice(0, selectIdx) : '';
+      const isInJsxComment = /\{\/\*/.test(beforeSelect) && /\*\/\}/.test(line.slice(selectIdx));
+      const isInBlockComment = /\/\*/.test(beforeSelect) && !/\*\//.test(beforeSelect.slice(beforeSelect.lastIndexOf('/*')));
+      const isAfterLineComment = /\/\//.test(beforeSelect);
+      const isInComment = isInJsxComment || isInBlockComment || isAfterLineComment;
+      // Only flag if it looks like an actual SQL query context (inside quotes or template literal)
+      const isInSqlContext = /['"`].*SELECT\s+\*/i.test(line) || /SELECT\s+\*.*['"`]/i.test(line);
+      if (!isInComment && isInSqlContext) {
+        findings.push({
+          file: relPath, line: i + 1, severity: 'high', category: 'unbounded',
+          message: 'SELECT * without LIMIT — could return entire table',
+          code: trimmed.slice(0, 120),
+        });
+      }
     }
   }
 
@@ -281,6 +293,15 @@ function analyzeFile(filePath, relPath, content) {
   }
 
   // === Memory Leak Patterns ===
+  // Detect if this file is a one-shot script (not a long-running server)
+  const SERVER_PATTERNS = /app\.get\(|app\.listen\(|app\.post\(|Hono\(|createServer|express\(|router\.(get|post|put|delete)\(|\.onRequest\(/;
+  const isOneShotScript = (
+    relPath.includes('/scripts/') ||
+    relPath.includes('cli.') ||
+    relPath.includes('/bin/') ||
+    relPath.match(/(?:^|\/)cli[./]/)
+  ) || !SERVER_PATTERNS.test(content);
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
@@ -290,11 +311,19 @@ function analyzeFile(filePath, relPath, content) {
     if (/^(const|let|var)\s+\w+\s*=\s*\[\s*\]/.test(trimmed) && braceDepth === 0) {
       const varName = trimmed.match(/^(?:const|let|var)\s+(\w+)/)?.[1];
       if (varName && content.includes(`${varName}.push(`)) {
-        findings.push({
-          file: relPath, line: i + 1, severity: 'medium', category: 'memory-leak',
-          message: `Module-scoped array "${varName}" with .push() — grows unbounded, memory leak in long-running servers`,
-          code: trimmed.slice(0, 120),
-        });
+        if (isOneShotScript) {
+          findings.push({
+            file: relPath, line: i + 1, severity: 'low', category: 'memory-leak',
+            message: `Module-scoped array "${varName}" with .push() — grows unbounded (one-shot script, not a server)`,
+            code: trimmed.slice(0, 120),
+          });
+        } else {
+          findings.push({
+            file: relPath, line: i + 1, severity: 'medium', category: 'memory-leak',
+            message: `Module-scoped array "${varName}" with .push() — grows unbounded, memory leak in long-running servers`,
+            code: trimmed.slice(0, 120),
+          });
+        }
       }
     }
 
@@ -403,6 +432,7 @@ function main() {
       critical: items.filter(i => i.severity === 'critical').length,
       high: items.filter(i => i.severity === 'high').length,
       medium: items.filter(i => i.severity === 'medium').length,
+      low: items.filter(i => i.severity === 'low').length,
     };
   }
 
@@ -411,6 +441,7 @@ function main() {
     if (f.severity === 'critical') score -= 15;
     else if (f.severity === 'high') score -= 8;
     else if (f.severity === 'medium') score -= 3;
+    else if (f.severity === 'low') score -= 1;
   }
 
   output({

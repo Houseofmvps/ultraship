@@ -105,7 +105,8 @@ describe('ultraship ship scorecard', () => {
     for (const line of scoreLines) {
       const hasNumber = /\d+\/100/.test(line);
       const hasFail = /FAIL/.test(line);
-      assert.ok(hasNumber || hasFail, `Score line should have number or FAIL: ${line.trim()}`);
+      const hasNA = /N\/A/.test(line);
+      assert.ok(hasNumber || hasFail || hasNA, `Score line should have number, FAIL, or N/A: ${line.trim()}`);
     }
   });
 
@@ -191,7 +192,7 @@ describe('ultraship ship scorecard', () => {
     assert.match(out, /manual items remaining/, 'Should show remaining items');
   });
 
-  it('shows tagline after the scorecard', () => {
+  it('shows contextual tagline after the scorecard', () => {
     let out;
     try {
       out = ship(EMPTY_DIR);
@@ -199,7 +200,10 @@ describe('ultraship ship scorecard', () => {
       out = stripAnsi(err.stdout || '');
     }
 
-    assert.match(out, /Ship it\. One command\. Production-ready\./, 'Should show tagline');
+    // Tagline is contextual: "Ship it." when passing, "Fix..." when not
+    const hasShipIt = /Ship it/.test(out);
+    const hasFix = /Fix/.test(out) || /re-run/.test(out);
+    assert.ok(hasShipIt || hasFix, 'Should show a contextual tagline (Ship it or Fix issues)');
   });
 
 });

@@ -55,7 +55,23 @@ function findHtmlFiles(dir) {
     } catch { /* skip */ }
   }
   walk(dir);
-  return files;
+
+  // Deduplicate: if both root/file.html and dist/file.html exist, keep only dist version
+  const distFiles = new Set();
+  for (const f of files) {
+    const rel = relative(dir, f);
+    for (const prefix of ['dist/', 'build/']) {
+      if (rel.startsWith(prefix)) distFiles.add(rel.slice(prefix.length));
+    }
+  }
+  const deduped = files.filter(f => {
+    const rel = relative(dir, f);
+    // Drop root-level file if it has a dist/build counterpart
+    if (!rel.startsWith('dist/') && !rel.startsWith('build/') && distFiles.has(rel)) return false;
+    return true;
+  });
+
+  return deduped;
 }
 
 function stripHtml(html) {
@@ -149,6 +165,40 @@ function keywordDensity(text, keyword) {
     pos += kw.length;
   }
   return { keyword: kw, count, total_words: words.length, density_pct: Math.round((count * kwWords.length / words.length) * 10000) / 100 };
+}
+
+const SPA_FRAMEWORKS = {
+  'react': 'React',
+  'react-dom': 'React',
+  'vue': 'Vue',
+  '@angular/core': 'Angular',
+  'svelte': 'Svelte',
+};
+
+const SPA_ROOT_PATTERNS = [
+  /<div\s+id\s*=\s*["']root["']/i,
+  /<div\s+id\s*=\s*["']app["']/i,
+  /<div\s+id\s*=\s*["']__next["']/i,
+];
+
+function detectSpaProject(dir) {
+  const pkgPath = join(dir, 'package.json');
+  if (!existsSync(pkgPath)) return null;
+  try {
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+    for (const [dep, framework] of Object.entries(SPA_FRAMEWORKS)) {
+      if (allDeps && allDeps[dep]) return framework;
+    }
+  } catch { /* skip */ }
+  return null;
+}
+
+function isSpaShell(html, wordThreshold = 50) {
+  const text = stripHtml(html);
+  const words = getWords(text);
+  if (words.length >= wordThreshold) return false;
+  return SPA_ROOT_PATTERNS.some(pattern => pattern.test(html));
 }
 
 function analyzeContent(html, filePath, keyword) {
@@ -284,20 +334,41 @@ function main() {
     process.exit(0);
   }
 
+  const spaFramework = detectSpaProject(dir);
+
   const pages = [];
   for (const file of htmlFiles) {
     const sizeCheck = checkFileSize(file, statSync);
     if (!sizeCheck.ok) continue;
     const html = readFileSync(file, 'utf8');
     const relPath = relative(dir, file);
-    pages.push(analyzeContent(html, relPath, keyword));
+
+    if (spaFramework && isSpaShell(html)) {
+      pages.push({
+        file: relPath,
+        spa_detected: true,
+        note: 'SPA shell detected — content is rendered client-side. Static content analysis not applicable.',
+        spa_framework: spaFramework,
+        content_score: null,
+        findings: [],
+      });
+    } else {
+      pages.push(analyzeContent(html, relPath, keyword));
+    }
   }
 
-  pages.sort((a, b) => a.content_score - b.content_score);
+  pages.sort((a, b) => {
+    const scoreA = a.content_score ?? -1;
+    const scoreB = b.content_score ?? -1;
+    return scoreA - scoreB;
+  });
 
+  const scoredPages = pages.filter(p => p.content_score !== null);
   const totalFindings = pages.reduce((sum, p) => sum + p.findings.length, 0);
-  const avgScore = Math.round(pages.reduce((sum, p) => sum + p.content_score, 0) / pages.length);
-  const avgReadability = pages.filter(p => p.readability.flesch_reading_ease !== null);
+  const avgScore = scoredPages.length > 0
+    ? Math.round(scoredPages.reduce((sum, p) => sum + p.content_score, 0) / scoredPages.length)
+    : null;
+  const avgReadability = scoredPages.filter(p => p.readability && p.readability.flesch_reading_ease !== null);
   const avgReadabilityScore = avgReadability.length > 0
     ? Math.round(avgReadability.reduce((sum, p) => sum + p.readability.flesch_reading_ease, 0) / avgReadability.length)
     : null;
