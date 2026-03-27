@@ -39,18 +39,30 @@
 
 ## Quick Start
 
-```bash
-# As a Claude Code plugin (recommended)
-claude plugin add ultraship
+### Install as a Claude Code plugin (recommended)
 
-# Or try standalone — no plugin install needed
+```bash
+# Step 1: Add the Ultraship marketplace
+claude plugin marketplace add Houseofmvps/ultraship
+
+# Step 2: Install the plugin
+claude plugin install ultraship
+```
+
+That's it. Restart Claude Code and all 22 skills + 20 tools are active.
+
+### Or try standalone — no plugin install needed
+
+```bash
 npx ultraship ship .
 npx ultraship seo .
 npx ultraship security .
 npx ultraship health https://yourapp.com
 ```
 
-Then in Claude Code:
+### Use in Claude Code
+
+Once installed, use slash commands inside any Claude Code session:
 
 ```bash
 /ship          # Full pre-deploy audit + scorecard

@@ -61,7 +61,7 @@ function printHelp() {
     ultraship security ./my-project    Scan for leaked secrets
     ultraship health https://myapp.com Check production health
 
-  ${C.bold}Full plugin:${C.nc} claude plugin add ultraship
+  ${C.bold}Full plugin:${C.nc} claude plugin marketplace add Houseofmvps/ultraship && claude plugin install ultraship
   ${C.dim}https://github.com/Houseofmvps/ultraship${C.nc}
 `);
 }

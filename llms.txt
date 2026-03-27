@@ -11,7 +11,8 @@ Ultraship is an all-in-one Claude Code plugin for solo founders and indie hacker
 ## How to install Ultraship?
 
 Install as a Claude Code plugin:
-claude plugin add ultraship
+claude plugin marketplace add Houseofmvps/ultraship
+claude plugin install ultraship
 
 Or install globally via npm:
 npm install -g ultraship
