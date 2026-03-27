@@ -480,11 +480,11 @@ One command found all of this. No manual checklist. No guessing.
 |---|---|---|
 | **Tools** | 20 | SEO scanner (60+ rules), secret scanner, code profiler, bundle tracker, dep doctor, content scorer |
 | **Skills** | 22 | Brainstorming, TDD, debugging, planning, code review, frontend design, verification |
-| **Commands** | 17 | `/ship` `/seo` `/secure` `/perf` `/deploy` `/review` `/health` `/bundle` `/profile` `/deps` and more |
+| **Commands** | 14 | `/ship` `/seo` `/secure` `/perf` `/deploy` `/review` `/health` `/bundle` `/profile` `/deps` and more |
 | **MCP Servers** | 2 | Live library docs (Context7), browser automation (Playwright) |
 
 <details>
-<summary><strong>All 17 commands</strong></summary>
+<summary><strong>All 14 commands</strong></summary>
 
 | Command | What it does |
 |---|---|
@@ -501,9 +501,6 @@ One command found all of this. No manual checklist. No guessing.
 | `/deps` | Unused/outdated dependency detection |
 | `/redirects` | Redirect chain/loop checker |
 | `/release` | Changelog, version bump, GitHub release, npm publish |
-| `/brainstorm` | Idea-to-spec with clarifying questions |
-| `/write-plan` | Spec to bite-sized implementation plan |
-| `/execute-plan` | Execute plan with review checkpoints |
 | `/revise-claude-md` | Update CLAUDE.md with session learnings |
 
 </details>

@@ -39,6 +39,7 @@
     "commands/",
     "tools/",
     "hooks/",
+    "assets/",
     ".mcp.json",
     "README.md",
     "LICENSE",
