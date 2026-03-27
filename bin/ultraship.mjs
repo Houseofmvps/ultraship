@@ -116,9 +116,12 @@ async function runShip(dir) {
   const totalFindings = (seo?.findings?.length || 0) + (secrets?.findings?.length || 0) +
     (profile?.findings?.length || 0) + (deps?.unused?.length || 0) + (deps?.outdated?.length || 0);
 
+  // Detect if SEO was skipped (backend project or no HTML files)
+  const seoWasSkipped = seo?.skipped || seo?.scores?.seo === null;
+
   // Completed audit names
   const auditNames = [];
-  if (!seo?._failed && !seo?.skipped) auditNames.push('SEO');
+  if (!seo?._failed && !seoWasSkipped) auditNames.push('SEO');
   if (!bundle?._failed) auditNames.push('Perf');
   if (!secrets?._failed) auditNames.push('Security');
   if (!profile?._failed || !deps?._failed) auditNames.push('Quality');
@@ -160,8 +163,7 @@ async function runShip(dir) {
   }
 
   // SEO: if scanner returned skipped (backend project) or null scores, propagate null
-  const seoSkipped = seo?.skipped || (seo?.scores?.seo === null);
-  const seoScore = seoSkipped ? null : calcFindingsScore(seo, { critical: 5, high: 3, medium: 1, low: 0 }, true);
+  const seoScore = seoWasSkipped ? null : calcFindingsScore(seo, { critical: 5, high: 3, medium: 1, low: 0 }, true);
   // Security: leaked secrets are severe
   const securityScore = calcFindingsScore(secrets, { critical: 15, high: 10, medium: 5 });
 
@@ -248,7 +250,7 @@ async function runShip(dir) {
   console.log(`  ${C.white}${C.bold}║${C.nc}      ${C.cyan}${C.bold}U L T R A S H I P   S C O R E${C.nc}       ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
-  printRow('SEO/GEO/AEO', seoScore, seoSkipped);
+  printRow('SEO/GEO/AEO', seoScore, seoWasSkipped);
   printRow('Performance', bundleScore);
   printRow('Security', securityScore);
   printRow('Code Quality', qualityScore);
