@@ -1,10 +1,12 @@
 <div align="center">
 
-<img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
+<img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin for Solo Founders" width="100%"/>
 
-### SEO + GEO + AEO auditing, security scanning, competitive analysis, launch prep, and 25 more tools for Claude Code.
+# From `idea` to `first paying customer`. Inside Claude Code.
 
-**The first Claude Code plugin with Generative Engine Optimization (GEO) and Answer Engine Optimization (AEO) — built for how search works in 2026.**
+You brainstorm it. You spec it. You build it with TDD. You audit it. You ship it. You launch it. You track growth. You handle incidents. You iterate.
+
+Ultraship handles every step — 29 tools, 32 skills, 9 agents, 27 commands — so you never leave your terminal.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -13,99 +15,106 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=opensourceinitiative)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/Houseofmvps/ultraship/ci.yml?style=for-the-badge&logo=github&label=Tests)](https://github.com/Houseofmvps/ultraship/actions)
 
----
+<br/>
+
+1 dependency. 113 tests. MIT. Free.
+
+<br/>
 
 [![Follow @kaileskkhumar](https://img.shields.io/badge/Follow%20%40kaileskkhumar-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/kaileskkhumar)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/kailesk-khumar-soundararajan)
 [![houseofmvps.com](https://img.shields.io/badge/houseofmvps.com-Website-green?style=for-the-badge&logo=google-chrome&logoColor=white)](https://houseofmvps.com)
 [![Sponsor](https://img.shields.io/badge/Sponsor-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/Houseofmvps)
 
-**Built by [Kaileskkhumar](https://www.linkedin.com/in/kailesk-khumar-soundararajan) at [houseofmvps.com](https://houseofmvps.com)**
-
 </div>
 
 ---
 
-## What is Ultraship?
+## You're a solo founder. Here's your week without Ultraship.
 
-Ultraship is a Claude Code plugin with 29 tools, 32 skills, 9 agents, and 27 commands. It covers the full build lifecycle: brainstorming, planning, implementation, code review, deployment, competitive analysis, launch preparation, incident response, and post-ship growth tracking.
+Monday — you build a feature. Claude writes code, you merge it, you push. No tests. No review. You'll find out it's broken in production.
 
-**Search optimization for the AI era:** Ultraship audits your site across three layers — traditional SEO (Google, Bing), GEO (Generative Engine Optimization for ChatGPT, Perplexity, Gemini), and AEO (Answer Engine Optimization for featured snippets and voice assistants). 60+ rules check everything from `llms.txt` and AI-friendly `robots.txt` to question-format headings, FAQPage schema, and structured data that AI models can extract.
+Tuesday — you google "SEO checklist for SaaS." You spend 2 hours manually checking meta tags. You miss that ChatGPT and Perplexity can't even find your site because you forgot `llms.txt` and your `robots.txt` blocks AI crawlers. In 2026, that's half your organic discovery — gone.
 
-**1 dependency** (`htmlparser2`, 30KB). **113 unit tests.** MIT licensed. Free.
+Wednesday — you're ready to launch. You write a Product Hunt description from scratch. You forget the Twitter thread. You don't have a press kit. You wing it.
+
+Thursday — production goes down. You `git log` and guess which commit broke it. You don't have rollback commands ready. Your post-mortem is a Slack message that says "fixed."
+
+Friday — you have no idea if your SEO improved this week, how much your AI costs were, or whether your bundle got heavier. You're building blind.
+
+**That's 5 days of preventable mistakes.** Not because you're bad — because you're one person doing the work of a 10-person team.
+
+---
+
+## Same week. With Ultraship.
+
+```
+Monday     → /ship         → Code reviewed, profiled, audited. N+1 caught. Secret leak blocked. Score: 91.
+Tuesday    → /seo          → 60+ rules. SEO, GEO (AI search), AEO (voice/snippets). llms.txt generated.
+Wednesday  → /launch       → PH copy, Twitter thread, LinkedIn, HN post, checklist, press kit. Done in 60 seconds.
+Thursday   → /rescue       → Health check, git culprit found, rollback command generated, post-mortem template ready.
+Friday     → /grow         → SEO trajectory, git velocity, dep health, bundle trends. All in one dashboard.
+```
+
+You didn't install 6 tools. You didn't leave Claude Code. You didn't think about it. You just typed a slash command and kept building.
 
 ---
 
 <div align="center">
 
-<img src="assets/demo.gif" alt="Ultraship CLI Demo — SEO audit, secret scanning, scorecard" width="100%"/>
+<img src="assets/demo.gif" alt="Ultraship in action — SEO audit, secret scanning, scorecard" width="100%"/>
 
-*SEO audit, secret scanning, and the /ship scorecard — all from your terminal.*
+*One command. Full audit. Actual score.*
 
 </div>
 
 ---
 
-## Quick Start
-
-### Install as a Claude Code plugin (recommended)
+## Install in 30 seconds
 
 ```bash
-# Step 1: Add the Ultraship marketplace
+# As a Claude Code plugin (recommended)
 claude plugin marketplace add Houseofmvps/ultraship
-
-# Step 2: Install the plugin
 claude plugin install ultraship
 ```
 
-Restart Claude Code. All 32 skills, 29 tools, and 27 commands are active.
-
-### Or try standalone
+Restart Claude Code. Done. Or try standalone:
 
 ```bash
 npx ultraship ship .
 npx ultraship seo .
 npx ultraship security .
-npx ultraship health https://yourapp.com
-```
-
-### Use in Claude Code
-
-Once installed, use slash commands inside any Claude Code session:
-
-```bash
-/ship          # Full pre-deploy audit + scorecard
-/seo           # SEO/GEO/AEO audit
-/secure        # Security scan
-/perf          # Bundle size + Lighthouse audit
-/deploy        # Build -> audit -> deploy -> health check
-/compete       # Competitive analysis vs a rival site
-/launch        # Launch day copy + checklist + press kit
-/rescue        # Incident diagnostics + rollback
-/grow          # Post-ship growth metrics
-/cost          # AI build cost tracking
 ```
 
 ---
 
-## What's Inside
+## The Full Lifecycle — What You Get
 
-| Category | Count | Highlights |
-|---|---|---|
-| **Tools** | 29 | SEO scanner (60+ rules), secret scanner, code profiler, bundle tracker, dep doctor, competitive analyzer, launch prep, incident commander, growth tracker, cost tracker, architecture mapper, onboard generator |
-| **Skills** | 32 | 16 workflow (brainstorming, TDD, debugging, planning, code review, frontend design) + 6 specialist (SEO, security, profiling) + 10 growth/launch/intelligence |
-| **Agents** | 9 | Ship, code review, SEO, security, browser, competitive analysis, launch, incident response, growth |
-| **Commands** | 27 | `/ship` `/seo` `/secure` `/compete` `/launch` `/rescue` `/grow` `/cost` `/onboard` `/architecture` `/demo` `/visual-diff` `/clone-patterns` and more |
-| **MCP Servers** | 2 | Live library docs (Context7), browser automation (Playwright) |
+### Phase 1: Idea → Code
 
----
+You describe what you want to build. Ultraship turns Claude Code into a disciplined engineering partner.
 
-## Features
+| Skill | What happens |
+|---|---|
+| **Brainstorming** | Clarifying questions, 2-3 approaches with trade-offs, written spec before any code |
+| **Planning** | Spec broken into steps — exact file paths, test commands, commit messages, dependency order |
+| **TDD** | Failing test first. Then implementation. Then refactor. Every time. |
+| **Implementation** | Follows the plan step by step. Review checkpoints built in. |
+| **Frontend Design** | Your stack (React, Tailwind, shadcn/ui, whatever). Responsive, accessible, dark mode. |
+| **API Design** | REST/RPC conventions, schema validation, error handling, versioning |
+| **Data Modeling** | Schema design with indexes, constraints, migration safety (Drizzle, Prisma, Knex) |
+| **Code Review** | Confidence-scored findings. N+1 queries, security holes, anti-patterns — with fix suggestions |
+| **Debugging** | Reproduces first, narrows root cause, writes regression test |
 
-### Auditing & Quality Gates
+This isn't a prompt library. These are workflow skills — they activate based on what you're doing and enforce discipline you'd get from a senior engineering team.
 
-**`/ship` — Pre-Deploy Scorecard**
-Runs 5 tools in parallel, scores 4 categories (SEO/GEO/AEO, Security, Code Quality, Bundle Size), produces a scorecard:
+### Phase 2: Code → Ship
+
+Your code is written. Now make sure it's actually ready.
+
+**`/ship` — The Quality Gate**
+
+5 tools run in parallel. 4 categories scored. One number tells you if you're ready:
 
 ```
 +===========================================+
@@ -121,158 +130,242 @@ Runs 5 tools in parallel, scores 4 categories (SEO/GEO/AEO, Security, Code Quali
 +===========================================+
 ```
 
-**`/seo` — SEO + GEO + AEO Audit (60+ rules across 3 search layers)**
+What `/ship` catches:
 
-| Layer | What it optimizes for | What Ultraship checks |
+| Tool | What it finds |
+|---|---|
+| **SEO scanner** (60+ rules) | Missing meta tags, broken canonicals, heading hierarchy, OG tags, structured data, AI discoverability |
+| **Secret scanner** | AWS keys, Stripe keys, JWT secrets, database URLs in your code |
+| **Code profiler** | N+1 queries, sync I/O in handlers, memory leaks, unbounded queries, ReDoS risk |
+| **Bundle tracker** | Oversized builds, heavy deps (`moment` → `dayjs`, `lodash` → native), growth between deploys |
+| **Dep doctor** | Unused dependencies, dead wrapper files, outdated packages (monorepo-aware) |
+
+**`/secure`** — Dedicated security scan: secrets + OWASP patterns + `npm audit`
+**`/profile`** — Dedicated code profiling: 7 anti-pattern categories with exact `file:line` locations
+**`/perf`** — Lighthouse via headless Chrome: Core Web Vitals, render-blocking resources, compression
+**`/bundle`** — Bundle analysis with history: before/after comparison, top 10 largest files
+**`/deps`** — Import graph analysis: finds unused deps that `npm ls` misses
+**`/deploy`** — Full pipeline: env validation → migration check → build → ship → health check
+
+### Phase 3: Ship → Be Found
+
+You shipped. Now the question is: **can anyone find you?**
+
+Most developer tools check traditional SEO. But in 2026, a huge chunk of discovery happens through AI — ChatGPT citations, Perplexity answers, Gemini recommendations. If your site isn't optimized for AI search, you're invisible to a growing segment of your potential users.
+
+**`/seo` — Three search layers. 60+ rules.**
+
+| Layer | Who finds you | What Ultraship checks |
 |---|---|---|
-| **SEO** | Traditional search (Google, Bing) | Meta tags, canonical URLs, heading hierarchy, image alt text, sitemap, robots.txt, structured data, OG tags, redirect chains |
-| **GEO** | AI search (ChatGPT, Perplexity, Gemini) | `llms.txt`, AI-friendly `robots.txt` (GPTBot, PerplexityBot, ClaudeBot), question-format headings, structured data for AI extraction, content depth scoring |
-| **AEO** | Featured snippets & voice assistants | FAQPage schema, concise answer paragraphs, speakable markup, direct-answer formatting |
+| **SEO** | Google, Bing users | Meta tags, canonical URLs, heading hierarchy, alt text, sitemap, robots.txt, structured data, OG tags, redirect chains |
+| **GEO** | ChatGPT, Perplexity, Gemini users | `llms.txt`, AI-friendly `robots.txt` (GPTBot, PerplexityBot, ClaudeBot allowed), question-format headings, structured data AI models can extract, content depth |
+| **AEO** | Voice assistants, featured snippets | FAQPage schema, concise answer paragraphs, speakable markup, direct-answer formatting |
 
-Plus: Flesch-Kincaid readability scoring, keyword density analysis, OG image reachability, cross-page canonical conflict detection, analytics provider detection (12 providers).
+**GEO** = Generative Engine Optimization. Make your content citable by AI search engines.
+**AEO** = Answer Engine Optimization. Get pulled into featured snippets and voice results.
 
-Most tools only check traditional SEO. In 2026, 40%+ of search discovery happens through AI assistants — GEO and AEO coverage is what separates sites that get cited from sites that get ignored.
+Plus: Flesch-Kincaid readability, keyword density, OG image reachability, cross-page canonical conflicts, analytics detection (12 providers).
 
-**`/secure` — Security Scan**
-Secret scanning (AWS keys, Stripe keys, JWT secrets, database URLs), OWASP pattern detection (eval, innerHTML, SQL concatenation), dependency audit via `npm audit`, unused/outdated dependency detection.
+Ultraship also generates what's missing:
 
-**`/profile` — Code Profiling**
-Static analysis for N+1 queries, sync I/O in handlers, unbounded queries, missing indexes, memory leaks, sequential awaits, ReDoS risk.
-
-**`/perf` — Performance Audit**
-Lighthouse via headless Chrome. Core Web Vitals (LCP, FID, CLS), render-blocking resources, unoptimized images, compression checks.
-
-**`/bundle` — Bundle Size Tracking**
-Analyzes build output directories, reports top 10 largest files, detects heavy dependencies with lighter alternatives (`moment` -> `dayjs`, `lodash` -> native), saves reports for before/after comparison.
-
-**`/deps` — Dependency Health**
-Detects unused dependencies via import graph analysis. Identifies dead wrapper files. Flags outdated packages. Monorepo-aware.
-
-### Competitive Intelligence & Launch
-
-**`/compete` — Competitive X-Ray** *(new in v2.0)*
-Compare your site against a competitor on tech stack, SEO score, performance, and security headers. Generates a shareable ASCII comparison card.
-
-**`/launch` — Launch Day Autopilot** *(new in v2.0)*
-Reads your project and generates Product Hunt copy, Twitter thread, LinkedIn post, Hacker News post, a 14-item launch checklist, press kit, and launch day timeline.
-
-**`/rescue` — Incident Commander** *(new in v2.0)*
-Production incident diagnostics: health check, git culprit analysis (last 5 commits), error pattern scanning, env var validation, rollback commands, and post-mortem template.
-
-**`/grow` — Growth Intelligence** *(new in v2.0)*
-Tracks uptime, git velocity (commits/week, deploy frequency), SEO trajectory, dependency health, and code quality trends over time. Stores snapshots for week-over-week comparison.
-
-**`/cost` — AI Cost Tracker** *(new in v2.0)*
-Log token usage per feature and model. Built-in pricing for Claude, GPT-4o, Gemini. Shows daily trends, per-feature breakdown, and optimization insights.
-
-### Project Understanding
-
-**`/onboard` — Project Onboarding** *(new in v2.0)*
-Auto-generates a developer onboarding guide: tech stack, directory tree, API routes, database schema, env vars, gotchas, and a Mermaid architecture diagram.
-
-**`/architecture` — Living Architecture Map** *(new in v2.0)*
-Generates 4 Mermaid diagrams from your codebase: system overview, route tree, database ER diagram, and data flow sequence. Detects circular dependencies and orphan modules.
-
-**`/clone-patterns` — Learn From the Best** *(new in v2.0)*
-Analyze any repo's patterns (testing, error handling, TypeScript usage, CI/CD, git practices) and compare them to yours. Generates a prioritized adoption plan.
-
-**`/demo` — Demo-Ready Mode** *(new in v2.0)*
-Finds console.logs, TODOs, placeholder text, missing favicons, and other dev artifacts. Scores demo readiness and generates a walkthrough from your routes.
-
-**`/visual-diff` — Visual Regression** *(new in v2.0)*
-Uses Playwright MCP to take before/after screenshots across viewports and compare them.
-
-### Workflow Skills
-
-Ultraship includes 16 workflow skills that activate based on context during your Claude Code session:
-
-| Skill | What it does |
+| Generator | What it creates |
 |---|---|
-| **Brainstorming** | Asks clarifying questions, proposes approaches with trade-offs, writes a spec before code |
-| **Planning** | Breaks spec into implementation steps with file paths, test commands, and commit messages |
-| **TDD** | Enforces red-green-refactor: failing test first, then implementation, then cleanup |
-| **Implementation** | Follows the plan step by step with review checkpoints |
-| **Code Review** | Reviews with confidence scoring, catches N+1 queries, security issues, anti-patterns |
-| **Debugging** | Reproduces first, narrows root cause, writes regression test |
-| **Refactoring** | Verifies behavior preserved via tests |
-| **Frontend Design** | Uses your existing stack, handles responsive/a11y/dark mode |
-| **API Design** | REST/RPC conventions, schema validation, error handling, versioning |
-| **Data Modeling** | Schema design, migration safety, index checks |
-| **Git Workflow** | Branching, commits, PRs, merge strategy |
-| **CLAUDE.md Management** | Updates project instructions with session learnings |
-| **Deploy Pipeline** | Env validation, migration check, build, ship, health check |
-| **Release** | Changelog, version bump, GitHub release, npm publish |
-| **Generators** | sitemap.xml, robots.txt, llms.txt, JSON-LD structured data |
-| **Browser Testing** | Navigate, click, fill forms, screenshot via Playwright MCP |
+| **sitemap.xml** | From your HTML files and routes |
+| **robots.txt** | AI-friendly — allows GPTBot, PerplexityBot, ClaudeBot |
+| **llms.txt** | Makes your project discoverable by AI assistants |
+| **JSON-LD** | Structured data markup for your pages |
 
-### Additional Tools
+**`/content`** — Readability scoring, keyword analysis, GEO heading audit, thin content detection
 
-| Tool | Purpose |
-|---|---|
-| `content-scorer` | Readability (Flesch-Kincaid), keyword density, GEO heading analysis |
-| `og-validator` | Open Graph tag validation, image reachability |
-| `redirect-checker` | Redirect chain/loop detection, sitemap-based bulk check |
-| `health-check` | Production health: status, response time, SSL, security headers |
-| `env-validator` | Compares .env.example against actual .env |
-| `migration-checker` | Pending DB migrations (Drizzle, Prisma, Knex) |
-| `audit-history` | Saves/compares audit scores over time |
-| `api-smoke-test` | API endpoint smoke testing (status, response times, CORS) |
-| `gsc-client` | Google Search Console API (optional, JWT auth) |
-| `bing-webmaster` | Bing Webmaster API (optional, API key auth) |
-| `sitemap-generator` | Generates sitemap.xml from HTML files |
-| `robots-generator` | AI-friendly robots.txt |
-| `structured-data-generator` | JSON-LD schema markup |
-| `llms-txt-generator` | llms.txt for AI discoverability |
+### Phase 4: Ship → Launch
+
+You're ready to go public. You need launch copy — now.
+
+**`/launch` — Launch Day Autopilot**
+
+Reads your project (package.json, README, routes, git history) and generates:
+
+- Product Hunt description
+- Twitter/X thread
+- LinkedIn post
+- Hacker News post
+- 14-item launch checklist (SEO, analytics, legal, brand, technical)
+- Press kit
+- Launch day timeline
+
+**`/compete` — Know Your Battlefield**
+
+Compare your live site against any competitor:
+
+- Tech stack detection (framework, hosting, analytics, CSS, payments)
+- SEO score comparison (10-point scale)
+- Security header comparison (6 headers)
+- Shareable ASCII comparison card
+
+**`/demo` — Demo-Ready Mode**
+
+Before your launch, make sure your app doesn't look like a dev environment:
+
+- Finds `console.log`s, TODOs, placeholder text, debug UI
+- Checks for missing favicon, default branding, missing error pages
+- Scores demo readiness (90+ = ready, 70-89 = almost, <70 = needs work)
+- Generates a walkthrough from your routes
+
+### Phase 5: Launch → Grow
+
+Your product is live. The launch is done. Now what?
+
+**`/grow` — Growth Intelligence**
+
+Tracks week-over-week:
+
+- Uptime (live health check)
+- Git velocity (commits/week, deploy frequency, active days)
+- SEO trajectory (from audit history)
+- Dependency health
+- Code quality trends
+- Stores snapshots for comparison
+
+**`/cost` — AI Build Cost Tracker**
+
+You're building with Claude, GPT-4o, Gemini. Do you know what each feature costs?
+
+- Log token usage per feature and model
+- Built-in pricing: Claude Opus/Sonnet/Haiku, GPT-4o/4o-mini/4.1, Gemini 2.5 Pro/Flash
+- Daily cost trends, per-feature breakdown
+- Optimization insights (which features burn the most tokens, which models to swap)
+
+**`/rescue` — When Production Breaks**
+
+3am. Site's down. You need answers, not guessing.
+
+- Health check your production URL (status, response time, SSL, security headers)
+- Git culprit analysis: which of the last 5 commits likely broke it
+- Error pattern scan in your codebase
+- Env var validation against `.env.example`
+- Rollback commands generated and ready
+- Post-mortem template
+
+### Phase 6: Grow → Improve
+
+**`/onboard` — Instant Project Onboarding**
+
+New contributor? Returning to your own project after a month? Generates a developer guide:
+
+- Tech stack summary, directory tree, API routes
+- Database schema, env vars, setup steps
+- Gotchas and Mermaid architecture diagram
+
+**`/architecture` — Living Architecture Map**
+
+4 auto-generated Mermaid diagrams from your codebase:
+
+- System overview (what connects to what)
+- Route tree (all API endpoints)
+- Database ER diagram
+- Data flow sequence diagram
+- Plus: circular dependency detection, orphan module detection
+
+**`/clone-patterns` — Learn From the Best**
+
+Point it at any repo. It analyzes:
+
+- Testing patterns, error handling, TypeScript usage
+- CI/CD setup, git practices, dependency choices
+- Compares against your project and generates a prioritized adoption plan
+
+**`/visual-diff` — Visual Regression**
+
+Uses Playwright MCP to screenshot your pages before and after changes, across viewports. No more "did that CSS change break the mobile layout?" guessing.
 
 ---
 
-## Dogfooded in Production
+## Real Results — Dogfooded on a Production SaaS
 
-`/ship` on [SaveMRR](https://savemrr.co) (AI retention platform — Hono + React + Drizzle pnpm monorepo):
+`/ship` on [SaveMRR](https://savemrr.co) — an AI retention platform built with Hono + React + Drizzle (pnpm monorepo, 5 workspace packages, 41 route handlers):
 
-**Backend + Dashboard (5 workspace packages, 41 route handlers):**
+| | Backend + Dashboard | Landing Page (29 HTML pages) |
+|---|---|---|
+| SEO/GEO/AEO | 63/100 | 52/100 |
+| Security | 100/100 | 100/100 |
+| Code Quality | 70/100 | 67/100 |
+| Bundle Size | 100/100 | 92/100 |
+| **Overall** | **83 — READY TO SHIP** | **78 — NEEDS WORK** |
 
-| Metric | Score |
-|---|---|
-| SEO/GEO/AEO | 63/100 |
-| Security | 100/100 |
-| Code Quality | 70/100 |
-| Bundle Size | 100/100 |
-| Overall | **83/100 — READY TO SHIP** |
+**227 findings.** What it caught:
 
-**Landing Page (29 pre-rendered HTML pages):**
+- 1 real N+1 query in a background job (9 seed-data loops correctly downgraded to low severity)
+- 33 unused dependencies — dead shadcn/ui wrapper files detected via import graph analysis
+- 153 SEO issues — missing structured data, title length, no AI-friendly headings
+- 1 memory leak — module-scoped array with `.push()` growing unbounded
+- 1 heavy dependency — `date-fns` in the landing page bundle
 
-| Metric | Score |
-|---|---|
-| SEO/GEO/AEO | 52/100 |
-| Security | 100/100 |
-| Code Quality | 67/100 |
-| Bundle Size | 92/100 |
-| Overall | **78/100 — NEEDS WORK** |
-
-**227 findings across both audits.** Examples: 1 real N+1 query in a background job, 33 unused dependencies in the landing page, 153 SEO issues (missing structured data, title length, no AI-friendly headings), 1 memory leak (module-scoped array with `.push()`), 1 heavy dependency (`date-fns`).
+One command. 227 things a solo founder would have missed.
 
 ---
 
-## Security
+## Hardened for Real Use
 
 | Protection | How |
 |---|---|
-| **No shell injection** | `execFileSync` with array args everywhere — zero shell interpolation |
+| **No shell injection** | `execFileSync` with array args — zero shell interpolation |
 | **SSRF protection** | All HTTP tools block private IPs, cloud metadata, non-HTTP schemes |
-| **No telemetry** | Zero data collection. No phone-home. |
-| **1 dependency** | `htmlparser2` only (30KB). No native bindings. No `node-gyp`. |
-| **113 unit tests** | Security module, secret scanner, SEO scanner, code profiler, content scorer, dep doctor, CLI scorecard |
-| **Secret redaction** | Found secrets truncated in output. Env values never logged. |
-| **File safety** | 10MB read cap. 5MB response cap. Restrictive write permissions. |
+| **No telemetry** | Zero data collection. No phone-home. No analytics. |
+| **1 dependency** | `htmlparser2` (30KB). No native bindings. No `node-gyp`. |
+| **113 unit tests** | Security, secret scanner, SEO scanner, code profiler, content scorer, dep doctor, CLI |
+| **Secret redaction** | Found secrets are truncated in output. Env values never logged. |
+| **File safety** | 10MB read cap. 5MB response cap. 0o600 file permissions. |
 
 See [SECURITY.md](SECURITY.md) for full details.
 
 ---
 
+## All 27 Commands
+
+| Command | What it does |
+|---|---|
+| `/ship` | Pre-deploy quality gate — 5 tools, 4 scores, 1 scorecard |
+| `/seo` | SEO + GEO + AEO audit (60+ rules, 3 search layers) |
+| `/secure` | Secret scanning + OWASP patterns + dependency audit |
+| `/perf` | Lighthouse + bundle size analysis |
+| `/deploy` | Full pipeline: env check → migrate → build → ship → health check |
+| `/review` | Code review with confidence scoring |
+| `/health` | Production health check (status, SSL, security headers) |
+| `/compete` | Competitive X-Ray vs any rival site |
+| `/launch` | Launch copy + checklist + press kit + timeline |
+| `/rescue` | Incident diagnostics + rollback commands + post-mortem |
+| `/grow` | Growth metrics: uptime, velocity, SEO trajectory, dep health |
+| `/cost` | AI build cost tracking per feature and model |
+| `/onboard` | Auto-generated developer onboarding guide |
+| `/architecture` | 4 Mermaid diagrams from your codebase |
+| `/clone-patterns` | Analyze any repo's patterns, compare to yours |
+| `/demo` | Find dev artifacts, score demo readiness, generate walkthrough |
+| `/visual-diff` | Before/after screenshot comparison across viewports |
+| `/content` | Readability, keyword density, GEO heading analysis |
+| `/bundle` | Bundle size tracking with heavy dep detection |
+| `/profile` | N+1 queries, sync I/O, memory leaks, unbounded queries |
+| `/deps` | Unused/outdated dependency detection via import graph |
+| `/redirects` | Redirect chain and loop detection |
+| `/release` | Changelog, version bump, GitHub release, npm publish |
+| `/revise-claude-md` | Update CLAUDE.md with session learnings |
+| `/brainstorm` | Start structured ideation with spec output |
+| `/execute-plan` | Execute a written plan step by step |
+| `/write-plan` | Write an implementation plan from a spec |
+
+---
+
+## Who This Is For
+
+- **Solo founders** who can't afford to ship broken code, miss SEO, or launch unprepared
+- **Indie hackers** building side projects nights and weekends who need every hour to count
+- **Bootstrapped teams** (1-3 people) doing the work of 10 without the headcount
+- **Any developer** using Claude Code who wants structured workflows instead of yolo-shipping
+
+---
+
 ## Contributing
 
-Found a bug? Want a new auditor? [Open an issue](https://github.com/Houseofmvps/ultraship/issues) or PR.
+[Open an issue](https://github.com/Houseofmvps/ultraship/issues) or PR. The codebase is simple:
 
 ```bash
 git clone https://github.com/Houseofmvps/ultraship.git
@@ -285,7 +378,7 @@ node tools/<tool>.mjs # No build step — tools run directly
 
 ## Sponsor
 
-Ultraship is free and MIT licensed. If it saved you time, consider [sponsoring on GitHub](https://github.com/sponsors/Houseofmvps).
+Ultraship is free and MIT licensed. Built solo by [Kaileskkhumar](https://www.linkedin.com/in/kailesk-khumar-soundararajan) at [houseofmvps.com](https://houseofmvps.com). If it helped you ship, consider [sponsoring on GitHub](https://github.com/sponsors/Houseofmvps).
 
 ---
 
@@ -297,7 +390,7 @@ MIT — [LICENSE](LICENSE).
 
 <div align="center">
 
-**[Star the repo](https://github.com/Houseofmvps/ultraship) if you find it useful.**
+**[Star the repo](https://github.com/Houseofmvps/ultraship) if Ultraship made your build better.**
 
 [![Star on GitHub](https://img.shields.io/github/stars/Houseofmvps/ultraship?style=for-the-badge&logo=github&color=gold)](https://github.com/Houseofmvps/ultraship/stargazers)
 
