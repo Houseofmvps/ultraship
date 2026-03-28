@@ -6,10 +6,10 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
-skills/           — 22 skills (16 workflow + 6 specialist)
-agents/           — 5 agents (ship, review, seo, security, browser)
-commands/         — 17 slash commands (/ship, /seo, /perf, /review, /deploy, /health, etc.)
-tools/            — 20 Node.js tools (scanner, lighthouse, profiler, dep-doctor, GSC, Bing, generators, etc.)
+skills/           — 32 skills (16 workflow + 6 specialist + 10 growth/launch/intelligence)
+agents/           — 9 agents (ship, review, seo, security, browser, compete, launch, incident, growth)
+commands/         — 27 slash commands (/ship, /seo, /compete, /launch, /rescue, /grow, /cost, /onboard, /architecture, /demo, /clone-patterns, /visual-diff, etc.)
+tools/            — 29 Node.js tools (scanner, lighthouse, profiler, compete-analyzer, launch-prep, incident-commander, growth-tracker, cost-tracker, onboard-generator, architecture-mapper, pattern-analyzer, demo-prep, etc.)
 hooks/            — Pre-commit security hook
 docs/             — Documentation
 ```
@@ -45,6 +45,15 @@ docs/             — Documentation
 | `robots-generator.mjs` | Generates AI-friendly robots.txt (allows GPTBot, PerplexityBot, etc.) |
 | `structured-data-generator.mjs` | Generates JSON-LD structured data |
 | `llms-txt-generator.mjs` | Generates llms.txt for AI discoverability |
+| `compete-analyzer.mjs` | Competitive X-Ray — compares two sites on tech stack, SEO, perf, security |
+| `launch-prep.mjs` | Launch Day Autopilot — generates launch copy, checklist, press kit |
+| `incident-commander.mjs` | Production Incident Commander — diagnoses outages, suggests rollback |
+| `growth-tracker.mjs` | Post-Ship Growth Intelligence — tracks metrics over time |
+| `cost-tracker.mjs` | AI Build Cost Tracker — tracks spend per feature/model |
+| `onboard-generator.mjs` | Instant Project Onboarding — generates developer onboarding guide |
+| `architecture-mapper.mjs` | Living Architecture Map — auto-generates Mermaid diagrams |
+| `pattern-analyzer.mjs` | Learn From the Best — analyzes and compares codebase patterns |
+| `demo-prep.mjs` | Demo-Ready Mode — finds dev artifacts, generates walkthrough |
 
 ## Security
 

@@ -31,6 +31,15 @@ const COMMANDS = {
   redirects: { tool: 'redirect-checker.mjs', desc: 'Check redirect chains' },
   profile: { tool: 'code-profiler.mjs', desc: 'Find performance anti-patterns' },
   migrations: { tool: 'migration-checker.mjs', desc: 'Check pending migrations' },
+  compete: { tool: 'compete-analyzer.mjs', desc: 'Competitive X-Ray (2 URLs)' },
+  launch: { tool: 'launch-prep.mjs', desc: 'Launch day preparation' },
+  rescue: { tool: 'incident-commander.mjs', desc: 'Production incident diagnostics' },
+  grow: { tool: 'growth-tracker.mjs', desc: 'Post-ship growth metrics' },
+  cost: { tool: 'cost-tracker.mjs', desc: 'AI build cost tracking' },
+  onboard: { tool: 'onboard-generator.mjs', desc: 'Generate onboarding guide' },
+  architecture: { tool: 'architecture-mapper.mjs', desc: 'Generate architecture diagrams' },
+  patterns: { tool: 'pattern-analyzer.mjs', desc: 'Analyze codebase patterns' },
+  demo: { tool: 'demo-prep.mjs', desc: 'Demo readiness check' },
 };
 
 const args = process.argv.slice(2);
@@ -426,7 +435,7 @@ if (command === 'ship') {
   }
 
   // Commands that require a URL, not a directory path
-  const URL_COMMANDS = new Set(['health', 'redirects']);
+  const URL_COMMANDS = new Set(['health', 'redirects', 'compete']);
   if (URL_COMMANDS.has(command) && !target.startsWith('http')) {
     // health with no explicit arg defaults to CWD — that's wrong
     if (!args[1]) {
