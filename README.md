@@ -2,7 +2,9 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### 29 tools. 32 skills. 9 agents. 27 commands. Full lifecycle from idea to growth.
+### SEO + GEO + AEO auditing, security scanning, competitive analysis, launch prep, and 25 more tools for Claude Code.
+
+**The first Claude Code plugin with Generative Engine Optimization (GEO) and Answer Engine Optimization (AEO) — built for how search works in 2026.**
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -26,7 +28,9 @@
 
 ## What is Ultraship?
 
-Ultraship is a Claude Code plugin that adds auditing, deployment, and workflow tools to your Claude Code sessions. It covers the full build lifecycle: brainstorming, planning, implementation, code review, SEO/security/performance auditing, deployment, competitive analysis, launch preparation, incident response, and post-ship growth tracking.
+Ultraship is a Claude Code plugin with 29 tools, 32 skills, 9 agents, and 27 commands. It covers the full build lifecycle: brainstorming, planning, implementation, code review, deployment, competitive analysis, launch preparation, incident response, and post-ship growth tracking.
+
+**Search optimization for the AI era:** Ultraship audits your site across three layers — traditional SEO (Google, Bing), GEO (Generative Engine Optimization for ChatGPT, Perplexity, Gemini), and AEO (Answer Engine Optimization for featured snippets and voice assistants). 60+ rules check everything from `llms.txt` and AI-friendly `robots.txt` to question-format headings, FAQPage schema, and structured data that AI models can extract.
 
 **1 dependency** (`htmlparser2`, 30KB). **113 unit tests.** MIT licensed. Free.
 
@@ -117,11 +121,17 @@ Runs 5 tools in parallel, scores 4 categories (SEO/GEO/AEO, Security, Code Quali
 +===========================================+
 ```
 
-**`/seo` — SEO/GEO/AEO Audit (60+ rules)**
-Checks meta tags, canonical URLs, heading hierarchy, image alt text, sitemap, robots.txt, structured data, `llms.txt`, AI-friendly headings, FAQPage schema, and more. Includes content scoring (Flesch-Kincaid readability), OG tag validation, redirect chain detection, and cross-page canonical conflict detection.
+**`/seo` — SEO + GEO + AEO Audit (60+ rules across 3 search layers)**
 
-- **GEO** = Generative Engine Optimization (AI search: ChatGPT, Perplexity)
-- **AEO** = Answer Engine Optimization (featured snippets, voice assistants)
+| Layer | What it optimizes for | What Ultraship checks |
+|---|---|---|
+| **SEO** | Traditional search (Google, Bing) | Meta tags, canonical URLs, heading hierarchy, image alt text, sitemap, robots.txt, structured data, OG tags, redirect chains |
+| **GEO** | AI search (ChatGPT, Perplexity, Gemini) | `llms.txt`, AI-friendly `robots.txt` (GPTBot, PerplexityBot, ClaudeBot), question-format headings, structured data for AI extraction, content depth scoring |
+| **AEO** | Featured snippets & voice assistants | FAQPage schema, concise answer paragraphs, speakable markup, direct-answer formatting |
+
+Plus: Flesch-Kincaid readability scoring, keyword density analysis, OG image reachability, cross-page canonical conflict detection, analytics provider detection (12 providers).
+
+Most tools only check traditional SEO. In 2026, 40%+ of search discovery happens through AI assistants — GEO and AEO coverage is what separates sites that get cited from sites that get ignored.
 
 **`/secure` — Security Scan**
 Secret scanning (AWS keys, Stripe keys, JWT secrets, database URLs), OWASP pattern detection (eval, innerHTML, SQL concatenation), dependency audit via `npm audit`, unused/outdated dependency detection.
