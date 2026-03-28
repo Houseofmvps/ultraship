@@ -1,6 +1,6 @@
 {
   "name": "ultraship",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Claude Code plugin — 29 tools, 32 skills, 9 agents, 27 commands. SEO/GEO/AEO audit, security scan, code profiling, competitive analysis, launch prep, incident response, growth tracking, and more.",
   "type": "module",
   "bin": {
