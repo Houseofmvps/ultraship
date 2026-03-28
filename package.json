@@ -1,6 +1,6 @@
 {
   "name": "ultraship",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Claude Code plugin for solo founders and indie hackers. Idea to first paying customer: brainstorm, TDD, code review, SEO/GEO/AEO audit, security scan, competitive analysis, launch prep, incident response, growth tracking. 29 tools, 32 skills, 9 agents.",
   "type": "module",
   "bin": {
