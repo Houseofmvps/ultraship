@@ -1,11 +1,28 @@
-# Ultraship
+<div align="center">
 
-A Claude Code plugin that adds pre-deploy auditing, workflow enforcement, and project tooling. Runs SEO/security/performance scans, generates scorecards, and provides structured workflows for planning, TDD, code review, deployment, and incident response.
+<img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-[![npm version](https://img.shields.io/npm/v/ultraship)](https://www.npmjs.com/package/ultraship)
-[![npm downloads](https://img.shields.io/npm/dm/ultraship)](https://www.npmjs.com/package/ultraship)
-[![CI](https://img.shields.io/github/actions/workflow/status/Houseofmvps/ultraship/ci.yml?label=tests)](https://github.com/Houseofmvps/ultraship/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+### Pre-deploy auditing, workflow enforcement, and project tooling for Claude Code.
+
+[![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
+[![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
+[![npm total](https://img.shields.io/npm/dt/ultraship?style=for-the-badge&logo=npm&color=cyan&label=Total%20Downloads)](https://www.npmjs.com/package/ultraship)
+[![GitHub stars](https://img.shields.io/github/stars/Houseofmvps/ultraship?style=for-the-badge&logo=github&color=gold)](https://github.com/Houseofmvps/ultraship/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=opensourceinitiative)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/Houseofmvps/ultraship/ci.yml?style=for-the-badge&logo=github&label=Tests)](https://github.com/Houseofmvps/ultraship/actions)
+[![Sponsor](https://img.shields.io/badge/Sponsor-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/Houseofmvps)
+
+---
+
+[![Follow @kaileskkhumar](https://img.shields.io/badge/Follow%20%40kaileskkhumar-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/kaileskkhumar)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/kailesk-khumar-soundararajan)
+[![houseofmvps.com](https://img.shields.io/badge/houseofmvps.com-Website-green?style=for-the-badge&logo=google-chrome&logoColor=white)](https://houseofmvps.com)
+
+**Built by [Kaileskkhumar](https://www.linkedin.com/in/kailesk-khumar-soundararajan), solo founder of [houseofmvps.com](https://houseofmvps.com)**
+
+</div>
+
+---
 
 ```
 1 dependency (htmlparser2) · 113 tests · Node.js ESM · MIT
