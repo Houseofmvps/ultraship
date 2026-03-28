@@ -1,6 +1,6 @@
 {
   "name": "ultraship",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Claude Code plugin with SEO, GEO (Generative Engine Optimization), and AEO (Answer Engine Optimization) auditing, security scanning, competitive analysis, launch prep, incident response, and 25 more tools. 29 tools, 32 skills, 9 agents.",
   "type": "module",
   "bin": {
