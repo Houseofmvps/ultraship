@@ -100,8 +100,20 @@ Then implement working code (HTML/CSS/JS, React, Vue, etc.) that is:
 
 Focus on:
 - **Typography**: Choose fonts that are beautiful, unique, and interesting. Avoid generic fonts like Arial and Inter; opt instead for distinctive choices that elevate the frontend's aesthetics; unexpected, characterful font choices. Pair a distinctive display font with a refined body font.
-- **Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Dominant colors with sharp accents outperform timid, evenly-distributed palettes.
+- **Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Dominant colors with sharp accents outperform timid, evenly-distributed palettes. Define a complete token set for every project — not just "pick 3 colors":
+  - `--primary`, `--on-primary` (text color on primary background)
+  - `--secondary`, `--on-secondary`
+  - `--accent` (sparingly — one highlight color)
+  - `--background`, `--foreground` (page-level)
+  - `--card`, `--card-foreground` (elevated surfaces)
+  - `--muted`, `--muted-foreground` (subdued elements)
+  - `--border`, `--ring` (focus rings)
+  - `--destructive`, `--on-destructive` (danger actions)
+  - Both light and dark theme values. Test both themes before delivery.
 - **Motion**: Use animations for effects and micro-interactions. Prioritize CSS-only solutions for HTML. Use Motion library for React when available. Focus on high-impact moments: one well-orchestrated page load with staggered reveals (animation-delay) creates more delight than scattered micro-interactions. Use scroll-triggering and hover states that surprise.
+  - **Timing specifics**: Enter animations 200-300ms. Exit animations 60-70% of enter duration (120-200ms). Stagger 30-50ms per item. Spring physics (damping, stiffness) produce more natural motion than cubic-bezier.
+  - **What to animate**: opacity + transform only (these are GPU-composited, zero layout cost). Never animate width, height, top, left, margin, or padding — these trigger layout recalculation on every frame.
+  - **Scroll animations**: use IntersectionObserver, not scroll event listeners. Scroll events fire 60+ times per second and cause jank.
 - **Spatial Composition**: Unexpected layouts. Asymmetry. Overlap. Diagonal flow. Grid-breaking elements. Generous negative space OR controlled density.
 - **Backgrounds & Visual Details**: Create atmosphere and depth rather than defaulting to solid colors. Add contextual effects and textures that match the overall aesthetic. Apply creative forms like gradient meshes, noise textures, geometric patterns, layered transparencies, dramatic shadows, decorative borders, custom cursors, and grain overlays.
 
@@ -112,6 +124,35 @@ Interpret creatively and make unexpected choices that feel genuinely designed fo
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
 
 Remember: Claude is capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
+
+## Industry-Specific Design Rules
+
+Different products demand different design treatment. A playful style that works for a consumer app would destroy trust on a banking site. Apply the right constraints based on what you're building:
+
+| Product Type | Recommended Tone | Anti-Patterns (NEVER do these) |
+|---|---|---|
+| **SaaS / Developer Tools** | Clean, functional, data-dense. Let the product speak. | Excessive animation, marketing fluff in the dashboard, hiding information behind clicks |
+| **Fintech / Banking** | Trust, stability, clarity. Conservative color palette. | Playful design, unclear fee structures, AI purple/pink gradients, gamification of money |
+| **Healthcare / Medical** | Calm, accessible, high-contrast. Large type. | Dark themes by default, tiny touch targets, complex navigation, red as primary color |
+| **E-commerce** | Fast, scannable, image-forward. Clear pricing. | Slow image loading, hidden shipping costs, confusing checkout flows, too many CTAs per page |
+| **Education / EdTech** | Encouraging, structured, progressive disclosure. | Overwhelming information density, punitive error feedback, unlabeled icons |
+| **Creative / Portfolio** | Bold, expressive, showcase-oriented. | Generic templates, stock photography, cookie-cutter layouts |
+| **Enterprise / B2B** | Professional, efficient, data-rich. Dense but organized. | Consumer-style playfulness, unnecessary illustrations, hiding complexity users need |
+| **Social / Community** | Warm, engaging, content-first. | Corporate tone, small text, difficult sharing flows |
+| **Legal / Government** | Accessible, plain-language, high-contrast, serious. | Trendy design, glassmorphism, dark mode without light alternative, small touch targets |
+| **Kids / Gaming** | Vibrant, tactile, rewarding, large targets. | Small text, complex navigation, subtle interactions, muted palettes |
+
+When the user describes what they're building, match the design constraints to the domain. Don't apply one-size-fits-all aesthetics.
+
+## Spacing & Layout System
+
+Consistent spacing prevents "something looks off" syndrome:
+
+- Use an **8px grid** for all spacing (8, 16, 24, 32, 48, 64, 96px). Every margin, padding, and gap should be a multiple of 8.
+- **Component internal padding**: 12-16px for small components, 16-24px for medium, 24-32px for large.
+- **Section spacing**: 64-96px between major page sections. 32-48px between sub-sections.
+- **Card padding**: Consistent within a page. Don't mix 12px padding and 24px padding on cards at the same level.
+- **Line height**: 1.5 for body text, 1.2-1.3 for headings. Never 1.0 — it's unreadable.
 
 ## Page-Specific UX Patterns
 
@@ -155,13 +196,38 @@ A top product designer knows that different page types have different UX require
 
 Before marking any frontend work as complete:
 
+**Functionality:**
 - [ ] Primary action is immediately obvious (5-second test)
-- [ ] All interactive elements have hover, active, and disabled states
-- [ ] Loading, empty, and error states are handled
-- [ ] Color contrast meets WCAG AA (4.5:1 for text)
-- [ ] Keyboard navigation works (Tab through all interactive elements)
-- [ ] Mobile responsive (test at 375px width minimum)
+- [ ] All interactive elements have hover, active, focus, and disabled states
+- [ ] Loading states use skeleton screens, not spinners (for data-dependent content)
+- [ ] Empty states include actionable guidance
+- [ ] Error states explain what went wrong AND how to fix it
+- [ ] Success states guide to the next action
+
+**Accessibility:**
+- [ ] Color contrast meets WCAG AA (4.5:1 for text, 3:1 for large text and UI elements)
+- [ ] Keyboard navigation works (Tab through all interactive elements, visible focus ring)
+- [ ] Screen reader: `aria-label` on icon buttons, `alt` on images, semantic HTML elements
 - [ ] Touch targets are 44x44px minimum on mobile
+- [ ] `prefers-reduced-motion` respected — no motion-dependent functionality
+
+**Responsiveness:**
+- [ ] Mobile responsive (test at 375px, 768px, 1024px, 1280px)
+- [ ] No horizontal scroll on any viewport
+- [ ] Typography scales appropriately (not too small on mobile, not too large on desktop)
+- [ ] Images serve appropriate sizes per viewport
+
+**Visual Consistency:**
+- [ ] 8px spacing grid maintained throughout
+- [ ] Color tokens used consistently (no hardcoded hex values)
 - [ ] Typography hierarchy is clear (one H1, logical heading order)
-- [ ] Animations respect prefers-reduced-motion
+- [ ] Both light and dark themes tested (if applicable)
 - [ ] No layout shift on page load (CLS score)
+- [ ] Animations are 200-300ms enter, 120-200ms exit, GPU-composited properties only
+
+**Production Readiness:**
+- [ ] No placeholder text or Lorem ipsum
+- [ ] No TODO comments in the UI code
+- [ ] All links point to real destinations (no `href="#"`)
+- [ ] Favicon and OG tags present
+- [ ] Lighthouse performance > 80
