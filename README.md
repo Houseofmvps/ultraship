@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### Pre-deploy auditing, workflow enforcement, and project tooling for Claude Code.
+### Claude Code plugin — 32 expert-level skills for building, shipping, and scaling production software. 29 audit tools (security, code quality, bundle size, SEO/GEO/AEO) close the loop before deploy.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
