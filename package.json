@@ -1,7 +1,7 @@
 {
   "name": "ultraship",
   "version": "2.0.0",
-  "description": "The only Claude Code plugin you need. 32 skills, 29 tools, 9 agents. Build, audit, ship, launch, grow, and rescue. Competitive X-ray, launch autopilot, incident commander, growth intelligence, AI cost tracking, architecture mapping, and more.",
+  "description": "Claude Code plugin — 29 tools, 32 skills, 9 agents, 27 commands. SEO/GEO/AEO audit, security scan, code profiling, competitive analysis, launch prep, incident response, growth tracking, and more.",
   "type": "module",
   "bin": {
     "ultraship": "bin/ultraship.mjs"
