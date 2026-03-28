@@ -86,13 +86,25 @@ digraph brainstorming {
 - Present options conversationally with your recommendation and reasoning
 - Lead with your recommended option and explain why
 
+**CTO-level thinking — apply to every design:**
+
+Before presenting the design, think through these dimensions (include relevant ones in the design doc):
+
+- **Scale**: Will this approach work at 10x the current load? At 100x? Where does it break? You don't need to build for 100x now, but you need to know the ceiling.
+- **Data model**: Is the schema normalized appropriately? Are the most common queries indexed? Will this model accommodate the next 3 likely features without a migration?
+- **Failure modes**: What happens when the database is slow? When a third-party API is down? When the user sends malformed input? Design for graceful degradation, not just the happy path.
+- **Security surface**: Does this design introduce new auth requirements? New user input? New external data? Flag these for the security audit.
+- **Operational cost**: Will this increase hosting costs? Add a new service to monitor? Require a new env var? Solo founders pay for every service — keep the ops surface small.
+- **Migration path**: If the first version is wrong, how painful is it to change? Prefer approaches where the cost of being wrong is low.
+
 **Presenting the design:**
 
 - Once you believe you understand what you're building, present the design
 - Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced
 - Ask after each section whether it looks right so far
-- Cover: architecture, components, data flow, error handling, testing
+- Cover: architecture, components, data flow, error handling, testing, deployment considerations
 - Be ready to go back and clarify if something doesn't make sense
+- For every design decision, briefly note what you're trading off (e.g., "Using polling instead of WebSocket — simpler to deploy, slightly higher latency, good enough for <1000 concurrent users")
 
 **Design for isolation and clarity:**
 

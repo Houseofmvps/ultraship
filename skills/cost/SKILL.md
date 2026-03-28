@@ -80,6 +80,31 @@ Help the user understand when and how to log costs:
 - Include ALL tokens (input + output) from the conversation
 - Estimate if exact numbers aren't available (Claude Code shows token usage in the UI)
 
-## Key Principle
+### Phase 6: Build vs. Buy Framework
 
-**AI is an investment, not a cost.** The goal isn't to minimize spend — it's to maximize ROI. A $50 feature that generates $5K MRR is a great investment. But a $50 bug fix that should have cost $5 with better tests is waste.
+When reviewing cost data, help the user think about the economics of building with AI:
+
+**Worth building with AI (high ROI):**
+- Features that would take 2+ days manually but 2 hours with AI
+- Boilerplate-heavy work (CRUD, migrations, test suites, API endpoints)
+- Exploration and prototyping (try 3 approaches, keep the best one)
+
+**Consider alternatives:**
+- If a feature costs >$100 in AI tokens, check if a library or SaaS already does it
+- If debugging the same issue costs >$20 in AI tokens, the root cause is architectural — fix the architecture, not the symptom
+- If AI-generated code needs significant manual correction, the prompt needs work, not more tokens
+
+**Cost benchmarks for solo founders:**
+| Task Type | Expected Cost | If Higher, Investigate |
+|---|---|---|
+| New API endpoint | $1-5 | Complex business logic or unclear spec |
+| Bug fix | $0.50-3 | Missing tests or hard-to-reproduce issue |
+| Full feature (frontend + backend) | $5-20 | Large scope or frequent rework |
+| Refactoring | $2-10 | Unclear boundaries or missing tests |
+| Content/copy generation | $0.25-1 | Too many revision cycles |
+
+## Key Principles
+
+- **AI is an investment, not a cost.** The goal isn't to minimize spend — it's to maximize ROI. A $50 feature that generates $5K MRR is a great investment. But a $50 bug fix that should have cost $5 with better tests is waste.
+- **Track to learn, not to punish.** Cost data reveals where your process is inefficient. High debugging costs mean insufficient tests. High rework costs mean unclear specs.
+- **Optimize the expensive tasks, not the cheap ones.** Switching from Opus to Haiku for a $0.10 task saves nothing. Reducing a $50 debugging session by improving test coverage saves real money.

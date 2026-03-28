@@ -103,12 +103,31 @@ git commit -m "feat: add specific feature"
 ```
 ````
 
+## Risk Register
+
+Every plan should include a brief risk section at the top:
+
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| [e.g., API schema changes mid-implementation] | Medium | High | Pin API version, add integration test |
+| [e.g., Migration breaks existing data] | Low | Critical | Backup before migration, test with prod-like data |
+| [e.g., Third-party rate limit hit during testing] | Medium | Low | Use mock in tests, real API only in integration |
+
+Only include risks that are specific to this plan. Don't pad with generic risks. If there are no meaningful risks, omit the section.
+
+## Dependencies Between Tasks
+
+If Task 3 depends on Task 1's database schema, say so explicitly. The execution agent has no memory of task ordering intent — it needs to see:
+- "Task 3 requires Task 1 to be complete (uses the `users` table created there)"
+- "Tasks 4 and 5 are independent — can run in parallel"
+
 ## Remember
 - Exact file paths always
 - Complete code in plan (not "add validation")
 - Exact commands with expected output
 - Reference relevant skills with @ syntax
 - DRY, YAGNI, TDD, frequent commits
+- Include rollback notes for risky tasks (e.g., "If migration fails: `drizzle-kit drop`")
 
 ## Plan Review Loop
 
