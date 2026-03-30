@@ -1,7 +1,7 @@
 {
   "name": "ultraship",
   "version": "2.1.2",
-  "description": "Claude Code plugin with pre-deploy auditing (SEO, security, code profiling, bundle size), workflow enforcement (TDD, code review, planning), and project tooling (competitive analysis, architecture mapping, incident response). 29 tools, 32 skills, 9 agents.",
+  "description": "Claude Code plugin with pre-deploy auditing (SEO, security, penetration testing, code profiling, bundle size), workflow enforcement (TDD, code review, planning), and project tooling (competitive analysis, architecture mapping, incident response). 30 tools, 33 skills, 10 agents.",
   "type": "module",
   "bin": {
     "ultraship": "bin/ultraship.mjs"

@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### Claude Code plugin — 32 expert-level skills for building, shipping, and scaling production software. 29 audit tools (security, code quality, bundle size, SEO/GEO/AEO) close the loop before deploy.
+### Claude Code plugin — 33 expert-level skills for building, shipping, and scaling production software. 30 audit tools (security, pentest, code quality, bundle size, SEO/GEO/AEO) close the loop before deploy.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -25,7 +25,7 @@
 ---
 
 ```
-1 dependency (htmlparser2) · 113 tests · Node.js ESM · MIT
+1 dependency (htmlparser2) · 155 tests · Node.js ESM · MIT
 ```
 
 ## Install
@@ -66,7 +66,7 @@ npx ultraship security .
 
 </details>
 
-## Tools (29)
+## Tools (30)
 
 Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output. Exit 0 always. No build step.
 
@@ -117,6 +117,7 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | `incident-commander` | Health check + git culprit analysis + error patterns + rollback commands + post-mortem template |
 | `growth-tracker` | Uptime, git velocity, SEO trajectory, dep health. Stores snapshots for week-over-week comparison. |
 | `cost-tracker` | Log AI token usage per feature/model. Built-in pricing for Claude, GPT-4o, Gemini. Daily trends. |
+| `pentest-scanner` | Automated penetration testing: XSS, SQLi, SSTI, command injection, path traversal, CORS, JWT, GraphQL introspection, prototype pollution, race conditions, request smuggling. Zero false positives — every finding has proof-of-concept. |
 
 ### Project Analysis
 
@@ -134,12 +135,13 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | `gsc-client` | Google Search Console: submit sitemaps, inspect URLs, query rankings (requires `ULTRASHIP_GSC_CREDENTIALS`) |
 | `bing-webmaster` | Bing Webmaster: submit sitemaps/URLs, check indexing (requires `ULTRASHIP_BING_KEY`). Also powers ChatGPT Search. |
 
-## Commands (27)
+## Commands (28)
 
 Slash commands available inside Claude Code after installing the plugin:
 
 | Command | Description |
 |---|---|
+| `/pentest` | Penetration testing — hack-test your app (web, API, browser, GitHub, local code) |
 | `/ship` | Pre-deploy scorecard — runs 5 tools, scores 4 categories |
 | `/seo` | SEO + GEO + AEO audit (60+ rules) |
 | `/secure` | Secret scanning + OWASP patterns + `npm audit` |
@@ -168,21 +170,21 @@ Slash commands available inside Claude Code after installing the plugin:
 | `/write-plan` | Implementation plan from spec |
 | `/execute-plan` | Execute plan step by step |
 
-## Skills (32)
+## Skills (33)
 
 Skills are markdown instruction files that shape Claude's behavior during your session. They activate based on context — when you're debugging, Claude uses the debugging skill; when you're building UI, it uses the frontend design skill.
 
 **Workflow (16):** brainstorming, planning, TDD, implementation, code review, debugging, refactoring, frontend design, API design, data modeling, git workflow, deploy pipeline, release, CLAUDE.md management, verification, browser testing
 
-**Specialist (6):** SEO/GEO/AEO audit, security audit, performance audit, content quality, code profiling, parallel agent dispatching
+**Specialist (7):** SEO/GEO/AEO audit, security audit, **penetration testing**, performance audit, content quality, code profiling, parallel agent dispatching
 
 **Growth & Intelligence (10):** competitive analysis, launch prep, incident response, growth tracking, cost tracking, onboarding, architecture mapping, pattern analysis, demo readiness, visual regression
 
-## Agents (9)
+## Agents (10)
 
 Agents are dispatched by skills to run audits in parallel:
 
-`ship` · `code-reviewer` · `seo-auditor` · `security-auditor` · `perf-auditor` · `browser-verifier` · `compete-analyzer` · `launch-auditor` · `incident-responder` · `growth-tracker`
+`ship` · `code-reviewer` · `seo-auditor` · `security-auditor` · `pentest-auditor` · `perf-auditor` · `browser-verifier` · `compete-analyzer` · `launch-auditor` · `incident-responder` · `growth-tracker`
 
 ## MCP Servers (2)
 
@@ -227,10 +229,10 @@ See [SECURITY.md](SECURITY.md).
 
 ```
 .claude-plugin/   Plugin manifest
-skills/           32 markdown skill files
-agents/           9 markdown agent definitions
-commands/         27 markdown command definitions
-tools/            29 Node.js ESM scripts
+skills/           33 markdown skill files
+agents/           10 markdown agent definitions
+commands/         28 markdown command definitions
+tools/            30 Node.js ESM scripts
 tools/lib/        Shared modules (security.mjs, monorepo.mjs)
 hooks/            Session-start hook (CLAUDE.md check)
 ```
@@ -246,7 +248,7 @@ hooks/            Session-start hook (CLAUDE.md check)
 ```bash
 git clone https://github.com/Houseofmvps/ultraship.git
 cd ultraship
-npm test              # 113 tests, node:test
+npm test              # 155 tests, node:test
 node tools/<tool>.mjs # Run any tool directly
 ```
 

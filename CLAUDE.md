@@ -6,10 +6,10 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
-skills/           — 32 skills (16 workflow + 6 specialist + 10 growth/launch/intelligence)
-agents/           — 9 agents (ship, review, seo, security, browser, compete, launch, incident, growth)
-commands/         — 27 slash commands (/ship, /seo, /compete, /launch, /rescue, /grow, /cost, /onboard, /architecture, /demo, /clone-patterns, /visual-diff, etc.)
-tools/            — 29 Node.js tools (scanner, lighthouse, profiler, compete-analyzer, launch-prep, incident-commander, growth-tracker, cost-tracker, onboard-generator, architecture-mapper, pattern-analyzer, demo-prep, etc.)
+skills/           — 33 skills (16 workflow + 7 specialist + 10 growth/launch/intelligence)
+agents/           — 10 agents (ship, review, seo, security, pentest, browser, compete, launch, incident, growth)
+commands/         — 28 slash commands (/ship, /pentest, /seo, /compete, /launch, /rescue, /grow, /cost, /onboard, /architecture, /demo, /clone-patterns, /visual-diff, etc.)
+tools/            — 30 Node.js tools (scanner, lighthouse, profiler, pentest-scanner, compete-analyzer, launch-prep, incident-commander, growth-tracker, cost-tracker, onboard-generator, architecture-mapper, pattern-analyzer, demo-prep, etc.)
 hooks/            — Pre-commit security hook
 docs/             — Documentation
 ```
@@ -54,6 +54,7 @@ docs/             — Documentation
 | `architecture-mapper.mjs` | Living Architecture Map — auto-generates Mermaid diagrams |
 | `pattern-analyzer.mjs` | Learn From the Best — analyzes and compares codebase patterns |
 | `demo-prep.mjs` | Demo-Ready Mode — finds dev artifacts, generates walkthrough |
+| `pentest-scanner.mjs` | Penetration testing — XSS, SQLi, SSTI, CORS, JWT, GraphQL, prototype pollution, race conditions. Zero false positives. |
 
 ## Security
 
