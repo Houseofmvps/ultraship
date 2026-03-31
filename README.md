@@ -184,7 +184,7 @@ Skills are markdown instruction files that shape Claude's behavior during your s
 
 Agents are dispatched by skills to run audits in parallel:
 
-`ship` · `code-reviewer` · `seo-auditor` · `security-auditor` · `pentest-auditor` · `perf-auditor` · `browser-verifier` · `compete-analyzer` · `launch-auditor` · `incident-responder` · `growth-tracker`
+`code-reviewer` · `seo-auditor` · `security-auditor` · `pentest-auditor` · `perf-auditor` · `browser-verifier` · `compete-analyzer` · `launch-auditor` · `incident-responder` · `growth-tracker`
 
 ## MCP Servers (2)
 

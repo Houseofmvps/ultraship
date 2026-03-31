@@ -21,11 +21,11 @@ node tools/health-check.mjs https://example.com
 
 ```
 .claude-plugin/   Plugin manifest
-skills/           22 skills (workflow + specialist)
-agents/           5 agents
-commands/         17 slash commands
-tools/            21 Node.js tools + shared security module
-hooks/            Pre-commit security hook
+skills/           33 skills (16 workflow + 7 specialist + 10 growth/launch/intelligence)
+agents/           10 agents
+commands/         28 slash commands
+tools/            30 Node.js tools + shared security module
+hooks/            Session-start hook (CLAUDE.md check + memory-first enforcement)
 ```
 
 ## Adding a New Tool

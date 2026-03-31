@@ -7,7 +7,7 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
 skills/           — 33 skills (16 workflow + 7 specialist + 10 growth/launch/intelligence)
-agents/           — 10 agents (ship, review, seo, security, pentest, browser, compete, launch, incident, growth)
+agents/           — 10 agents (review, seo, security, pentest, perf, browser, compete, launch, incident, growth)
 commands/         — 28 slash commands (/ship, /pentest, /seo, /compete, /launch, /rescue, /grow, /cost, /onboard, /architecture, /demo, /clone-patterns, /visual-diff, etc.)
 tools/            — 30 Node.js tools (scanner, lighthouse, profiler, pentest-scanner, compete-analyzer, launch-prep, incident-commander, growth-tracker, cost-tracker, onboard-generator, architecture-mapper, pattern-analyzer, demo-prep, etc.)
 hooks/            — Pre-commit security hook
