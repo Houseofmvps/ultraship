@@ -11,7 +11,7 @@
     {
       "name": "ultraship",
       "description": "Full lifecycle plugin: audit, pentest, ship, launch, grow, rescue. 30 tools, 33 skills, 10 agents.",
-      "version": "2.2.1",
+      "version": "2.2.2",
       "source": "./",
       "author": {
         "name": "Houseofmvps",
