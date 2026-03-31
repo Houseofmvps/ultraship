@@ -195,6 +195,15 @@ Agents are dispatched by skills to run audits in parallel:
 
 Both lazy-start on first use. No background processes.
 
+## Persistent Memory
+
+Ultraship enforces a **memory-first rule** at session start. The SessionStart hook detects if you have a `MEMORY.md` file and instructs Claude to read it before performing any task. This ensures context persists across sessions — no more repeating yourself about project state, deploy status, or decisions already made.
+
+- If `MEMORY.md` is found: Claude reads memory files before doing anything
+- If not found: Claude suggests setting up auto-memory for persistent context
+
+No configuration needed — just install the plugin.
+
 ## SEO, GEO, and AEO
 
 The SEO scanner checks three layers:
@@ -234,7 +243,7 @@ agents/           10 markdown agent definitions
 commands/         28 markdown command definitions
 tools/            30 Node.js ESM scripts
 tools/lib/        Shared modules (security.mjs, monorepo.mjs)
-hooks/            Session-start hook (CLAUDE.md check)
+hooks/            Session-start hook (CLAUDE.md check + memory-first enforcement)
 ```
 
 - Node.js ESM (`type: module`)

@@ -8,6 +8,10 @@ If you were dispatched as a subagent to execute a specific task, skip this skill
 </SUBAGENT-STOP>
 
 <IMPORTANT>
+**Memory-first rule:** At the START of every session, read MEMORY.md, CLAUDE.md, and relevant memory files BEFORE performing any task. This ensures persistent context across sessions. Never skip this step — never claim something is missing or not done without first checking memory. Memory records can become stale, so verify against current state when acting on them.
+</IMPORTANT>
+
+<IMPORTANT>
 When a skill is relevant to your current task, invoke it before responding. If you're unsure whether a skill applies, lean toward invoking it — skills are lightweight and you can adapt after loading.
 </IMPORTANT>
 
