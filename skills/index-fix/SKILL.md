@@ -7,7 +7,7 @@ description: Diagnose and fix non-indexed pages using GSC and Bing Webmaster dat
 
 Diagnose why pages aren't indexed in Google and Bing, fix the root causes, and resubmit for indexing. This skill uses real data from GSC URL Inspection API and Bing Webmaster Tools — no guessing.
 
-**Goal: 100% index coverage. Every page in your sitemap should be indexed.**
+**Goal: 100% index coverage for pages that SHOULD be indexed. Not every URL belongs in the index — staging pages, admin panels, thin pagination, and intentionally private content should stay excluded.**
 
 ## Phase 1: Credential Check
 
@@ -58,12 +58,22 @@ This inspects up to 50 URLs via GSC URL Inspection API and reports:
 ### Common Non-Indexing Reasons and Fixes:
 
 **Blocked by robots.txt** (critical):
-- Find the Disallow rule in robots.txt that blocks the URL path
-- Remove or modify the rule using the Edit tool
+- **FIRST: Determine if the block is intentional.** Common legitimate reasons to block:
+  - Admin/dashboard pages, staging environments, internal tools
+  - User-generated content pages, search result pages, faceted navigation
+  - API endpoints, health check routes
+- If the block is intentional, do NOT remove it — remove the page from the sitemap instead
+- If the block is unintentional, find the Disallow rule and modify it using the Edit tool
 - Verify the fix: the page should be crawlable
 
 **Noindex tag** (critical):
-- Find `<meta name="robots" content="noindex">` in the page HTML
+- **FIRST: Determine WHY noindex was added.** Common legitimate reasons:
+  - Staging/preview pages, paginated archives, tag/category pages
+  - Thank-you/confirmation pages with sensitive info
+  - Legal/compliance requirements, duplicate content by design
+  - Pages that should only be accessible via direct link
+- **Ask the user before removing noindex** — removing it from staging or admin pages can expose sensitive content to search engines
+- If removal is confirmed appropriate, find `<meta name="robots" content="noindex">` in the page HTML
 - Remove the noindex directive using the Edit tool
 - Check for X-Robots-Tag header in server config
 
@@ -108,16 +118,20 @@ This inspects up to 50 URLs via GSC URL Inspection API and reports:
 
 ## Phase 5: Apply Fixes
 
+**⚠️ SAFETY FIRST: Before applying ANY fix, verify the block/exclusion wasn't intentional. Ask the user if unsure. Removing noindex from staging pages or robots.txt Disallow from admin paths can expose sensitive content.**
+
 For each diagnosed issue, apply the fix:
 
 **robots.txt fixes:**
 - Read the current robots.txt
-- Edit to remove/modify blocking rules
-- Ensure important paths are not blocked
+- **Check if the Disallow rule protects staging, admin, or private pages** — if so, remove the page from the sitemap instead of unblocking it
+- Only edit rules that are clearly unintentional blocks on public content
+- Ensure important public paths are not blocked
 
 **noindex fixes:**
+- **Verify with the user that the page should be public** before removing noindex
 - Search HTML files for noindex tags
-- Remove them using Edit tool
+- Remove them using Edit tool only after confirming they're not protecting sensitive content
 
 **Content quality fixes:**
 - Identify thin pages (<300 words)
@@ -138,20 +152,22 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/sitemap-generator.mjs <dir> <base-url>
 
 ## Phase 6: Resubmit for Indexing
 
+**Only resubmit pages where you've made SUBSTANTIAL fixes** (added content, removed blocking directives, fixed server errors). Do NOT resubmit unchanged pages — this wastes API quota and can flag your account for spam.
+
 After fixes, submit to both search engines:
 
 **Google:**
 ```bash
-# Resubmit sitemap
+# Resubmit sitemap (only after sitemap changes)
 node ${CLAUDE_PLUGIN_ROOT}/tools/gsc-client.mjs submit-sitemap <site-url> <sitemap-url>
 ```
 
 **Bing:**
 ```bash
-# Submit sitemap
+# Submit sitemap (only after sitemap changes)
 node ${CLAUDE_PLUGIN_ROOT}/tools/bing-webmaster.mjs submit-sitemap <site-url> <sitemap-url>
 
-# Batch submit specific fixed URLs for fast indexing
+# Batch submit specific fixed URLs for fast indexing (max 500/day — only URLs you actually fixed)
 node ${CLAUDE_PLUGIN_ROOT}/tools/bing-webmaster.mjs submit-url-batch <site-url> <url1> <url2> ...
 ```
 
@@ -192,7 +208,17 @@ Advise on preventing future indexing issues:
 ## Key Principles
 
 1. **Diagnose before fixing** — understand WHY each page isn't indexed
-2. **Fix the root cause** — don't just resubmit, fix the underlying issue
-3. **Both engines matter** — Bing powers ChatGPT Search, DuckDuckGo, Yahoo
-4. **100% is the target** — every page in your sitemap should be indexed
-5. **Prevention > cure** — set up processes to catch issues before they happen
+2. **Verify intent before removing blocks** — noindex and robots.txt Disallow rules are often intentional (staging, admin, privacy, legal). Ask before removing.
+3. **Fix the root cause** — don't just resubmit, fix the underlying issue
+4. **Both engines matter** — Bing powers ChatGPT Search, DuckDuckGo, Yahoo
+5. **Only submit pages you've actually fixed** — resubmitting unchanged pages wastes quota and can trigger spam flags
+6. **Prevention > cure** — set up processes to catch issues before they happen
+
+## Rollback Plan
+
+If fixes cause unexpected issues (pages appearing in search that shouldn't, traffic drops):
+1. **Re-add noindex** to any pages that were incorrectly unblocked
+2. **Restore robots.txt** Disallow rules that were removed in error
+3. **Remove pages from sitemap** that shouldn't be indexed
+4. Re-run `coverage` to verify the rollback took effect
+5. Google re-crawl may take 1-2 weeks — request re-crawl via GSC for urgent fixes

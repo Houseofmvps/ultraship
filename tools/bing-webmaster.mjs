@@ -134,7 +134,7 @@ async function main() {
           siteUrl,
           url: pageUrl,
         });
-        output({ success: true, message: `URL ${pageUrl} submitted to Bing for indexing`, url: pageUrl, site: siteUrl });
+        output({ success: true, message: `URL ${pageUrl} submitted to Bing for indexing`, url: pageUrl, site: siteUrl, quota_note: 'Bing allows ~10 single URL submissions per day. Use submit-url-batch for multiple URLs.' });
       } catch (err) {
         error(`Failed to submit URL: ${err.message}`);
       }
@@ -153,7 +153,7 @@ async function main() {
           siteUrl,
           urlList: urls,
         });
-        output({ success: true, message: `${urls.length} URLs submitted to Bing for indexing`, urls, site: siteUrl });
+        output({ success: true, message: `${urls.length} URLs submitted to Bing for indexing`, urls, site: siteUrl, quota_note: 'Bing allows ~500 batch URL submissions per day total. Do NOT resubmit unchanged pages.' });
       } catch (err) {
         error(`Failed to submit URL batch: ${err.message}`);
       }
@@ -209,12 +209,16 @@ async function main() {
       try {
         let host;
         try { host = new URL(siteUrl).hostname; } catch { error('Invalid site URL'); }
-        // IndexNow API — key is the Bing API key
+        // IndexNow API — conservative limit to prevent abuse flags
+        // Only submit URLs with SUBSTANTIAL content changes (not cosmetic fixes)
+        if (urls.length > 100) {
+          error(`Too many URLs (${urls.length}). IndexNow should be used for changed pages only, not bulk discovery. Limit to 100 URLs per run. Use submit-sitemap for bulk indexing.`);
+        }
         const bodyStr = JSON.stringify({
           host,
           key: apiKey,
           keyLocation: `https://${host}/${apiKey}.txt`,
-          urlList: urls.slice(0, 10000), // IndexNow supports up to 10K URLs per batch
+          urlList: urls,
         });
         await new Promise((resolve, reject) => {
           const req = https.request({
@@ -240,6 +244,7 @@ async function main() {
           urls_submitted: urls.length,
           urls,
           note: 'IndexNow notifies Bing instantly. For it to work, place a key file at https://yourdomain.com/{apikey}.txt containing your API key.',
+          best_practice: 'Only use IndexNow for pages with SUBSTANTIAL content changes. Do NOT resubmit unchanged pages — this wastes the signal and can trigger abuse detection.',
         });
       } catch (err) {
         error(`IndexNow push failed: ${err.message}`);

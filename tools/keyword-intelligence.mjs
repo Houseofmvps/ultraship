@@ -760,6 +760,7 @@ async function main() {
       // Compare two non-overlapping periods to find trending keywords
       const halfDays = Math.floor(days / 2);
       const recentData = await queryGscExtended(siteUrl, halfDays, ['query'], 500);
+      await new Promise(r => setTimeout(r, 300)); // Rate limit between GSC calls
       // Older period: from halfDays ago to days ago (non-overlapping)
       const olderData = await queryGscExtendedRange(siteUrl, days, halfDays, ['query'], 500);
 
@@ -867,7 +868,9 @@ async function main() {
 
     case 'content-decay': {
       // Detect pages losing traffic — the silent killer of organic growth
+      // Note: requires 2 separate GSC API calls (recent vs older period comparison)
       const recentData = await queryGscExtended(siteUrl, Math.floor(days / 2), ['query', 'page'], 1000);
+      await new Promise(r => setTimeout(r, 300)); // Rate limit between GSC calls
       const olderData = await queryGscExtendedRange(siteUrl, days, Math.floor(days / 2), ['query', 'page'], 1000);
 
       if (!recentData.success || !olderData.success) {

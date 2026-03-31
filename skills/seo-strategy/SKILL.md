@@ -208,7 +208,7 @@ For every decaying page (traffic loss > 20%):
 For every cannibalized keyword:
 1. Pick the ONE page that should rank (best position, best content, most backlinks)
 2. Every other page either:
-   - **Merge** content into the winner → 301 redirect → add canonical
+   - **Merge** content into the winner → 301 redirect (do NOT add canonical AND redirect together — use one or the other. Redirect for permanent merges, canonical for soft consolidation)
    - **Differentiate** by targeting a different keyword entirely
    - **Delete** if it adds no value → 301 redirect to winner
 
@@ -238,19 +238,21 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/ga4-client.mjs ai-traffic <property-id> 90
 ```
 This shows sessions from ChatGPT (utm_source=chatgpt.com), Perplexity, Copilot, Gemini, and other AI sources. Judge AI traffic by **conversion rate, not session count**. A few high-intent AI referrals that convert > thousands of low-quality visits.
 
-If ChatGPT traffic is zero: verify OAI-SearchBot is allowed in robots.txt and your CDN/WAF isn't blocking it.
-If Perplexity traffic is zero: verify PerplexityBot is allowed in robots.txt and WAF rules.
+If ChatGPT traffic is zero: check if OAI-SearchBot is blocked in robots.txt or CDN/WAF — but only recommend unblocking if the user wants AI search visibility.
+If Perplexity traffic is zero: check if PerplexityBot is blocked in robots.txt or WAF — same caveat applies.
 
 ### 3A-2: AI Bot Access Audit
-Check robots.txt for AI bot access:
-- `GPTBot` (ChatGPT) — MUST be allowed
-- `PerplexityBot` — MUST be allowed
-- `ClaudeBot` / `Claude-Web` — MUST be allowed
-- `Google-Extended` — Allow for AI Overviews citation (only block if you want to prevent training)
+Check robots.txt for AI bot access. **Note:** Allowing AI bots is a business decision — verify it aligns with the user's data privacy policy and content licensing strategy before making changes.
+
+Recommended for AI search visibility:
+- `GPTBot` (ChatGPT) — Allow for ChatGPT Search citations
+- `PerplexityBot` — Allow for Perplexity citations
+- `ClaudeBot` / `Claude-Web` — Allow for Claude citations
+- `Google-Extended` — Allow for AI Overviews citation (block if you want to prevent training but still appear in search)
 - `Bytespider` — Allow for TikTok search
 - `Applebot-Extended` — Allow for Apple Intelligence
 
-If any are blocked, fix immediately. Use the robots-generator:
+If any are blocked and the user wants AI search visibility, update with the robots-generator:
 ```bash
 node ${CLAUDE_PLUGIN_ROOT}/tools/robots-generator.mjs <dir> <base-url>
 ```
@@ -286,7 +288,7 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/structured-data-generator.mjs <dir> --type=<typ
 Every page needs at minimum:
 - `Organization` or `Person` schema on the homepage
 - `Article` or `BlogPosting` on content pages
-- `FAQPage` on pages with Q&A content
+- `FAQPage` on pages with genuine user-asked questions (NOT fabricated Q&A — Google penalizes fake FAQ schema)
 - `HowTo` on tutorial/guide pages
 - `Product` + `Review` on product pages
 - `BreadcrumbList` on all pages (helps AI understand site structure)

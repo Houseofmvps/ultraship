@@ -164,10 +164,16 @@ async function fetchSitemapUrls(sitemapUrl, depth = 0) {
 
         // Check if this is a sitemap index (contains other sitemaps)
         if (body.includes('<sitemapindex') && urls.length > 0) {
-          // These are sub-sitemaps, fetch each
-          Promise.all(urls.map(u => fetchSitemapUrls(u).catch(() => [])))
-            .then(results => resolve(results.flat()))
-            .catch(reject);
+          // These are sub-sitemaps — fetch sequentially to avoid overwhelming the server
+          // Limit to first 10 sub-sitemaps to prevent excessive requests
+          const subSitemaps = urls.slice(0, 10);
+          const results = [];
+          (async () => {
+            for (const u of subSitemaps) {
+              try { results.push(await fetchSitemapUrls(u)); } catch { /* skip failed sub-sitemaps */ }
+            }
+            resolve(results.flat());
+          })().catch(reject);
         } else {
           resolve(urls);
         }
@@ -395,9 +401,9 @@ async function main() {
         error('No URLs found in sitemap. Verify the sitemap URL is correct and contains <loc> entries.');
       }
 
-      // Rate limit: GSC URL Inspection API has quotas
-      // Process in batches with delays
-      const maxUrls = Math.min(urls.length, 50); // Limit to 50 to avoid quota issues
+      // Rate limit: GSC URL Inspection API quota is 2000/property/day
+      // Conservative limit: 20 URLs per run to allow multiple runs safely
+      const maxUrls = Math.min(urls.length, 20);
       const inspections = [];
       const diagnoses = [];
 
@@ -406,9 +412,9 @@ async function main() {
         inspections.push(inspection);
         diagnoses.push(diagnoseNonIndexed(inspection));
 
-        // Small delay between requests to respect rate limits
+        // 500ms delay between requests to respect rate limits (GSC quota: 2000/property/day)
         if (i < maxUrls - 1) {
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise(r => setTimeout(r, 500));
         }
       }
 
@@ -448,6 +454,7 @@ async function main() {
           fix: d.fix,
         })),
         indexed_urls: indexed.map(d => d.url),
+        quota_warning: `Used ${maxUrls} of ~2000 daily GSC URL Inspection quota. Run sparingly — quota resets daily.`,
       });
       break;
     }
@@ -479,7 +486,8 @@ async function main() {
         error(`Failed to fetch sitemap: ${err.message}`);
       }
 
-      const maxUrls = Math.min(urls.length, 50);
+      // Conservative limit: 20 URLs per run (GSC quota: 2000/property/day)
+      const maxUrls = Math.min(urls.length, 20);
       const nonIndexed = [];
       const actions = [];
 
@@ -501,7 +509,7 @@ async function main() {
         const bingUrls = nonIndexed
           .filter(i => i.robots_txt_state !== 'DISALLOWED') // Don't submit robots-blocked URLs
           .map(i => i.url)
-          .slice(0, 100); // Bing batch limit (API allows 500, conservative 100)
+          .slice(0, 50); // Conservative Bing batch limit (API allows 500/day total)
 
         if (bingUrls.length > 0) {
           try {
@@ -553,13 +561,14 @@ async function main() {
           return (sev[a.severity] || 4) - (sev[b.severity] || 4);
         }),
         next_steps: [
-          nonIndexed.length > 0 ? 'Fix the issues listed in the fix_plan above' : 'All inspected pages are indexed!',
-          'Re-run this command after fixes to verify indexing',
+          nonIndexed.length > 0 ? 'Fix the issues listed in the fix_plan above — but ONLY fix pages that SHOULD be indexed (not staging, admin, or intentionally hidden pages)' : 'All inspected pages are indexed!',
+          'Re-run this command after fixes to verify indexing — wait at least 48 hours for Google to re-crawl',
           'Submit sitemap to GSC: node gsc-client.mjs submit-sitemap <site-url> <sitemap-url>',
           bingSubmitted === -1 ? 'Bing submission failed — verify your API key at bing.com/webmasters'
             : bingKey ? `${bingSubmitted} URLs submitted to Bing for re-indexing`
             : 'Set ULTRASHIP_BING_KEY to also submit to Bing for re-indexing',
         ],
+        quota_warning: `Used ${maxUrls} GSC URL Inspection API calls (~2000/property/day). Bing: ${bingSubmitted >= 0 ? bingSubmitted : 0} URLs submitted (~500/day quota). Run sparingly — do NOT resubmit unchanged pages.`,
       });
       break;
     }

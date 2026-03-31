@@ -2,6 +2,30 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.5.1] - 2026-04-01
+
+### Fixed — Safety & Best Practices Hardening
+
+**index-fix SKILL.md**
+- Added safety checks before removing noindex tags (verify intent — staging, admin, privacy, legal pages may need noindex)
+- Added safety checks before removing robots.txt Disallow rules (may protect sensitive paths)
+- Added "only resubmit pages you've SUBSTANTIALLY fixed" guidance to prevent quota waste and spam flags
+- Added rollback plan for when fixes cause unexpected issues
+- Changed goal from "100% index coverage" to "100% for pages that SHOULD be indexed"
+
+**seo-strategy SKILL.md**
+- Changed AI bot "MUST be allowed" mandate to "recommended — verify against privacy policy and content licensing"
+- Added FAQPage schema caveat: only for pages with genuine user-asked questions
+- Fixed canonical + redirect contradiction: use one or the other, not both
+- Softened AI bot unblocking to respect user's content protection decisions
+
+**seo-scanner.mjs**
+- Reduced nosnippet findings from severity 'high' to 'medium' with "if intentional, ignore" caveat
+- Reduced max-snippet AI finding from 'medium' to 'low' with "may be intentional" caveat
+- Reduced AI bot blocked findings from 'high' to 'medium' with privacy policy caveat
+- Added "if intentional (staging, admin, private pages), this is expected" to noindex AI finding
+- All snippet/bot findings now acknowledge legitimate business reasons for restrictions
+
 ## [2.5.0] - 2026-04-01
 
 ### Added — Elite SEO Intelligence (Top 1% Operator Patterns)

@@ -463,17 +463,17 @@ function scanDirectory(rootDir) {
     // Critical: noindex blocks ALL search engines and AI bots
     if (state.hasNoindex) {
       findings.push({ file: relFile, line: 0, severity: 'critical', category: 'seo', rule: 'has-noindex', message: 'Page has <meta name="robots" content="noindex"> — invisible to ALL search engines and AI bots' });
-      findings.push({ file: relFile, line: 0, severity: 'critical', category: 'geo', rule: 'noindex-blocks-ai', message: 'noindex blocks AI crawlers (GPTBot, PerplexityBot, Claude-Web) — page cannot be cited in AI answers' });
+      findings.push({ file: relFile, line: 0, severity: 'critical', category: 'geo', rule: 'noindex-blocks-ai', message: 'noindex blocks AI crawlers (GPTBot, PerplexityBot, Claude-Web) — page cannot be cited in AI answers. If noindex is intentional (staging, admin, private pages), this is expected.' });
     }
 
     // Snippet restrictions — Google says more restrictive preview controls can limit AI feature eligibility
     if (state.hasNosnippet) {
-      findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'has-nosnippet', message: 'Page has nosnippet directive — prevents Google from showing text snippets, AI Overviews, and featured snippets for this page' });
-      findings.push({ file: relFile, line: 0, severity: 'high', category: 'geo', rule: 'nosnippet-blocks-ai', message: 'nosnippet blocks AI citation — Google AI Overviews, Bing Copilot, and ChatGPT cannot extract or cite this page' });
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'has-nosnippet', message: 'Page has nosnippet directive — prevents Google from showing text snippets, AI Overviews, and featured snippets. If intentional (legal, privacy, or competitive reasons), ignore this finding.' });
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'nosnippet-blocks-ai', message: 'nosnippet blocks AI citation — AI search engines cannot extract or cite this page. If nosnippet is intentional, this is expected behavior.' });
     }
     if (state.maxSnippetValue !== null && state.maxSnippetValue >= 0 && state.maxSnippetValue < 160) {
-      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'restrictive-max-snippet', message: `max-snippet:${state.maxSnippetValue} is too restrictive — limits snippet length and AI feature eligibility. Remove or set to -1 (unlimited) for maximum visibility.` });
-      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'max-snippet-limits-ai', message: `max-snippet:${state.maxSnippetValue} restricts how much content AI engines can extract — reduces chance of being cited in AI answers` });
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'restrictive-max-snippet', message: `max-snippet:${state.maxSnippetValue} limits snippet length and AI feature eligibility. Set to -1 (unlimited) for maximum visibility, or keep if restricting snippets is intentional.` });
+      findings.push({ file: relFile, line: 0, severity: 'low', category: 'geo', rule: 'max-snippet-limits-ai', message: `max-snippet:${state.maxSnippetValue} restricts how much content AI engines can extract. If intentional (e.g., protecting premium content), ignore this finding.` });
     }
     if (state.hasDataNosnippet) {
       findings.push({ file: relFile, line: 0, severity: 'low', category: 'geo', rule: 'data-nosnippet-found', message: 'data-nosnippet attribute found — marked sections will be excluded from search snippets and AI citations. Verify this is intentional.' });
@@ -703,16 +703,16 @@ function scanDirectory(rootDir) {
 
       // Individual bot blocks
       if (gptBotBlocked) {
-        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'gptbot-blocked', message: 'GPTBot is blocked — ChatGPT Search cannot cite your content' });
+        findings.push({ file: 'robots.txt', line: 0, severity: 'medium', category: 'geo', rule: 'gptbot-blocked', message: 'GPTBot is blocked — ChatGPT Search cannot cite your content. Verify this aligns with your content licensing and privacy policy.' });
       }
       if (perplexityBlocked) {
-        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'perplexitybot-blocked', message: 'PerplexityBot is blocked — Perplexity cannot cite your content' });
+        findings.push({ file: 'robots.txt', line: 0, severity: 'medium', category: 'geo', rule: 'perplexitybot-blocked', message: 'PerplexityBot is blocked — Perplexity cannot cite your content. If this is a deliberate content protection decision, ignore this finding.' });
       }
       if (claudeWebBlocked) {
-        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'claudeweb-blocked', message: 'Claude-Web/ClaudeBot is blocked — Anthropic AI cannot cite your content' });
+        findings.push({ file: 'robots.txt', line: 0, severity: 'medium', category: 'geo', rule: 'claudeweb-blocked', message: 'Claude-Web/ClaudeBot is blocked — Anthropic AI cannot cite your content. If this is a deliberate content protection decision, ignore this finding.' });
       }
       if (googleExtBlocked) {
-        findings.push({ file: 'robots.txt', line: 0, severity: 'high', category: 'geo', rule: 'google-extended-blocked', message: 'Google-Extended is blocked — content excluded from Google AI Overviews and Gemini' });
+        findings.push({ file: 'robots.txt', line: 0, severity: 'medium', category: 'geo', rule: 'google-extended-blocked', message: 'Google-Extended is blocked — content excluded from Google AI Overviews and Gemini. This may be intentional to prevent AI training while keeping regular search.' });
       }
 
       // Check if sitemap is referenced in robots.txt
