@@ -1,6 +1,6 @@
 # Ultraship
 
-> The only Claude Code plugin you need. 33 skills, 30 tools, 10 agents, 28 commands. Ship production-ready SaaS with one command.
+> The only Claude Code plugin you need. 39 skills, 33 tools, 11 agents, 34 commands. Ship production-ready SaaS with one command.
 
 Ultraship is a free, open-source Claude Code plugin that rewires the entire software development workflow — from brainstorming to production deploy.
 
@@ -31,11 +31,11 @@ AEO stands for Answer Engine Optimization. It optimizes your content for feature
 
 ## What skills does Ultraship include?
 
-Ultraship includes 33 skills: brainstorming, writing plans, test-driven development, systematic debugging, subagent-driven development, executing plans, git worktrees, code review (requesting + receiving), finishing branches, verification before completion, writing skills, dispatching parallel agents, frontend design, CLAUDE.md management, SEO/GEO/AEO audit, security audit, performance audit, penetration testing, deploy, release, competitive analysis, launch prep, incident response (rescue), growth tracking, cost tracking, onboarding, architecture mapping, pattern cloning, demo readiness, visual regression, and using-ultraship.
+Ultraship includes 39 skills: brainstorming, writing plans, test-driven development, systematic debugging, subagent-driven development, executing plans, git worktrees, code review (requesting + receiving), finishing branches, verification before completion, writing skills, dispatching parallel agents, frontend design, CLAUDE.md management, SEO/GEO/AEO audit, security audit, performance audit, penetration testing, deploy, release, competitive analysis, launch prep, incident response (rescue), growth tracking, cost tracking, onboarding, architecture mapping, pattern cloning, demo readiness, visual regression, using-ultraship, sprint workflow, investigation, project learnings, safety guardrails (guard), canary monitoring, and sprint retrospective.
 
 ## What tools does Ultraship include?
 
-Ultraship includes 30 Node.js tools: SEO scanner (60+ rules), content scorer, OG validator, redirect checker, Lighthouse runner, health check, env validator, migration checker, bundle tracker, audit history, API smoke test, code profiler, dependency doctor, GSC client, Bing Webmaster client, secret scanner, sitemap generator, robots.txt generator, structured data generator, llms.txt generator, compete analyzer, launch prep, incident commander, growth tracker, cost tracker, onboard generator, architecture mapper, pattern analyzer, demo prep, and pentest scanner.
+Ultraship includes 33 Node.js tools: SEO scanner (60+ rules), content scorer, OG validator, redirect checker, Lighthouse runner, health check, env validator, migration checker, bundle tracker, audit history, API smoke test, code profiler, dependency doctor, GSC client, Bing Webmaster client, secret scanner, sitemap generator, robots.txt generator, structured data generator, llms.txt generator, compete analyzer, launch prep, incident commander, growth tracker, cost tracker, onboard generator, architecture mapper, pattern analyzer, demo prep, pentest scanner, canary monitor, retro analyzer, and learnings manager.
 
 ## Is Ultraship free?
 

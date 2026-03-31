@@ -6,11 +6,11 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
-skills/           — 33 skills (16 workflow + 7 specialist + 10 growth/launch/intelligence)
-agents/           — 10 agents (review, seo, security, pentest, perf, browser, compete, launch, incident, growth)
-commands/         — 28 slash commands (/ship, /pentest, /seo, /compete, /launch, /rescue, /grow, /cost, /onboard, /architecture, /demo, /clone-patterns, /visual-diff, etc.)
-tools/            — 30 Node.js tools (scanner, lighthouse, profiler, pentest-scanner, compete-analyzer, launch-prep, incident-commander, growth-tracker, cost-tracker, onboard-generator, architecture-mapper, pattern-analyzer, demo-prep, etc.)
-hooks/            — Pre-commit security hook
+skills/           — 39 skills (19 workflow + 8 specialist + 12 growth/launch/intelligence)
+agents/           — 11 agents (review, seo, security, pentest, perf, browser, compete, launch, incident, growth, canary)
+commands/         — 34 slash commands (/sprint, /investigate, /learn, /guard, /retro, /canary, /ship, /pentest, /seo, /compete, /launch, /rescue, /grow, etc.)
+tools/            — 33 Node.js tools (scanner, lighthouse, profiler, pentest-scanner, canary-monitor, retro-analyzer, learnings-manager, compete-analyzer, etc.)
+hooks/            — Session-start hook + guard hooks (PreToolUse for destructive command blocking)
 docs/             — Documentation
 ```
 
@@ -55,6 +55,9 @@ docs/             — Documentation
 | `pattern-analyzer.mjs` | Learn From the Best — analyzes and compares codebase patterns |
 | `demo-prep.mjs` | Demo-Ready Mode — finds dev artifacts, generates walkthrough |
 | `pentest-scanner.mjs` | Penetration testing — XSS, SQLi, SSTI, CORS, JWT, GraphQL, prototype pollution, race conditions. Zero false positives. |
+| `canary-monitor.mjs` | Post-deploy canary monitoring — HTTP status, response time, error patterns, baseline regression detection |
+| `retro-analyzer.mjs` | Sprint retrospective — git velocity, commit patterns, test health, hot files, shipping cadence |
+| `learnings-manager.mjs` | Project learnings CRUD — save, search, list, prune, export structured knowledge |
 
 ## Security
 

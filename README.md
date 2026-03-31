@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### Claude Code plugin — 33 expert-level skills for building, shipping, and scaling production software. 30 audit tools (security, pentest, code quality, bundle size, SEO/GEO/AEO) close the loop before deploy.
+### Claude Code plugin — 39 expert-level skills for building, shipping, and scaling production software. 33 audit tools (security, pentest, code quality, bundle size, SEO/GEO/AEO) close the loop before deploy.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -25,7 +25,7 @@
 ---
 
 ```
-1 dependency (htmlparser2) · 155 tests · Node.js ESM · MIT
+1 dependency (htmlparser2) · 180 tests · Node.js ESM · MIT
 ```
 
 ## Install
@@ -66,7 +66,7 @@ npx ultraship security .
 
 </details>
 
-## Tools (30)
+## Tools (33)
 
 Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output. Exit 0 always. No build step.
 
@@ -118,6 +118,9 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | `growth-tracker` | Uptime, git velocity, SEO trajectory, dep health. Stores snapshots for week-over-week comparison. |
 | `cost-tracker` | Log AI token usage per feature/model. Built-in pricing for Claude, GPT-4o, Gemini. Daily trends. |
 | `pentest-scanner` | Automated penetration testing: XSS, SQLi, SSTI, command injection, path traversal, CORS, JWT, GraphQL introspection, prototype pollution, race conditions, request smuggling. Zero false positives — every finding has proof-of-concept. |
+| `canary-monitor` | Post-deploy canary monitoring: HTTP status, response time, error patterns, baseline regression detection. Auto-saves baselines for future comparison. |
+| `retro-analyzer` | Sprint retrospective: git velocity, commit patterns (features vs fixes), test health, hot files, shipping cadence. Generates insights and recommendations. |
+| `learnings-manager` | Project learnings CRUD: save, search, list, prune, export. Structured knowledge that compounds across sessions. |
 
 ### Project Analysis
 
@@ -135,12 +138,18 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | `gsc-client` | Google Search Console: submit sitemaps, inspect URLs, query rankings (requires `ULTRASHIP_GSC_CREDENTIALS`) |
 | `bing-webmaster` | Bing Webmaster: submit sitemaps/URLs, check indexing (requires `ULTRASHIP_BING_KEY`). Also powers ChatGPT Search. |
 
-## Commands (28)
+## Commands (34)
 
 Slash commands available inside Claude Code after installing the plugin:
 
 | Command | Description |
 |---|---|
+| `/sprint` | Sprint workflow — structured pipeline from plan → build → test → review → ship → verify |
+| `/investigate` | Root cause investigation — structured debugging with module freeze, no fixes without evidence |
+| `/learn` | Project learnings — save, search, prune, export knowledge that compounds across sessions |
+| `/guard` | Safety guardrails — blocks destructive commands, optionally restricts edits to a directory |
+| `/retro` | Sprint retrospective — git velocity, commit patterns, test health, shipping cadence |
+| `/canary` | Post-deploy canary — verify production health, detect regressions after deployment |
 | `/pentest` | Penetration testing — hack-test your app (web, API, browser, GitHub, local code) |
 | `/ship` | Pre-deploy scorecard — runs 5 tools, scores 4 categories |
 | `/seo` | SEO + GEO + AEO audit (60+ rules) |
@@ -170,21 +179,21 @@ Slash commands available inside Claude Code after installing the plugin:
 | `/write-plan` | Implementation plan from spec |
 | `/execute-plan` | Execute plan step by step |
 
-## Skills (33)
+## Skills (39)
 
 Skills are markdown instruction files that shape Claude's behavior during your session. They activate based on context — when you're debugging, Claude uses the debugging skill; when you're building UI, it uses the frontend design skill.
 
-**Workflow (16):** brainstorming, planning, TDD, implementation, code review, debugging, refactoring, frontend design, API design, data modeling, git workflow, deploy pipeline, release, CLAUDE.md management, verification, browser testing
+**Workflow (19):** brainstorming, planning, TDD, implementation, code review, debugging, refactoring, frontend design, API design, data modeling, git workflow, deploy pipeline, release, CLAUDE.md management, verification, browser testing, **sprint pipeline**, **investigation**, **learnings management**
 
-**Specialist (7):** SEO/GEO/AEO audit, security audit, **penetration testing**, performance audit, content quality, code profiling, parallel agent dispatching
+**Specialist (8):** SEO/GEO/AEO audit, security audit, **penetration testing**, performance audit, content quality, code profiling, parallel agent dispatching, **safety guardrails**
 
-**Growth & Intelligence (10):** competitive analysis, launch prep, incident response, growth tracking, cost tracking, onboarding, architecture mapping, pattern analysis, demo readiness, visual regression
+**Growth & Intelligence (12):** competitive analysis, launch prep, incident response, growth tracking, cost tracking, onboarding, architecture mapping, pattern analysis, demo readiness, visual regression, **canary monitoring**, **sprint retrospective**
 
-## Agents (10)
+## Agents (11)
 
 Agents are dispatched by skills to run audits in parallel:
 
-`code-reviewer` · `seo-auditor` · `security-auditor` · `pentest-auditor` · `perf-auditor` · `browser-verifier` · `compete-analyzer` · `launch-auditor` · `incident-responder` · `growth-tracker`
+`code-reviewer` · `seo-auditor` · `security-auditor` · `pentest-auditor` · `perf-auditor` · `browser-verifier` · `compete-analyzer` · `launch-auditor` · `incident-responder` · `growth-tracker` · `canary-monitor`
 
 ## MCP Servers (2)
 
@@ -194,6 +203,37 @@ Agents are dispatched by skills to run audits in parallel:
 | [Playwright](https://github.com/anthropics/anthropic-quickstarts/tree/main/mcp-server-playwright) | Browser automation. Navigate, screenshot, fill forms, test deployed pages. |
 
 Both lazy-start on first use. No background processes.
+
+## Sprint Workflow
+
+Ultraship skills chain into a structured sprint pipeline. Each phase produces artifacts that feed the next:
+
+```
+/sprint → /write-plan → /execute-plan → /tdd → /review → /ship → /deploy → /canary → /retro
+```
+
+| Phase | Skill | Output |
+|---|---|---|
+| Plan | `/write-plan` | Implementation plan with file map and test strategy |
+| Build | `/execute-plan` | Working code on a feature branch |
+| Test | TDD skill | Passing test suite |
+| Review | `/review` + `/secure` | Review report, security scan |
+| Ship | `/ship` + `/deploy` | Scorecard + production deploy |
+| Verify | `/canary` | Post-deploy health verification |
+| Reflect | `/retro` + `/learn` | Retrospective + saved learnings |
+
+Run `/sprint` to follow the full pipeline, or run individual phases as needed.
+
+## Safety Guardrails
+
+`/guard` activates PreToolUse hooks that block destructive commands before they execute:
+
+- `rm -rf`, `DROP TABLE`, `TRUNCATE` — data destruction
+- `git push --force`, `git reset --hard` — git history destruction
+- `git clean -f`, `git checkout .` — working directory destruction
+- `kubectl delete`, `docker system prune` — infrastructure destruction
+
+Optional directory freeze restricts all file edits to a specific path. Explicitly confirmed actions always proceed.
 
 ## Persistent Memory
 
@@ -238,12 +278,12 @@ See [SECURITY.md](SECURITY.md).
 
 ```
 .claude-plugin/   Plugin manifest
-skills/           33 markdown skill files
-agents/           10 markdown agent definitions
-commands/         28 markdown command definitions
-tools/            30 Node.js ESM scripts
+skills/           39 markdown skill files
+agents/           11 markdown agent definitions
+commands/         34 markdown command definitions
+tools/            33 Node.js ESM scripts
 tools/lib/        Shared modules (security.mjs, monorepo.mjs)
-hooks/            Session-start hook (CLAUDE.md check + memory-first enforcement)
+hooks/            Session-start hook + guard hooks (PreToolUse for destructive command blocking)
 ```
 
 - Node.js ESM (`type: module`)
@@ -257,7 +297,7 @@ hooks/            Session-start hook (CLAUDE.md check + memory-first enforcement
 ```bash
 git clone https://github.com/Houseofmvps/ultraship.git
 cd ultraship
-npm test              # 155 tests, node:test
+npm test              # 180 tests, node:test
 node tools/<tool>.mjs # Run any tool directly
 ```
 

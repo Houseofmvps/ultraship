@@ -1,6 +1,6 @@
 {
   "name": "ultraship",
-  "description": "Claude Code plugin — 30 tools, 33 skills, 10 agents. Audit, pentest, ship, launch, grow, rescue.",
+  "description": "Claude Code plugin — 33 tools, 39 skills, 11 agents. Audit, pentest, ship, launch, grow, rescue, guard, retro, canary.",
   "version": "2.2.2",
   "author": {
     "name": "Houseofmvps",
