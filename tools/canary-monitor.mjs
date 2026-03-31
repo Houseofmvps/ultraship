@@ -152,6 +152,9 @@ function compareWithBaseline(current, baseline) {
 }
 
 async function runCanaryChecks(url, checks, intervalMs, baselinePath) {
+  // Ensure at least 1 check
+  checks = Math.max(1, checks);
+
   const results = [];
   const baseline = baselinePath ? loadBaseline(baselinePath) : null;
 

@@ -4,7 +4,9 @@
 # Reads the tool input from stdin (JSON with "input" field containing the command)
 
 INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"$//')
+# Extract the command value from JSON — handle escaped quotes
+# Use grep to get the "command":"value" pair, then strip the key prefix and trailing quote+brace
+COMMAND=$(printf '%s' "$INPUT" | tr -d '\n' | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"[[:space:]]*[,}].*//' | sed 's/\\"/"/g')
 
 if [ -z "$COMMAND" ]; then
   # No command found — allow
@@ -15,16 +17,10 @@ fi
 BLOCKED=false
 REASON=""
 
-# rm -rf on important directories
-if echo "$COMMAND" | grep -qE 'rm\s+(-[a-zA-Z]*r[a-zA-Z]*f|--recursive)\s+(\/|~|\$HOME|\.\.|\.\/\.\.)'; then
+# rm -rf anywhere in the command (catches piped, chained, and direct usage)
+if echo "$COMMAND" | grep -qE 'rm\s+(-[a-zA-Z]*r[a-zA-Z]*f|--recursive)'; then
   BLOCKED=true
-  REASON="Destructive removal of important directory"
-fi
-
-# rm -rf /* or rm -rf .
-if echo "$COMMAND" | grep -qE 'rm\s+(-[a-zA-Z]*r[a-zA-Z]*f)\s+(/\*|\.$|\./)'; then
-  BLOCKED=true
-  REASON="Destructive removal — this would delete everything"
+  REASON="Destructive recursive removal (rm -rf)"
 fi
 
 # DROP TABLE / DROP DATABASE / TRUNCATE
@@ -73,6 +69,12 @@ fi
 if echo "$COMMAND" | grep -qE 'docker\s+(system\s+prune|volume\s+rm)'; then
   BLOCKED=true
   REASON="Docker destructive operation"
+fi
+
+# git restore . (discard all working directory changes)
+if echo "$COMMAND" | grep -qE 'git\s+restore\s+\.$'; then
+  BLOCKED=true
+  REASON="git restore . — discards all working directory changes"
 fi
 
 if [ "$BLOCKED" = true ]; then
