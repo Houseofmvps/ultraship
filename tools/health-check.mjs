@@ -47,12 +47,23 @@ function checkUrl(url, followRedirects = 3) {
       res.on('data', (chunk) => { acc.onData(chunk); });
       res.on('end', () => {
         const body = acc.getBody();
-        // Follow redirects
+        // Follow redirects — re-validate each hop to prevent SSRF via redirect
         if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location && followRedirects > 0) {
           let redirectUrl = res.headers.location;
           if (redirectUrl.startsWith('/')) {
             const u = new URL(url);
             redirectUrl = `${u.protocol}//${u.host}${redirectUrl}`;
+          }
+          const redirectCheck = validateUrl(redirectUrl);
+          if (!redirectCheck.valid) {
+            resolve({
+              success: false,
+              url: redirectUrl,
+              error: `Redirect blocked: ${redirectCheck.reason}`,
+              status_ok: false,
+              redirects: [{ from: url, to: redirectUrl, status: res.statusCode, blocked: true }],
+            });
+            return;
           }
           resolve(checkUrl(redirectUrl, followRedirects - 1).then(result => ({
             ...result,

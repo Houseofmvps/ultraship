@@ -1,6 +1,6 @@
 {
   "name": "ultraship",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Claude Code plugin with sprint workflow, safety guardrails, canary monitoring, retrospectives, pre-deploy auditing (SEO, security, penetration testing, code profiling, bundle size), workflow enforcement (TDD, code review, planning), and project tooling (competitive analysis, architecture mapping, incident response). 33 tools, 39 skills, 11 agents.",
   "type": "module",
   "bin": {

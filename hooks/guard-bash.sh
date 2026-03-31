@@ -77,6 +77,34 @@ if echo "$COMMAND" | grep -qE 'git\s+restore\s+\.$'; then
   REASON="git restore . — discards all working directory changes"
 fi
 
+# base64 decode piped to shell (encoded destructive commands)
+if echo "$COMMAND" | grep -qE 'base64\s+(-d|--decode).*\|\s*(ba)?sh'; then
+  BLOCKED=true
+  REASON="base64-encoded command piped to shell — potential destructive payload"
+fi
+
+# curl/wget piped to shell (remote code execution)
+if echo "$COMMAND" | grep -qE '(curl|wget)\s.*\|\s*(ba)?sh'; then
+  BLOCKED=true
+  REASON="Remote script piped to shell — potential code execution"
+fi
+
+# Python/Perl destructive one-liners
+if echo "$COMMAND" | grep -qE 'python[23]?\s+-c\s.*\b(rmtree|unlink|remove)\b'; then
+  BLOCKED=true
+  REASON="Python destructive filesystem operation"
+fi
+if echo "$COMMAND" | grep -qE 'perl\s+-e\s.*\b(rmtree|unlink)\b'; then
+  BLOCKED=true
+  REASON="Perl destructive filesystem operation"
+fi
+
+# xargs with destructive git/rm commands
+if echo "$COMMAND" | grep -qE 'xargs\s.*\b(rm\s+-rf|git\s+push\s+--force)'; then
+  BLOCKED=true
+  REASON="xargs chaining destructive command"
+fi
+
 if [ "$BLOCKED" = true ]; then
   echo "⚠️  GUARD BLOCKED: $REASON"
   echo "Command: $COMMAND"

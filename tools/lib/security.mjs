@@ -65,17 +65,35 @@ export function validateUrl(urlString) {
     return { valid: false, reason: `Blocked hostname: ${parsed.hostname} (cloud metadata endpoint)` };
   }
 
+  // Normalize hostname — strip IPv6 brackets and expand IPv6-mapped IPv4
+  let hostname = parsed.hostname;
+  if (hostname.startsWith('[') && hostname.endsWith(']')) {
+    hostname = hostname.slice(1, -1);
+  }
+
+  // Detect IPv6-mapped IPv4 addresses (::ffff:x.x.x.x) and extract the IPv4 part
+  const ipv6MappedMatch = hostname.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/i);
+  if (ipv6MappedMatch) {
+    hostname = ipv6MappedMatch[1];
+  }
+
+  // Also catch hex-encoded IPv6-mapped IPv4 (e.g., ::ffff:7f00:1 = 127.0.0.1)
+  const ipv6MappedHexMatch = hostname.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+  if (ipv6MappedHexMatch) {
+    const hi = parseInt(ipv6MappedHexMatch[1], 16);
+    const lo = parseInt(ipv6MappedHexMatch[2], 16);
+    hostname = `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
+  }
+
   // Block private/internal IPs
   for (const pattern of PRIVATE_IP_PATTERNS) {
-    if (pattern.test(parsed.hostname)) {
+    if (pattern.test(hostname)) {
       return { valid: false, reason: `Blocked private/internal IP: ${parsed.hostname}` };
     }
   }
 
   // Block localhost variants
-  if (parsed.hostname === 'localhost' || parsed.hostname === '[::1]') {
-    // Allow localhost for local dev server testing (common use case)
-    // but block metadata-style paths
+  if (hostname === 'localhost' || hostname === '::1' || parsed.hostname === 'localhost' || parsed.hostname === '[::1]') {
     if (parsed.pathname.startsWith('/latest/meta-data') ||
         parsed.pathname.startsWith('/metadata') ||
         parsed.pathname.startsWith('/computeMetadata')) {
