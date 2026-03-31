@@ -1,7 +1,7 @@
 {
   "name": "ultraship",
-  "version": "2.3.2",
-  "description": "Claude Code plugin with sprint workflow, safety guardrails, canary monitoring, retrospectives, pre-deploy auditing (SEO, security, penetration testing, code profiling, bundle size), workflow enforcement (TDD, code review, planning), and project tooling (competitive analysis, architecture mapping, incident response). 33 tools, 39 skills, 11 agents.",
+  "version": "2.5.0",
+  "description": "Claude Code plugin with elite SEO strategy (GSC + Bing + GA4 keyword intelligence, index doctor, AI traffic tracking, IndexNow, cross-reference, CTR anomalies, brand filtering), sprint workflow, safety guardrails, canary monitoring, retrospectives, pre-deploy auditing (SEO, security, penetration testing, code profiling, bundle size), workflow enforcement (TDD, code review, planning), and project tooling (competitive analysis, architecture mapping, incident response). 36 tools, 42 skills, 12 agents.",
   "type": "module",
   "bin": {
     "ultraship": "bin/ultraship.mjs"
@@ -45,7 +45,18 @@
     "guard",
     "safety",
     "learnings",
-    "investigation"
+    "investigation",
+    "keyword-research",
+    "google-analytics",
+    "search-console",
+    "indexing",
+    "seo-strategy",
+    "bing-webmaster",
+    "indexnow",
+    "ai-traffic",
+    "chatgpt-search",
+    "perplexity",
+    "copilot"
   ],
   "files": [
     "bin/",

@@ -6,10 +6,10 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
-skills/           — 39 skills (19 workflow + 8 specialist + 12 growth/launch/intelligence)
-agents/           — 11 agents (review, seo, security, pentest, perf, browser, compete, launch, incident, growth, canary)
-commands/         — 34 slash commands (/sprint, /investigate, /learn, /guard, /retro, /canary, /ship, /pentest, /seo, /compete, /launch, /rescue, /grow, etc.)
-tools/            — 33 Node.js tools (scanner, lighthouse, profiler, pentest-scanner, canary-monitor, retro-analyzer, learnings-manager, compete-analyzer, etc.)
+skills/           — 42 skills (19 workflow + 10 specialist + 13 growth/launch/intelligence)
+agents/           — 12 agents (review, seo, seo-strategist, security, pentest, perf, browser, compete, launch, incident, growth, canary)
+commands/         — 36 slash commands (/seo-strategy, /index-fix, /sprint, /investigate, /learn, /guard, /retro, /canary, /ship, /pentest, /seo, /compete, /launch, /rescue, /grow, etc.)
+tools/            — 36 Node.js tools (ga4-client, keyword-intelligence, index-doctor, seo-scanner, lighthouse, pentest-scanner, etc.)
 hooks/            — Session-start hook + guard hooks (PreToolUse for destructive command blocking)
 docs/             — Documentation
 ```
@@ -25,7 +25,7 @@ docs/             — Documentation
 
 | Tool | Purpose |
 |---|---|
-| `seo-scanner.mjs` | 60+ rule SEO/GEO/AEO scanner with cross-page analysis, analytics detection, canonical conflicts |
+| `seo-scanner.mjs` | 60+ rule SEO/GEO/AEO scanner with cross-page analysis, analytics detection, canonical conflicts, snippet restriction detection (nosnippet, max-snippet, data-nosnippet) |
 | `content-scorer.mjs` | Readability (Flesch-Kincaid), keyword density, GEO heading analysis |
 | `og-validator.mjs` | Open Graph tag validation, image reachability check |
 | `redirect-checker.mjs` | Redirect chain/loop detection, mixed protocol, sitemap-based bulk check |
@@ -37,7 +37,7 @@ docs/             — Documentation
 | `audit-history.mjs` | Saves/compares audit scores over time |
 | `api-smoke-test.mjs` | API endpoint smoke testing (status codes, response times, CORS) |
 | `gsc-client.mjs` | Google Search Console API (JWT auth via service account) |
-| `bing-webmaster.mjs` | Bing Webmaster API (API key auth) |
+| `bing-webmaster.mjs` | Bing Webmaster API — 11 commands: submit-sitemap, list-sitemaps, submit-url, submit-url-batch, url-info, query, indexnow, keyword-research, backlinks, site-scan, url-inspection |
 | `code-profiler.mjs` | Static analysis for N+1 queries, sync I/O, memory leaks, unbounded queries |
 | `dep-doctor.mjs` | Detects unused/outdated dependencies, recommends removals |
 | `secret-scanner.mjs` | Detects leaked secrets, skips .env.example files |
@@ -58,6 +58,9 @@ docs/             — Documentation
 | `canary-monitor.mjs` | Post-deploy canary monitoring — HTTP status, response time, error patterns, baseline regression detection |
 | `retro-analyzer.mjs` | Sprint retrospective — git velocity, commit patterns, test health, hot files, shipping cadence |
 | `learnings-manager.mjs` | Project learnings CRUD — save, search, list, prune, export structured knowledge |
+| `ga4-client.mjs` | Google Analytics 4 Data API — 12 commands: overview, top-pages, traffic-sources, conversions, landing-pages, user-journey, search-terms, geo, devices, realtime, ai-traffic (ChatGPT/Perplexity/Copilot), organic. --organic flag for search-only filtering. Key event rates per page. |
+| `keyword-intelligence.mjs` | Keyword analysis — 12 commands: analyze (with difficulty + topical authority + SERP features + position bands), quick-wins, cannibalization, content-gaps, intent-map, trending, high-intent, page-keywords, content-decay, difficulty, anomalies (low-position high-CTR), cross-reference (GSC↔GA4). Brand filtering via --brand flag. |
+| `index-doctor.mjs` | Index diagnosis — inspects URLs via GSC, diagnoses non-indexing reasons (nosnippet/max-snippet detection), auto-submits fixes to Bing |
 
 ## Security
 
@@ -77,7 +80,7 @@ docs/             — Documentation
 - New tools that read files MUST use `checkFileSize()` before `readFileSync()`
 - GEO = Generative Engine Optimization (NOT geographic targeting)
 - AEO = Answer Engine Optimization (featured snippets, voice assistants)
-- Auth env vars: `ULTRASHIP_GSC_CREDENTIALS`, `ULTRASHIP_GSC_ACCESS_TOKEN`, `ULTRASHIP_BING_KEY`
+- Auth env vars: `ULTRASHIP_GSC_CREDENTIALS`, `ULTRASHIP_GSC_ACCESS_TOKEN`, `ULTRASHIP_BING_KEY`, `ULTRASHIP_GA4_CREDENTIALS`, `ULTRASHIP_GA4_ACCESS_TOKEN`
 
 ## Publishing
 

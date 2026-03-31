@@ -100,6 +100,9 @@ function parseHtmlFile(filePath) {
     inBody: false,
     inStyle: false,
     wordCount: 0,
+    hasNosnippet: false,
+    maxSnippetValue: null,
+    hasDataNosnippet: false,
   };
 
   const parser = new Parser(
@@ -122,6 +125,13 @@ function parseHtmlFile(filePath) {
           if (nameAttr === 'viewport') state.hasViewport = true;
           if (nameAttr === 'robots' && content.toLowerCase().includes('noindex')) state.hasNoindex = true;
           if (nameAttr === 'googlebot' && content.toLowerCase().includes('noindex')) state.hasNoindex = true;
+          // Snippet restriction detection — limits AI feature eligibility
+          const contentLc = content.toLowerCase();
+          if ((nameAttr === 'robots' || nameAttr === 'googlebot') && contentLc.includes('nosnippet')) state.hasNosnippet = true;
+          if ((nameAttr === 'robots' || nameAttr === 'googlebot')) {
+            const msMatch = contentLc.match(/max-snippet\s*:\s*(-?\d+)/);
+            if (msMatch) state.maxSnippetValue = parseInt(msMatch[1], 10);
+          }
           if (charset || httpEquiv === 'content-type') state.hasCharset = true;
           if (propAttr === 'og:title' && content) state.hasOgTitle = true;
           if (propAttr === 'og:description' && content) state.hasOgDescription = true;
@@ -136,6 +146,9 @@ function parseHtmlFile(filePath) {
           if (rel === 'canonical' && attrs.href) { state.hasCanonical = true; state.canonicalUrl = attrs.href; }
           if (rel === 'alternate' && attrs.hreflang) state.hasHreflang = true;
         }
+
+        // data-nosnippet attribute on any element
+        if (attrs['data-nosnippet'] !== undefined) state.hasDataNosnippet = true;
 
         if (tag === 'body') state.inBody = true;
         if (tag === 'style') state.inStyle = true;
@@ -451,6 +464,19 @@ function scanDirectory(rootDir) {
     if (state.hasNoindex) {
       findings.push({ file: relFile, line: 0, severity: 'critical', category: 'seo', rule: 'has-noindex', message: 'Page has <meta name="robots" content="noindex"> — invisible to ALL search engines and AI bots' });
       findings.push({ file: relFile, line: 0, severity: 'critical', category: 'geo', rule: 'noindex-blocks-ai', message: 'noindex blocks AI crawlers (GPTBot, PerplexityBot, Claude-Web) — page cannot be cited in AI answers' });
+    }
+
+    // Snippet restrictions — Google says more restrictive preview controls can limit AI feature eligibility
+    if (state.hasNosnippet) {
+      findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'has-nosnippet', message: 'Page has nosnippet directive — prevents Google from showing text snippets, AI Overviews, and featured snippets for this page' });
+      findings.push({ file: relFile, line: 0, severity: 'high', category: 'geo', rule: 'nosnippet-blocks-ai', message: 'nosnippet blocks AI citation — Google AI Overviews, Bing Copilot, and ChatGPT cannot extract or cite this page' });
+    }
+    if (state.maxSnippetValue !== null && state.maxSnippetValue >= 0 && state.maxSnippetValue < 160) {
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'restrictive-max-snippet', message: `max-snippet:${state.maxSnippetValue} is too restrictive — limits snippet length and AI feature eligibility. Remove or set to -1 (unlimited) for maximum visibility.` });
+      findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'max-snippet-limits-ai', message: `max-snippet:${state.maxSnippetValue} restricts how much content AI engines can extract — reduces chance of being cited in AI answers` });
+    }
+    if (state.hasDataNosnippet) {
+      findings.push({ file: relFile, line: 0, severity: 'low', category: 'geo', rule: 'data-nosnippet-found', message: 'data-nosnippet attribute found — marked sections will be excluded from search snippets and AI citations. Verify this is intentional.' });
     }
 
     if (!state.hasTitle) {

@@ -2,6 +2,43 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.5.0] - 2026-04-01
+
+### Added — Elite SEO Intelligence (Top 1% Operator Patterns)
+
+**keyword-intelligence.mjs**
+- `anomalies` command — detects low-position high-CTR keywords (Google flags these as strongest opportunities) and high-position low-CTR underperformers
+- `cross-reference` command — joins GSC page data with GA4 conversion data to find 4 critical buckets: converting-but-underexposed, ranking-but-not-converting, scalable pages, CTR problems
+- `--brand=term1,term2` flag — separates brand vs non-brand queries across ALL commands (non-brand is all that matters for SEO growth)
+- Position band distribution (% in positions 1-3, 4-10, 11-20, 21+) in analyze output
+
+**ga4-client.mjs**
+- `ai-traffic` command — tracks ChatGPT (utm_source=chatgpt.com), Perplexity, Microsoft Copilot, Gemini, Claude, and You.com referral traffic with conversion rates
+- `organic` command — organic-only overview with key event rates per landing page
+- `--organic` flag — filters top-pages and landing-pages to organic search only
+- Key event rate per session and average engagement time per page on landing-pages and top-pages
+
+**bing-webmaster.mjs**
+- `indexnow` command — instant IndexNow push for changed URLs (Bing, Yandex, and partners)
+- `keyword-research` command — keyword suggestions from Bing
+- `backlinks` command — backlink counts and sample link data
+- `site-scan` command — Bing's technical SEO scan results
+- `url-inspection` command — crawl/index status from Bing's perspective
+
+**seo-scanner.mjs**
+- `nosnippet` detection — flags pages with nosnippet meta directive (blocks AI citations and featured snippets)
+- `max-snippet` detection — flags restrictive max-snippet values that limit AI feature eligibility
+- `data-nosnippet` detection — flags elements excluded from search snippets
+
+**seo-strategy SKILL.md**
+- AI Traffic Measurement phase — measure ChatGPT/Perplexity/Copilot traffic before optimizing
+- CTR Anomaly Analysis framework — invest in low-position high-CTR, fix high-position low-CTR
+- Non-Brand Position Band Tracking — weekly KPI stack from elite operators
+- GSC ↔ GA4 Cross-Reference phase — the "money move" that finds highest-ROI pages
+- IndexNow for instant Bing/Copilot discovery
+- AI Slop Prevention guardrails — content quality checks before publishing
+- Ruthless weekly KPI stack (14 metrics, not 50)
+
 ## [1.1.2] - 2026-03-25
 
 ### Added

@@ -66,7 +66,7 @@ npx ultraship security .
 
 </details>
 
-## Tools (33)
+## Tools (36)
 
 Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output. Exit 0 always. No build step.
 
@@ -74,7 +74,7 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 
 | Tool | What it checks |
 |---|---|
-| `seo-scanner` | 60+ rules across meta tags, canonicals, heading hierarchy, OG tags, structured data, sitemap, robots.txt, `llms.txt`, AI-crawler access, content depth, cross-page canonical conflicts |
+| `seo-scanner` | 60+ rules across meta tags, canonicals, heading hierarchy, OG tags, structured data, sitemap, robots.txt, `llms.txt`, AI-crawler access, content depth, cross-page canonical conflicts, snippet restrictions (nosnippet, max-snippet, data-nosnippet) |
 | `secret-scanner` | AWS keys, Stripe keys, JWT secrets, database URLs, private keys. Redacts values in output. |
 | `code-profiler` | N+1 queries, sync I/O in handlers, unbounded queries, missing indexes, memory leaks, sequential awaits, ReDoS risk |
 | `bundle-tracker` | JS/CSS/image sizes in build output. Detects heavy deps (`moment`→`dayjs`, `lodash`→native). History for before/after. Monorepo-aware. |
@@ -136,9 +136,12 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | Tool | What it does |
 |---|---|
 | `gsc-client` | Google Search Console: submit sitemaps, inspect URLs, query rankings (requires `ULTRASHIP_GSC_CREDENTIALS`) |
-| `bing-webmaster` | Bing Webmaster: submit sitemaps/URLs, check indexing (requires `ULTRASHIP_BING_KEY`). Also powers ChatGPT Search. |
+| `bing-webmaster` | Bing Webmaster: submit sitemaps/URLs, IndexNow instant push, keyword research, backlinks, site-scan, URL inspection (requires `ULTRASHIP_BING_KEY`). Powers ChatGPT Search + Microsoft Copilot. |
+| `ga4-client` | Google Analytics 4: overview, top-pages, landing-pages, traffic-sources, conversions, user-journey, devices, realtime, **ai-traffic** (ChatGPT/Perplexity/Copilot tracking), **organic** (search-only). `--organic` flag. |
+| `keyword-intelligence` | 12-command keyword engine: analyze, quick-wins, cannibalization, content-gaps, intent-map, trending, high-intent, page-keywords, content-decay, difficulty, **anomalies** (CTR anomalies), **cross-reference** (GSC↔GA4). `--brand` flag for non-brand filtering. |
+| `index-doctor` | Index diagnosis: inspect URLs via GSC URL Inspection API, diagnose 15+ coverage states, auto-fix and submit to Bing. |
 
-## Commands (34)
+## Commands (36)
 
 Slash commands available inside Claude Code after installing the plugin:
 

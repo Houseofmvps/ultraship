@@ -9,6 +9,11 @@
 //   submit-url-batch <site-url> <url1> <url2>  — Submit multiple URLs
 //   url-info <site-url> <page-url>             — Get URL traffic info
 //   query <site-url> [days]                    — Search keywords (last N days)
+//   indexnow <site-url> <url1> <url2> ...     — Instant IndexNow push for changed URLs
+//   keyword-research <site-url> <keyword>     — Keyword suggestions from Bing
+//   backlinks <site-url>                       — Backlink data (domains, anchor text)
+//   site-scan <site-url>                       — Technical SEO scan from Bing
+//   url-inspection <site-url> <page-url>      — Crawl/index status from Bing
 //
 // Auth: Set ULTRASHIP_BING_KEY to your Bing Webmaster API key
 //
@@ -67,7 +72,7 @@ async function main() {
   const command = process.argv[2];
 
   if (!command) {
-    error('Usage: node bing-webmaster.mjs <command> [args]\nCommands: submit-sitemap, list-sitemaps, submit-url, submit-url-batch, url-info, query');
+    error('Usage: node bing-webmaster.mjs <command> [args]\nCommands: submit-sitemap, list-sitemaps, submit-url, submit-url-batch, url-info, query, indexnow, keyword-research, backlinks, site-scan, url-inspection');
   }
 
   const apiKey = process.env.ULTRASHIP_BING_KEY;
@@ -193,8 +198,157 @@ async function main() {
       break;
     }
 
+    case 'indexnow': {
+      // IndexNow: instant notification of URL changes to Bing, Yandex, and partners
+      const urls = process.argv.slice(4);
+      if (!siteUrl || urls.length === 0) error('Usage: indexnow <site-url> <url1> <url2> ...');
+      for (const u of urls) {
+        const urlCheck = validateUrl(u);
+        if (!urlCheck.valid) error(`Invalid URL "${u}": ${urlCheck.reason}`);
+      }
+      try {
+        let host;
+        try { host = new URL(siteUrl).hostname; } catch { error('Invalid site URL'); }
+        // IndexNow API — key is the Bing API key
+        const bodyStr = JSON.stringify({
+          host,
+          key: apiKey,
+          keyLocation: `https://${host}/${apiKey}.txt`,
+          urlList: urls.slice(0, 10000), // IndexNow supports up to 10K URLs per batch
+        });
+        await new Promise((resolve, reject) => {
+          const req = https.request({
+            hostname: 'api.indexnow.org',
+            path: '/IndexNow',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(bodyStr) },
+          }, (res) => {
+            let data = '';
+            res.on('data', (chunk) => { data += chunk; });
+            res.on('end', () => {
+              if (res.statusCode >= 200 && res.statusCode < 300) resolve(data);
+              else reject(new Error(`HTTP ${res.statusCode}: ${data.slice(0, 200)}`));
+            });
+          });
+          req.on('error', reject);
+          req.write(bodyStr);
+          req.end();
+        });
+        output({
+          success: true,
+          message: `${urls.length} URLs pushed via IndexNow — Bing, Yandex, and partners notified`,
+          urls_submitted: urls.length,
+          urls,
+          note: 'IndexNow notifies Bing instantly. For it to work, place a key file at https://yourdomain.com/{apikey}.txt containing your API key.',
+        });
+      } catch (err) {
+        error(`IndexNow push failed: ${err.message}`);
+      }
+      break;
+    }
+
+    case 'keyword-research': {
+      const keyword = process.argv[4];
+      if (!siteUrl || !keyword) error('Usage: keyword-research <site-url> <keyword>');
+      try {
+        const result = await apiRequest('GET', `GetKeywordResearch&q=${encodeURIComponent(keyword)}&siteUrl=${encodeURIComponent(siteUrl)}&country=us&language=en`, apiKey);
+        const suggestions = (result.d || result || []).map(s => ({
+          keyword: s.Query || s.Keyword,
+          impressions: s.Impressions,
+          clicks: s.Clicks,
+          broad_impressions: s.BroadImpressions,
+        }));
+        output({
+          success: true,
+          site: siteUrl,
+          seed_keyword: keyword,
+          suggestions: suggestions.slice(0, 50),
+          insight: `${suggestions.length} keyword suggestions from Bing. Cross-reference with GSC data to find gaps — keywords Bing suggests that you don't rank for are expansion opportunities.`,
+        });
+      } catch (err) {
+        error(`Keyword research failed: ${err.message}. Note: This endpoint may require specific Bing API tier access.`);
+      }
+      break;
+    }
+
+    case 'backlinks': {
+      if (!siteUrl) error('Usage: backlinks <site-url>');
+      try {
+        const result = await apiRequest('GET', `GetLinkCounts&siteUrl=${encodeURIComponent(siteUrl)}`, apiKey);
+        const data = result.d || result || {};
+
+        // Also try to get sample backlinks
+        let sampleLinks = [];
+        try {
+          const linksResult = await apiRequest('GET', `GetUrlLinks&siteUrl=${encodeURIComponent(siteUrl)}&offset=0&count=50`, apiKey);
+          sampleLinks = (linksResult.d || linksResult || []).map(l => ({
+            source_url: l.SourceUrl || l.Url,
+            anchor_text: l.AnchorText,
+            target_url: l.TargetUrl,
+          }));
+        } catch { /* sample links optional */ }
+
+        output({
+          success: true,
+          site: siteUrl,
+          link_counts: data,
+          sample_backlinks: sampleLinks.slice(0, 30),
+          insight: 'Compare backlink count with competitors (use /compete). Pages with few backlinks but good content are backlink acquisition targets.',
+        });
+      } catch (err) {
+        error(`Backlinks query failed: ${err.message}. Note: This endpoint may require specific Bing API tier access.`);
+      }
+      break;
+    }
+
+    case 'site-scan': {
+      if (!siteUrl) error('Usage: site-scan <site-url>');
+      try {
+        const result = await apiRequest('GET', `GetScanDetails&siteUrl=${encodeURIComponent(siteUrl)}`, apiKey);
+        const scanData = result.d || result || {};
+        output({
+          success: true,
+          site: siteUrl,
+          scan: scanData,
+          insight: 'Bing Site Scan shows technical issues from Bing\'s perspective. Fix critical issues first — they may differ from Google\'s view.',
+        });
+      } catch (err) {
+        error(`Site scan failed: ${err.message}. Note: You may need to initiate a scan first via Bing Webmaster Tools dashboard.`);
+      }
+      break;
+    }
+
+    case 'url-inspection': {
+      const pageUrl = process.argv[4];
+      if (!siteUrl || !pageUrl) error('Usage: url-inspection <site-url> <page-url>');
+      const inspCheck = validateUrl(pageUrl);
+      if (!inspCheck.valid) error(`Invalid page URL: ${inspCheck.reason}`);
+      try {
+        const result = await apiRequest('GET', `GetUrlInfo&siteUrl=${encodeURIComponent(siteUrl)}&url=${encodeURIComponent(pageUrl)}`, apiKey);
+        const info = result.d || result || {};
+        output({
+          success: true,
+          url: pageUrl,
+          site: siteUrl,
+          inspection: {
+            http_code: info.HttpCode,
+            discovered_date: info.DiscoveredDate,
+            last_crawled: info.LastCrawledDate,
+            last_seen: info.LastSeenDate,
+            cache_date: info.CacheDate,
+            index_status: info.IsPage !== undefined ? (info.IsPage ? 'indexed' : 'not_indexed') : 'unknown',
+            raw: info,
+          },
+          insight: 'Compare with GSC URL Inspection. If Bing indexes but Google doesn\'t (or vice versa), investigate crawl barriers specific to each engine.',
+        });
+      } catch (err) {
+        error(`URL inspection failed: ${err.message}`);
+      }
+      break;
+    }
+
     default:
-      error(`Unknown command: ${command}\nAvailable: submit-sitemap, list-sitemaps, submit-url, submit-url-batch, url-info, query`);
+      error(`Unknown command: ${command}\nAvailable: submit-sitemap, list-sitemaps, submit-url, submit-url-batch, url-info, query, indexnow, keyword-research, backlinks, site-scan, url-inspection`);
   }
 }
 

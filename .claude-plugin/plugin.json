@@ -1,7 +1,7 @@
 {
   "name": "ultraship",
-  "description": "Claude Code plugin — 33 tools, 39 skills, 11 agents. Audit, pentest, ship, launch, grow, rescue, guard, retro, canary.",
-  "version": "2.3.2",
+  "description": "Claude Code plugin — 36 tools, 42 skills, 12 agents. Elite SEO strategy with AI traffic tracking, IndexNow, GSC-GA4 cross-reference, CTR anomalies, brand filtering, keyword intelligence, index doctor, pentest, ship, launch, grow, rescue.",
+  "version": "2.5.0",
   "author": {
     "name": "Houseofmvps",
     "email": "houseofmvps2024@gmail.com"
@@ -20,6 +20,13 @@
     "workflow",
     "code-review",
     "lighthouse",
-    "builder"
+    "builder",
+    "keyword-research",
+    "google-analytics",
+    "search-console",
+    "indexing",
+    "seo-strategy",
+    "indexnow",
+    "ai-traffic"
   ]
 }
