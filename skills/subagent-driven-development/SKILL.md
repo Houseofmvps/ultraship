@@ -86,18 +86,21 @@ digraph process {
 
 ## Model Selection
 
-Use the least powerful model that can handle each role to conserve cost and increase speed.
+Use the least powerful model that can handle each role. This prevents timeouts and saves cost.
 
-**Mechanical implementation tasks** (isolated functions, clear specs, 1-2 files): use a fast, cheap model. Most implementation tasks are mechanical when the plan is well-specified.
+| Role | Model | Why |
+|------|-------|-----|
+| Implementer (1-2 files, clear spec) | sonnet | Mechanical work with clear spec — sonnet is fast and accurate |
+| Implementer (3+ files, integration) | opus | Cross-file coordination needs deep reasoning |
+| Spec reviewer | sonnet | Checklist comparison — no deep reasoning needed |
+| Code quality reviewer | opus | Spotting subtle bugs, architecture issues, security flaws needs best judgment |
+| Final reviewer | opus | Reviewing entire implementation requires holistic understanding |
 
-**Integration and judgment tasks** (multi-file coordination, pattern matching, debugging): use a standard model.
-
-**Architecture, design, and review tasks**: use the most capable available model.
-
-**Task complexity signals:**
-- Touches 1-2 files with a complete spec → cheap model
-- Touches multiple files with integration concerns → standard model
-- Requires design judgment or broad codebase understanding → most capable model
+**Rules:**
+- Use opus for anything requiring judgment, strategy, or cross-file reasoning.
+- Use sonnet for mechanical tasks with clear specs and tool-running.
+- If a sonnet implementer reports BLOCKED, re-dispatch with opus.
+- Never downgrade opus agents to sonnet — quality is non-negotiable.
 
 ## Handling Implementer Status
 

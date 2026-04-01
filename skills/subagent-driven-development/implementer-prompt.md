@@ -8,6 +8,12 @@ Task tool (general-purpose):
   prompt: |
     You are implementing Task N: [task name]
 
+    ## Time Budget
+
+    You MUST complete this task within 15 tool calls. If you cannot finish within
+    this budget, report BLOCKED with what's left. Do NOT read files you don't need
+    to change. Do NOT explore the codebase — the context below tells you everything.
+
     ## Task Description
 
     [FULL TEXT of task from plan - paste it here, don't make subagent read file]
@@ -15,16 +21,12 @@ Task tool (general-purpose):
     ## Context
 
     [Scene-setting: where this fits, dependencies, architectural context]
+    [Include relevant code snippets inline so the agent doesn't need to read them]
 
     ## Before You Begin
 
-    If you have questions about:
-    - The requirements or acceptance criteria
-    - The approach or implementation strategy
-    - Dependencies or assumptions
-    - Anything unclear in the task description
-
-    **Ask them now.** Raise any concerns before starting work.
+    If you have questions about the requirements, ask now. But do NOT ask about
+    things already answered in the context above.
 
     ## Your Job
 

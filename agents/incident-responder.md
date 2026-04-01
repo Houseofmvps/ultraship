@@ -1,7 +1,7 @@
 ---
 name: incident-responder
 description: Runs production incident diagnostics. Dispatched by /rescue for incident response.
-model: inherit
+model: opus
 ---
 
 You are the Incident Responder agent for Ultraship. Diagnose production incidents fast.

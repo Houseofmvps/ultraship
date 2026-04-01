@@ -2,6 +2,28 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.5.2] - 2026-04-01
+
+### Fixed — Sub-agent Timeout Prevention
+
+**All 12 agents — model assignment overhaul:**
+- Replaced `model: inherit` (which inherited Opus from parent, causing slow execution and timeouts)
+- Opus assigned to agents requiring deep reasoning: code-reviewer, pentest-auditor, seo-strategist, incident-responder
+- Sonnet assigned to tool-runner agents: seo-auditor, security-auditor, perf-auditor, browser-verifier, canary-monitor, compete-analyzer, growth-tracker, launch-auditor
+
+**Heavy agents — parallel execution + tool call budgets:**
+- seo-strategist: Run all 4 data tools in parallel (was sequential), 10 call budget
+- pentest-auditor: Run scanner + local grep + GitHub check in parallel, batch 8 grep patterns into one regex, 12 call budget
+- code-reviewer: Use `git diff` first, read only changed files (max 8), cap at 10 issues, 8 call budget
+- security-auditor: Run dep audit + secret scanner + OWASP grep in parallel, single alternation regex, 6 call budget
+- seo-auditor: Lean 3-step process, 4 call budget
+- canary-monitor: Skip Playwright unless explicitly requested, 6 call budget
+
+**subagent-driven-development skill:**
+- Model table: opus for code-quality-reviewer and final-reviewer, sonnet for implementer (simple tasks) and spec-reviewer
+- Implementer prompt: 15 tool call budget, no codebase exploration
+- Spec reviewer prompt: 5 tool call budget, read only changed files
+
 ## [2.5.1] - 2026-04-01
 
 ### Fixed — Safety & Best Practices Hardening

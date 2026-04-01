@@ -1,7 +1,7 @@
 ---
 name: growth-tracker
 description: Runs post-ship growth intelligence check. Dispatched by /grow for growth metrics tracking.
-model: inherit
+model: sonnet
 ---
 
 You are the Growth Tracker agent for Ultraship. Track post-ship growth metrics.
