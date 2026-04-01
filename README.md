@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### Claude Code plugin — 39 expert-level skills for building, shipping, and scaling production software. 33 audit tools (security, pentest, code quality, bundle size, SEO + AI visibility) close the loop before deploy.
+### Claude Code plugin. 39 expert-level skills for building, shipping, and scaling production software. 33 audit tools (security, pentest, code quality, bundle size, SEO + AI visibility) close the loop before deploy.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -117,7 +117,7 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | `incident-commander` | Health check + git culprit analysis + error patterns + rollback commands + post-mortem template |
 | `growth-tracker` | Uptime, git velocity, SEO trajectory, dep health. Stores snapshots for week-over-week comparison. |
 | `cost-tracker` | Log AI token usage per feature/model. Built-in pricing for Claude, GPT-4o, Gemini. Daily trends. |
-| `pentest-scanner` | Automated penetration testing: XSS, SQLi, SSTI, command injection, path traversal, CORS, JWT, GraphQL introspection, prototype pollution, race conditions, request smuggling. Zero false positives — every finding has proof-of-concept. |
+| `pentest-scanner` | Automated penetration testing: XSS, SQLi, SSTI, command injection, path traversal, CORS, JWT, GraphQL introspection, prototype pollution, race conditions, request smuggling. Zero false positives, every finding has proof-of-concept. |
 | `canary-monitor` | Post-deploy canary monitoring: HTTP status, response time, error patterns, baseline regression detection. Auto-saves baselines for future comparison. |
 | `retro-analyzer` | Sprint retrospective: git velocity, commit patterns (features vs fixes), test health, hot files, shipping cadence. Generates insights and recommendations. |
 | `learnings-manager` | Project learnings CRUD: save, search, list, prune, export. Structured knowledge that compounds across sessions. |
@@ -147,14 +147,14 @@ Slash commands available inside Claude Code after installing the plugin:
 
 | Command | Description |
 |---|---|
-| `/sprint` | Sprint workflow — structured pipeline from plan → build → test → review → ship → verify |
-| `/investigate` | Root cause investigation — structured debugging with module freeze, no fixes without evidence |
-| `/learn` | Project learnings — save, search, prune, export knowledge that compounds across sessions |
-| `/guard` | Safety guardrails — blocks destructive commands, optionally restricts edits to a directory |
-| `/retro` | Sprint retrospective — git velocity, commit patterns, test health, shipping cadence |
-| `/canary` | Post-deploy canary — verify production health, detect regressions after deployment |
-| `/pentest` | Penetration testing — hack-test your app (web, API, browser, GitHub, local code) |
-| `/ship` | Pre-deploy scorecard — runs 5 tools, scores 4 categories |
+| `/sprint` | Sprint workflow. Structured pipeline from plan → build → test → review → ship → verify |
+| `/investigate` | Root cause investigation. Structured debugging with module freeze, no fixes without evidence |
+| `/learn` | Project learnings. Save, search, prune, export knowledge that compounds across sessions |
+| `/guard` | Safety guardrails. Blocks destructive commands, optionally restricts edits to a directory |
+| `/retro` | Sprint retrospective. Git velocity, commit patterns, test health, shipping cadence |
+| `/canary` | Post-deploy canary. Verify production health, detect regressions after deployment |
+| `/pentest` | Penetration testing. Hack-test your app (web, API, browser, GitHub, local code) |
+| `/ship` | Pre-deploy scorecard. Runs 5 tools, scores 4 categories |
 | `/seo` | SEO audit (63 rules) + AI visibility checks (bot access, snippet restrictions, schema) |
 | `/secure` | Secret scanning + OWASP patterns + `npm audit` |
 | `/perf` | Lighthouse + bundle size |
@@ -184,7 +184,7 @@ Slash commands available inside Claude Code after installing the plugin:
 
 ## Skills (39)
 
-Skills are markdown instruction files that shape Claude's behavior during your session. They activate based on context — when you're debugging, Claude uses the debugging skill; when you're building UI, it uses the frontend design skill.
+Skills are markdown instruction files that shape Claude's behavior during your session. They activate based on context. When you're debugging, Claude uses the debugging skill. When you're building UI, it uses the frontend design skill.
 
 **Workflow (19):** brainstorming, planning, TDD, implementation, code review, debugging, refactoring, frontend design, API design, data modeling, git workflow, deploy pipeline, release, CLAUDE.md management, verification, browser testing, **sprint pipeline**, **investigation**, **learnings management**
 
@@ -231,31 +231,31 @@ Run `/sprint` to follow the full pipeline, or run individual phases as needed.
 
 `/guard` activates PreToolUse hooks that block destructive commands before they execute:
 
-- `rm -rf`, `DROP TABLE`, `TRUNCATE` — data destruction
-- `git push --force`, `git reset --hard` — git history destruction
-- `git clean -f`, `git checkout .` — working directory destruction
-- `kubectl delete`, `docker system prune` — infrastructure destruction
+- `rm -rf`, `DROP TABLE`, `TRUNCATE` (data destruction)
+- `git push --force`, `git reset --hard` (git history destruction)
+- `git clean -f`, `git checkout .` (working directory destruction)
+- `kubectl delete`, `docker system prune` (infrastructure destruction)
 
 Optional directory freeze restricts all file edits to a specific path. Explicitly confirmed actions always proceed.
 
 ## Persistent Memory
 
-Ultraship enforces a **memory-first rule** at session start. The SessionStart hook detects if you have a `MEMORY.md` file and instructs Claude to read it before performing any task. This ensures context persists across sessions — no more repeating yourself about project state, deploy status, or decisions already made.
+Ultraship enforces a **memory-first rule** at session start. The SessionStart hook detects if you have a `MEMORY.md` file and instructs Claude to read it before performing any task. Context persists across sessions. No more repeating yourself about project state, deploy status, or decisions already made.
 
 - If `MEMORY.md` is found: Claude reads memory files before doing anything
 - If not found: Claude suggests setting up auto-memory for persistent context
 
-No configuration needed — just install the plugin.
+No configuration needed. Just install the plugin.
 
 ## SEO + AI Visibility
 
 The SEO scanner checks 63 rules across three layers:
 
-- **SEO (39 rules)** — traditional search optimization: meta tags, canonicals, heading hierarchy, alt text, OG tags, sitemap, robots.txt, structured data, analytics detection, cross-page duplicate titles/descriptions, orphan page detection, canonical conflicts, thin content, internal linking
-- **GEO (20 rules)** — AI search visibility signals: does `robots.txt` block GPTBot/PerplexityBot/ClaudeBot? Do `nosnippet`/`max-snippet` directives restrict AI citation eligibility? Is there `llms.txt` for AI discovery? Does structured data exist for AI extraction? These are verifiable technical signals — not ranking factor guesses.
-- **AEO (4 rules)** — answer engine schema checks: FAQPage, HowTo, speakable, Article/BlogPosting. These are the structured data types that enable featured snippets and voice results. We check presence, not SERP performance.
+- **SEO (39 rules)**: meta tags, canonicals, heading hierarchy, alt text, OG tags, sitemap, robots.txt, structured data, analytics detection, cross-page duplicate titles/descriptions, orphan page detection, canonical conflicts, thin content, internal linking
+- **GEO (20 rules)**: AI search visibility signals. Does `robots.txt` block GPTBot/PerplexityBot/ClaudeBot? Do `nosnippet`/`max-snippet` directives restrict AI citation eligibility? Is there `llms.txt` for AI discovery? Does structured data exist for AI extraction? These are verifiable technical signals, not ranking factor guesses.
+- **AEO (4 rules)**: answer engine schema checks. FAQPage, HowTo, speakable, Article/BlogPosting. These are the structured data types that enable featured snippets and voice results. We check presence, not SERP performance.
 
-Beyond the scanner, Ultraship connects to real APIs — GSC URL Inspection (actual index status), GA4 (actual AI referral traffic from ChatGPT/Perplexity/Copilot), Bing Webmaster (crawl status, IndexNow) — for data-driven analysis, not estimates.
+Beyond the scanner, Ultraship connects to real APIs: GSC URL Inspection (actual index status), GA4 (actual AI referral traffic from ChatGPT/Perplexity/Copilot), Bing Webmaster (crawl status, IndexNow). Data-driven analysis, not estimates.
 
 ## Dogfooding
 
