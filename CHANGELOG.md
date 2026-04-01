@@ -2,6 +2,45 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.7.0] - 2026-04-01
+
+### Added — Full Plugin Spec Compliance (Marketplace-Ready)
+
+**Skill frontmatter — `argument-hint` for 20+ skills:**
+- Skills that accept arguments now show autocomplete hints (e.g., `/compete <competitor-url>`, `/release <major|minor|patch>`, `/learn <save|search|list|prune|export> [query]`)
+- Added to: compete, rescue, canary, pentest, learn, index-fix, retro, grow, guard, investigate, seo-audit, perf-audit, seo-strategy, sprint, deploy, release, brainstorming, clone-patterns, frontend-design, systematic-debugging
+
+**Skill frontmatter — `allowed-tools` for 20+ skills:**
+- Each skill now restricts which tools it can use (prevents misuse, improves safety)
+- Audit skills: Bash + Read + Grep + Glob (read-only)
+- Fix skills: Bash + Read + Edit + Grep + Glob (can modify)
+- Knowledge skills: Bash + Read + Write + Grep (can persist)
+- Added to: compete, canary, pentest, learn, index-fix, retro, grow, guard, seo-audit, security-audit, perf-audit, seo-strategy, clone-patterns, architecture, onboard, demo, cost
+
+**Skill frontmatter — `paths` for context-aware auto-activation:**
+- seo-audit: activates for `**/*.html`, `**/*.htm` files
+- security-audit: activates for `**/package.json`, `**/.env*`, `**/requirements.txt`
+- frontend-design: activates for `**/*.tsx`, `**/*.jsx`, `**/*.css`
+
+**Agent frontmatter — `tools` restriction for all 12 agents:**
+- Each agent now lists only the tools it needs (prevents wasted turns on irrelevant tools)
+- Code-reviewer: Read, Grep, Glob, Bash
+- Browser-verifier: Bash, Read, Playwright MCP tools
+- All others: Bash, Read, Grep, Glob (+ Write for launch-auditor)
+
+**Agent frontmatter — `skills` preload for all 12 agents:**
+- Each agent preloads its domain skill at startup (no context wasted discovering skills)
+- code-reviewer → code-review, seo-auditor → seo-audit, pentest-auditor → pentest, seo-strategist → seo-strategy, incident-responder → rescue, canary-monitor → canary, compete-analyzer → compete, growth-tracker → grow, launch-auditor → launch, security-auditor → security-audit, perf-auditor → perf-audit
+
+**PostCompact hook — context re-injection after compaction:**
+- New `post-compact.sh` hook that fires after conversation compaction
+- Re-injects: active guard state, available commands list, CLAUDE.md freshness check
+- Prevents ultraship context loss in long sessions
+
+**Hook `statusMessage` — UX feedback during hook execution:**
+- SessionStart: "Ultraship: checking project context..."
+- PostCompact: "Ultraship: restoring context after compaction..."
+
 ## [2.6.0] - 2026-04-01
 
 ### Added — Marketplace-Ready Plugin Architecture

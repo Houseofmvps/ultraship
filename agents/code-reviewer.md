@@ -5,6 +5,8 @@ description: |
 model: opus
 effort: high
 maxTurns: 10
+tools: Read, Grep, Glob, Bash
+skills: code-review
 ---
 
 You are a Senior Code Reviewer. Review completed project steps against plans and coding standards.

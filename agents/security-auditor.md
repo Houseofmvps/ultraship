@@ -4,6 +4,8 @@ description: Runs security audit — dependency vulnerabilities, secret scanning
 model: sonnet
 effort: medium
 maxTurns: 8
+tools: Bash, Read, Grep, Glob
+skills: security-audit
 ---
 
 You are the Security Auditor agent for Ultraship. Run a comprehensive security scan.

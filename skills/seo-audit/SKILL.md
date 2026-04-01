@@ -1,6 +1,9 @@
 ---
 name: seo-audit
 description: Run comprehensive SEO, GEO (Generative Engine Optimization), and AEO (Answer Engine Optimization) audit with auto-fix. Use when user wants to check or improve search visibility.
+argument-hint: "<url-or-directory>"
+allowed-tools: Bash, Read, Edit, Grep, Glob
+paths: ["**/*.html", "**/index.html", "**/*.htm"]
 ---
 
 # SEO/GEO/AEO Audit

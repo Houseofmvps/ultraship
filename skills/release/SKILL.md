@@ -1,6 +1,7 @@
 ---
 name: release
 description: Generate changelog from commits, bump version, create GitHub release, publish to npm. Use when user wants to release, publish, or ship a new version.
+argument-hint: "<major|minor|patch>"
 ---
 
 # Release

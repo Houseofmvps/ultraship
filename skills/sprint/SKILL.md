@@ -1,6 +1,7 @@
 ---
 name: sprint
 description: Sprint workflow pipeline — chains plan → build → test → review → ship skills into a structured sprint. Use when starting a new feature or project iteration to follow the full lifecycle.
+argument-hint: "<feature-description>"
 ---
 
 # Sprint Workflow Pipeline

@@ -1,6 +1,8 @@
 ---
 name: guard
 description: Safety guardrails — blocks destructive commands (rm -rf, DROP TABLE, force-push, git reset --hard) and optionally restricts file edits to a specific directory. Use when working on critical systems or when you want extra protection.
+argument-hint: "<directory-to-protect>"
+allowed-tools: Bash, Read
 ---
 
 # Guard — Safety Guardrails

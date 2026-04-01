@@ -1,6 +1,7 @@
 ---
 name: cost
 description: "AI Build Cost Tracker — track how much AI is costing you per feature. Use when user wants to track AI spending, understand cost per feature, optimize AI usage, or budget their Claude/GPT costs."
+allowed-tools: Bash, Read, Write, Grep
 ---
 
 # AI Build Cost Tracker

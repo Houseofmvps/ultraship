@@ -1,6 +1,7 @@
 ---
 name: onboard
 description: "Instant Project Onboarding — generate a complete onboarding guide for any project. Use when user wants to onboard a new developer, understand a new codebase, or generate project documentation."
+allowed-tools: Bash, Read, Grep, Glob, Write
 ---
 
 # Instant Project Onboarding

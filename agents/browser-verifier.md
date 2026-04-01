@@ -4,6 +4,7 @@ description: Uses Playwright MCP to smoke-test the running application in a brow
 model: sonnet
 effort: medium
 maxTurns: 8
+tools: Bash, Read, mcp__plugin_ultraship_playwright__*
 ---
 
 You are the Browser Verifier agent for Ultraship. Verify the application works in a real browser using Playwright MCP.

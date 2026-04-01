@@ -1,6 +1,7 @@
 ---
 name: investigate
 description: Root cause investigation — structured debugging with module freeze. No fixes without investigation. Use when encountering any bug, error, or unexpected behavior.
+argument-hint: "<error-or-symptom-description>"
 ---
 
 # Investigate — Root Cause Analysis

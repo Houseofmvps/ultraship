@@ -1,6 +1,8 @@
 ---
 name: index-fix
 description: Diagnose and fix non-indexed pages using GSC and Bing Webmaster data. Finds exactly why each page isn't indexed and applies the fix.
+argument-hint: "<site-url>"
+allowed-tools: Bash, Read, Edit, Grep, Glob
 ---
 
 # Index Fix — Get Every Page Indexed

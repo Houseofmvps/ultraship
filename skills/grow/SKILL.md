@@ -1,6 +1,8 @@
 ---
 name: grow
 description: "Post-Ship Growth Intelligence — track how your shipped product is performing. Use when user wants to check growth metrics, SEO trajectory, uptime, deploy frequency, or overall project health over time."
+argument-hint: "<production-url>"
+allowed-tools: Bash, Read, Grep, Glob
 ---
 
 # Post-Ship Growth Intelligence

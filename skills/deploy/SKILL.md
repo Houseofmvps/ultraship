@@ -1,6 +1,7 @@
 ---
 name: deploy
 description: Pre-flight checks then deploy. Validates env vars, migrations, bundle size, runs /ship audit, then deploys via git push or platform CLI.
+argument-hint: "<environment>"
 ---
 
 # Deploy

@@ -4,6 +4,8 @@ description: Runs competitive X-ray analysis comparing two sites. Dispatched by 
 model: sonnet
 effort: medium
 maxTurns: 6
+tools: Bash, Read, Grep, Glob
+skills: compete
 ---
 
 You are the Competitive Analyzer agent for Ultraship. Run a full competitive comparison between two sites.

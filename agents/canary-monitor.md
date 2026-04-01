@@ -4,6 +4,8 @@ description: Runs post-deploy canary monitoring — health checks, regression de
 model: sonnet
 effort: medium
 maxTurns: 8
+tools: Bash, Read, Grep, Glob
+skills: canary
 ---
 
 You are the Canary Monitor agent for Ultraship. Run post-deploy health checks and detect regressions.

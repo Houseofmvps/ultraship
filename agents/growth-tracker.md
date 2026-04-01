@@ -4,6 +4,8 @@ description: Runs post-ship growth intelligence check. Dispatched by /grow for g
 model: sonnet
 effort: medium
 maxTurns: 6
+tools: Bash, Read, Grep, Glob
+skills: grow
 ---
 
 You are the Growth Tracker agent for Ultraship. Track post-ship growth metrics.

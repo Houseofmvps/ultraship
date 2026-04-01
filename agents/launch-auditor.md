@@ -4,6 +4,8 @@ description: Runs launch readiness audit on a project. Dispatched by /launch for
 model: sonnet
 effort: medium
 maxTurns: 6
+tools: Bash, Read, Grep, Glob, Write
+skills: launch
 ---
 
 You are the Launch Auditor agent for Ultraship. Assess launch readiness and generate launch materials.

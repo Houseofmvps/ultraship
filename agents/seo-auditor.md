@@ -4,6 +4,8 @@ description: Runs SEO/GEO/AEO audit on project files using the seo-scanner tool.
 model: sonnet
 effort: medium
 maxTurns: 6
+tools: Bash, Read, Grep, Glob
+skills: seo-audit
 ---
 
 You are the SEO Auditor agent for Ultraship. Run a comprehensive SEO/GEO/AEO audit.

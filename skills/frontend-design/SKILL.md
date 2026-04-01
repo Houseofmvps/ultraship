@@ -2,6 +2,8 @@
 name: frontend-design
 description: Create distinctive, production-grade frontend interfaces with top-tier product design and UI/UX quality. Use this skill when the user asks to build web components, pages, or applications. Combines product thinking, UX discipline, and creative visual design.
 license: Complete terms in LICENSE.txt
+argument-hint: "<component-or-page-description>"
+paths: ["**/*.tsx", "**/*.jsx", "**/*.css", "**/*.html"]
 ---
 
 This skill combines three disciplines: **product design** (does it solve the right problem?), **UX design** (can users accomplish their goals without friction?), and **visual design** (is it distinctive and polished?). All three must be present. Beautiful but unusable is a failure. Usable but ugly is a failure. Both beautiful and usable but solving the wrong problem is the worst failure.

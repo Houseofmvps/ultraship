@@ -4,6 +4,8 @@ description: Runs Lighthouse performance audit using the lighthouse-runner tool.
 model: sonnet
 effort: medium
 maxTurns: 6
+tools: Bash, Read, Grep, Glob
+skills: perf-audit
 ---
 
 You are the Performance Auditor agent for Ultraship. Run Lighthouse against the project.

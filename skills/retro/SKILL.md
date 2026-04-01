@@ -1,6 +1,8 @@
 ---
 name: retro
 description: Sprint retrospective — analyzes git velocity, commit patterns, test health, and shipping cadence. Use after a sprint, at the end of the week, or when the user wants to reflect on progress.
+argument-hint: "<days-back>"
+allowed-tools: Bash, Read, Grep, Glob
 ---
 
 # Sprint Retrospective

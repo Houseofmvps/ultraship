@@ -1,6 +1,8 @@
 ---
 name: canary
 description: Post-deploy canary monitoring — checks site health, detects regressions, monitors for errors after deployment. Use after deploying to verify production is healthy.
+argument-hint: "<production-url>"
+allowed-tools: Bash, Read, Grep
 ---
 
 # Post-Deploy Canary Monitor

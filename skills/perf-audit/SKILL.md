@@ -1,6 +1,8 @@
 ---
 name: perf-audit
 description: Run Lighthouse performance audit with auto-fix for common issues. Use when user wants to check or improve site performance.
+argument-hint: "<url>"
+allowed-tools: Bash, Read, Edit, Grep, Glob
 ---
 
 # Performance Audit

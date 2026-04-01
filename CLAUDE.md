@@ -10,7 +10,7 @@ skills/           — 42 skills (19 workflow + 10 specialist + 13 growth/launch/
 agents/           — 12 agents (review, seo, seo-strategist, security, pentest, perf, browser, compete, launch, incident, growth, canary)
 commands/         — 36 slash commands (/seo-strategy, /index-fix, /sprint, /investigate, /learn, /guard, /retro, /canary, /ship, /pentest, /seo, /compete, /launch, /rescue, /grow, etc.)
 tools/            — 36 Node.js tools (ga4-client, keyword-intelligence, index-doctor, seo-scanner, lighthouse, pentest-scanner, etc.)
-hooks/            — Session-start hook + guard hooks (PreToolUse for destructive command blocking)
+hooks/            — SessionStart + PostCompact hooks + guard hooks (PreToolUse for destructive command blocking)
 docs/             — Documentation
 ```
 
@@ -82,9 +82,14 @@ docs/             — Documentation
 - AEO = Answer Engine Optimization (featured snippets, voice assistants)
 - Auth env vars: `ULTRASHIP_GSC_CREDENTIALS`, `ULTRASHIP_GSC_ACCESS_TOKEN`, `ULTRASHIP_BING_KEY`, `ULTRASHIP_GA4_CREDENTIALS`, `ULTRASHIP_GA4_ACCESS_TOKEN`
 - Auth also reads from `CLAUDE_PLUGIN_OPTION_*` env vars (set via `userConfig` in plugin.json)
-- Agent frontmatter uses `model`, `effort`, `maxTurns` per official Claude Code plugin spec
+- Agent frontmatter uses `model`, `effort`, `maxTurns`, `tools`, `skills` per official Claude Code plugin spec
 - Opus agents: code-reviewer, pentest-auditor, seo-strategist, incident-responder (effort: high)
 - Sonnet agents: all others (effort: medium)
+- Each agent has `tools` restricted to only what it needs (Bash, Read, Grep, Glob, etc.)
+- Each agent has `skills` preloaded for its domain (e.g., seo-strategist preloads seo-strategy)
+- Skill frontmatter uses `argument-hint`, `allowed-tools`, `paths` per official spec
+- Hooks use `statusMessage` for UX feedback during execution
+- PostCompact hook re-injects ultraship context after conversation compaction
 
 ## Publishing
 

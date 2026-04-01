@@ -6,7 +6,20 @@
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\"",
-            "timeout": 5
+            "timeout": 5,
+            "statusMessage": "Ultraship: checking project context..."
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/post-compact.sh\"",
+            "timeout": 3,
+            "statusMessage": "Ultraship: restoring context after compaction..."
           }
         ]
       }

@@ -1,6 +1,8 @@
 ---
 name: compete
 description: "Competitive X-Ray — analyze any competitor URL vs your site. Use when user wants to compare their site against a competitor, benchmark performance, or understand competitive positioning."
+argument-hint: "<competitor-url>"
+allowed-tools: Bash, Read, Grep, Glob
 ---
 
 # Competitive X-Ray

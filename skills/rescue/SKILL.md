@@ -1,6 +1,7 @@
 ---
 name: rescue
 description: "Production Incident Commander — diagnose and recover from production incidents. Use when something is broken in production, site is down, errors spiking, or user reports a critical bug."
+argument-hint: "<url-or-error-description>"
 ---
 
 # Production Incident Commander

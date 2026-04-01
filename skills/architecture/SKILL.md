@@ -1,6 +1,7 @@
 ---
 name: architecture
 description: "Living Architecture Map — auto-generate Mermaid diagrams of your codebase. Use when user wants to visualize architecture, understand code structure, generate diagrams, or document system design."
+allowed-tools: Bash, Read, Grep, Glob, Write
 ---
 
 # Living Architecture Map

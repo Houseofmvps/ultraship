@@ -1,6 +1,8 @@
 ---
 name: seo-strategy
 description: Top 1% SEO strategist — ruthlessly analyzes GSC, Bing, and GA4 data to dominate search rankings, win AI citations, and build lead funnels. Every recommendation backed by data.
+argument-hint: "<site-url>"
+allowed-tools: Bash, Read, Grep, Glob
 ---
 
 # SEO Strategy — Elite Analyst Mode

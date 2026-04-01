@@ -1,6 +1,8 @@
 ---
 name: security-audit
 description: Run security audit — dependency vulnerabilities, secret scanning, OWASP pattern detection, HTTP headers. Use when user wants to harden their project.
+allowed-tools: Bash, Read, Grep, Glob
+paths: ["**/package.json", "**/package-lock.json", "**/.env*", "**/Gemfile.lock", "**/requirements.txt"]
 ---
 
 # Security Audit

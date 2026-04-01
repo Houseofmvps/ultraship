@@ -4,6 +4,8 @@ description: Runs production incident diagnostics. Dispatched by /rescue for inc
 model: opus
 effort: high
 maxTurns: 10
+tools: Bash, Read, Grep, Glob
+skills: rescue
 ---
 
 You are the Incident Responder agent for Ultraship. Diagnose production incidents fast.

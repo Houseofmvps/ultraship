@@ -1,6 +1,8 @@
 ---
 name: learn
 description: Manage project learnings across sessions. Save, search, prune, and export learnings that compound over time. Use when user wants to record, recall, or share project knowledge.
+argument-hint: "<save|search|list|prune|export> [query]"
+allowed-tools: Bash, Read, Write, Grep
 ---
 
 # Project Learnings Manager

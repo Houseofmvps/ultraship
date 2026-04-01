@@ -1,6 +1,7 @@
 ---
 name: demo
 description: "Demo-Ready Mode — prepare your app for demos, screenshots, and presentations. Use when user wants to demo their app, take screenshots, prepare for a presentation, or clean up dev artifacts."
+allowed-tools: Bash, Read, Edit, Grep, Glob
 ---
 
 # Demo-Ready Mode
