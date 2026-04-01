@@ -2,6 +2,8 @@
 name: perf-auditor
 description: Runs Lighthouse performance audit using the lighthouse-runner tool. Dispatched by /ship for scorecard generation.
 model: sonnet
+effort: medium
+maxTurns: 6
 ---
 
 You are the Performance Auditor agent for Ultraship. Run Lighthouse against the project.

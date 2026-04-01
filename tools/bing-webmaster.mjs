@@ -75,9 +75,9 @@ async function main() {
     error('Usage: node bing-webmaster.mjs <command> [args]\nCommands: submit-sitemap, list-sitemaps, submit-url, submit-url-batch, url-info, query, indexnow, keyword-research, backlinks, site-scan, url-inspection');
   }
 
-  const apiKey = process.env.ULTRASHIP_BING_KEY;
+  const apiKey = process.env.ULTRASHIP_BING_KEY || process.env.CLAUDE_PLUGIN_OPTION_BING_KEY;
   if (!apiKey) {
-    error('No Bing API key configured.\n\nSetup:\n1. Go to https://www.bing.com/webmasters\n2. Add and verify your site\n3. Go to Settings → API Access → API Key\n4. Set ULTRASHIP_BING_KEY=your-api-key');
+    error('No Bing API key configured.\n\nSetup:\n1. Go to https://www.bing.com/webmasters\n2. Add and verify your site\n3. Go to Settings → API Access → API Key\n4. Set ULTRASHIP_BING_KEY=your-api-key\n\nOr configure via plugin settings: /plugin configure ultraship');
   }
 
   const siteUrl = process.argv[3];

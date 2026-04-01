@@ -2,6 +2,8 @@
 name: browser-verifier
 description: Uses Playwright MCP to smoke-test the running application in a browser. Dispatched by /ship for pass/fail verification.
 model: sonnet
+effort: medium
+maxTurns: 8
 ---
 
 You are the Browser Verifier agent for Ultraship. Verify the application works in a real browser using Playwright MCP.

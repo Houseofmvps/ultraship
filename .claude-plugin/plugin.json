@@ -1,7 +1,7 @@
 {
   "name": "ultraship",
   "description": "Claude Code plugin — 36 tools, 42 skills, 12 agents. Elite SEO strategy with AI traffic tracking, IndexNow, GSC-GA4 cross-reference, CTR anomalies, brand filtering, keyword intelligence, index doctor, pentest, ship, launch, grow, rescue.",
-  "version": "2.5.2",
+  "version": "2.6.0",
   "author": {
     "name": "Houseofmvps",
     "email": "houseofmvps2024@gmail.com"
@@ -28,5 +28,27 @@
     "seo-strategy",
     "indexnow",
     "ai-traffic"
-  ]
+  ],
+  "userConfig": {
+    "gsc_credentials": {
+      "description": "Google Search Console service account JSON (base64-encoded). Required for /seo-strategy, /index-fix, keyword intelligence.",
+      "sensitive": true
+    },
+    "gsc_access_token": {
+      "description": "Google Search Console OAuth access token (alternative to service account credentials).",
+      "sensitive": true
+    },
+    "ga4_credentials": {
+      "description": "Google Analytics 4 service account JSON (base64-encoded). Required for GA4 traffic analysis.",
+      "sensitive": true
+    },
+    "ga4_access_token": {
+      "description": "Google Analytics 4 OAuth access token (alternative to service account credentials).",
+      "sensitive": true
+    },
+    "bing_key": {
+      "description": "Bing Webmaster Tools API key. Required for Bing indexing, keyword research, backlinks.",
+      "sensitive": true
+    }
+  }
 }

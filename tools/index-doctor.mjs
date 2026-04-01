@@ -35,12 +35,12 @@ function error(message) {
 
 // GSC Auth (same pattern as gsc-client.mjs)
 async function getGscToken() {
-  let token = process.env.ULTRASHIP_GSC_ACCESS_TOKEN;
+  let token = process.env.ULTRASHIP_GSC_ACCESS_TOKEN || process.env.CLAUDE_PLUGIN_OPTION_GSC_ACCESS_TOKEN;
   if (token) return token;
 
-  const keyPath = process.env.ULTRASHIP_GSC_CREDENTIALS;
+  const keyPath = process.env.ULTRASHIP_GSC_CREDENTIALS || process.env.CLAUDE_PLUGIN_OPTION_GSC_CREDENTIALS;
   if (!keyPath) {
-    error('No GSC credentials configured.\n\nSetup:\n1. Enable Search Console API in Google Cloud Console\n2. Create Service Account → Download JSON key\n3. Add service account email in GSC Settings → Users\n4. Set ULTRASHIP_GSC_CREDENTIALS=/path/to/key.json');
+    error('No GSC credentials configured.\n\nSetup:\n1. Enable Search Console API in Google Cloud Console\n2. Create Service Account → Download JSON key\n3. Add service account email in GSC Settings → Users\n4. Set ULTRASHIP_GSC_CREDENTIALS=/path/to/key.json\n\nOr configure via plugin settings: /plugin configure ultraship');
   }
 
   let key;
@@ -502,7 +502,7 @@ async function main() {
       }
 
       // Submit non-indexed URLs to Bing for re-indexing (if API key available)
-      const bingKey = process.env.ULTRASHIP_BING_KEY;
+      const bingKey = process.env.ULTRASHIP_BING_KEY || process.env.CLAUDE_PLUGIN_OPTION_BING_KEY;
       let bingSubmitted = 0;
       let bingErrMsg = '';
       if (bingKey && nonIndexed.length > 0) {
@@ -626,7 +626,7 @@ async function main() {
     }
 
     case 'compare': {
-      const bingKey = process.env.ULTRASHIP_BING_KEY;
+      const bingKey = process.env.ULTRASHIP_BING_KEY || process.env.CLAUDE_PLUGIN_OPTION_BING_KEY;
       if (!bingKey) {
         error('Bing API key required for cross-engine comparison.\nSet ULTRASHIP_BING_KEY=your-api-key');
       }

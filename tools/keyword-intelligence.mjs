@@ -77,10 +77,10 @@ function runGa4Query(command, propertyId, days, extraArgs = []) {
 
 // Get GSC access token from service account
 async function getGscToken() {
-  let token = process.env.ULTRASHIP_GSC_ACCESS_TOKEN;
+  let token = process.env.ULTRASHIP_GSC_ACCESS_TOKEN || process.env.CLAUDE_PLUGIN_OPTION_GSC_ACCESS_TOKEN;
   if (token) return token;
 
-  const keyPath = process.env.ULTRASHIP_GSC_CREDENTIALS;
+  const keyPath = process.env.ULTRASHIP_GSC_CREDENTIALS || process.env.CLAUDE_PLUGIN_OPTION_GSC_CREDENTIALS;
   if (!keyPath) return null;
 
   let key;

@@ -161,11 +161,11 @@ async function main() {
   }
 
   // Get access token
-  let token = process.env.ULTRASHIP_GA4_ACCESS_TOKEN;
+  let token = process.env.ULTRASHIP_GA4_ACCESS_TOKEN || process.env.CLAUDE_PLUGIN_OPTION_GA4_ACCESS_TOKEN;
   if (!token) {
-    const keyPath = process.env.ULTRASHIP_GA4_CREDENTIALS;
+    const keyPath = process.env.ULTRASHIP_GA4_CREDENTIALS || process.env.CLAUDE_PLUGIN_OPTION_GA4_CREDENTIALS;
     if (!keyPath) {
-      error('No GA4 credentials configured.\n\nSetup:\n1. Enable Google Analytics Data API in Google Cloud Console\n2. Create Service Account and download JSON key\n3. In GA4 Admin → Property Access Management → Add service account email as Viewer\n4. Set ULTRASHIP_GA4_CREDENTIALS=/path/to/key.json\n5. Find Property ID in GA4 Admin → Property Settings (numeric, e.g., 123456789)');
+      error('No GA4 credentials configured.\n\nSetup:\n1. Enable Google Analytics Data API in Google Cloud Console\n2. Create Service Account and download JSON key\n3. In GA4 Admin → Property Access Management → Add service account email as Viewer\n4. Set ULTRASHIP_GA4_CREDENTIALS=/path/to/key.json\n5. Find Property ID in GA4 Admin → Property Settings (numeric, e.g., 123456789)\n\nOr configure via plugin settings: /plugin configure ultraship');
     }
     try {
       token = await getAccessToken(keyPath);

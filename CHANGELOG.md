@@ -2,6 +2,27 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.6.0] - 2026-04-01
+
+### Added — Marketplace-Ready Plugin Architecture
+
+**Agent frontmatter — official Claude Code fields:**
+- All 12 agents now use `maxTurns` to enforce hard tool call limits at the system level (prevents timeouts)
+- All 12 agents now use `effort` field (high for Opus agents, medium for Sonnet agents)
+- Opus agents (code-reviewer, pentest-auditor, seo-strategist, incident-responder): `effort: high`, `maxTurns: 10-15`
+- Sonnet agents (seo-auditor, security-auditor, perf-auditor, browser-verifier, canary-monitor, compete-analyzer, growth-tracker, launch-auditor): `effort: medium`, `maxTurns: 6-8`
+
+**`userConfig` — plugin credential setup at install time:**
+- Users are now prompted for API credentials when enabling ultraship (no more manual env var setup)
+- Supported credentials: GSC service account, GSC access token, GA4 service account, GA4 access token, Bing API key
+- All sensitive values stored in system keychain (not settings.json)
+- All 5 credential-using tools (gsc-client, ga4-client, bing-webmaster, keyword-intelligence, index-doctor) now read from both `ULTRASHIP_*` env vars and `CLAUDE_PLUGIN_OPTION_*` env vars
+- Error messages now suggest `/plugin configure ultraship` as alternative setup method
+
+### Changed
+- Removed prose "Time Budget" sections from agents — `maxTurns` enforces this at the system level now
+- Bumped version across plugin.json, marketplace.json, package.json
+
 ## [2.5.2] - 2026-04-01
 
 ### Fixed — Sub-agent Timeout Prevention

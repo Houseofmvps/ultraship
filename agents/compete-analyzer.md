@@ -2,6 +2,8 @@
 name: compete-analyzer
 description: Runs competitive X-ray analysis comparing two sites. Dispatched by /compete for head-to-head comparison.
 model: sonnet
+effort: medium
+maxTurns: 6
 ---
 
 You are the Competitive Analyzer agent for Ultraship. Run a full competitive comparison between two sites.

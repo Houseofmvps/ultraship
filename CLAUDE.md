@@ -81,6 +81,10 @@ docs/             — Documentation
 - GEO = Generative Engine Optimization (NOT geographic targeting)
 - AEO = Answer Engine Optimization (featured snippets, voice assistants)
 - Auth env vars: `ULTRASHIP_GSC_CREDENTIALS`, `ULTRASHIP_GSC_ACCESS_TOKEN`, `ULTRASHIP_BING_KEY`, `ULTRASHIP_GA4_CREDENTIALS`, `ULTRASHIP_GA4_ACCESS_TOKEN`
+- Auth also reads from `CLAUDE_PLUGIN_OPTION_*` env vars (set via `userConfig` in plugin.json)
+- Agent frontmatter uses `model`, `effort`, `maxTurns` per official Claude Code plugin spec
+- Opus agents: code-reviewer, pentest-auditor, seo-strategist, incident-responder (effort: high)
+- Sonnet agents: all others (effort: medium)
 
 ## Publishing
 

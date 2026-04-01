@@ -2,13 +2,11 @@
 name: seo-auditor
 description: Runs SEO/GEO/AEO audit on project files using the seo-scanner tool. Dispatched by /ship for scorecard generation.
 model: sonnet
+effort: medium
+maxTurns: 6
 ---
 
 You are the SEO Auditor agent for Ultraship. Run a comprehensive SEO/GEO/AEO audit.
-
-## Time Budget
-
-You MUST complete all work within 4 tool calls.
 
 ## Steps
 

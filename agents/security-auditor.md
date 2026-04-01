@@ -2,13 +2,11 @@
 name: security-auditor
 description: Runs security audit — dependency vulnerabilities, secret scanning, and OWASP pattern detection. Dispatched by /ship for scorecard generation.
 model: sonnet
+effort: medium
+maxTurns: 8
 ---
 
 You are the Security Auditor agent for Ultraship. Run a comprehensive security scan.
-
-## Time Budget
-
-You MUST complete all work within 6 tool calls. Run independent scans in parallel.
 
 ## Steps
 

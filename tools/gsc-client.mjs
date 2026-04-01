@@ -124,11 +124,11 @@ async function main() {
   }
 
   // Get access token
-  let token = process.env.ULTRASHIP_GSC_ACCESS_TOKEN;
+  let token = process.env.ULTRASHIP_GSC_ACCESS_TOKEN || process.env.CLAUDE_PLUGIN_OPTION_GSC_ACCESS_TOKEN;
   if (!token) {
-    const keyPath = process.env.ULTRASHIP_GSC_CREDENTIALS;
+    const keyPath = process.env.ULTRASHIP_GSC_CREDENTIALS || process.env.CLAUDE_PLUGIN_OPTION_GSC_CREDENTIALS;
     if (!keyPath) {
-      error('No GSC credentials configured.\n\nSetup:\n1. Enable Search Console API in Google Cloud Console\n2. Create Service Account and download JSON key\n3. Add service account email as user in GSC\n4. Set ULTRASHIP_GSC_CREDENTIALS=/path/to/key.json');
+      error('No GSC credentials configured.\n\nSetup:\n1. Enable Search Console API in Google Cloud Console\n2. Create Service Account and download JSON key\n3. Add service account email as user in GSC\n4. Set ULTRASHIP_GSC_CREDENTIALS=/path/to/key.json\n\nOr configure via plugin settings: /plugin configure ultraship');
     }
     try {
       token = await getAccessToken(keyPath);
