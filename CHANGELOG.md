@@ -2,6 +2,16 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.7.1] - 2026-04-01
+
+### Fixed — Honest Marketing Claims
+
+- Replaced all "SEO/GEO/AEO" branding with "SEO + AI visibility" across user-facing files
+- "60+ rules" → "63 rules: 39 SEO, 20 GEO, 4 AEO" with exact breakdowns
+- AEO described as "4 schema presence checks" not a full audit
+- GEO described as "verifiable technical signals" not ranking factor claims
+- Every claim now backed by exact rule counts from the source code
+
 ## [2.7.0] - 2026-04-01
 
 ### Added — Full Plugin Spec Compliance (Marketplace-Ready)

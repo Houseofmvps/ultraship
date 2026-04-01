@@ -11,7 +11,7 @@
     {
       "name": "ultraship",
       "description": "Full lifecycle plugin: plan, build, test, review, ship, deploy, verify, reflect. 36 tools, 42 skills, 12 agents.",
-      "version": "2.7.0",
+      "version": "2.7.1",
       "source": "./",
       "author": {
         "name": "Houseofmvps",
