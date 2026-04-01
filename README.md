@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### Claude Code plugin. 39 expert-level skills for building, shipping, and scaling production software. 33 audit tools (security, pentest, code quality, bundle size, SEO + AI visibility check) close the loop before deploy.
+### Claude Code plugin. 39 expert-level skills for building, shipping, and scaling production software. 33 audit tools (security, pentest, code quality, bundle size, SEO + AI Readiness check) close the loop before deploy.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
