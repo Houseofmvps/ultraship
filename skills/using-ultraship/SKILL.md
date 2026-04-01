@@ -141,7 +141,7 @@ Invoke the `Skill` tool with the skill name shown below. Use the skill that best
 
 | Skill | When to use |
 |-------|-------------|
-| `ultraship:seo-audit` | Run SEO/GEO/AEO audit with auto-fix. Use when optimizing search visibility. |
+| `ultraship:seo-audit` | Run SEO + AI visibility audit with auto-fix. Use when optimizing search visibility. |
 | `ultraship:perf-audit` | Run Lighthouse performance audit with auto-fix. Use when optimizing site speed. |
 | `ultraship:security-audit` | Run security audit (dep audit, secrets, OWASP, headers) with auto-fix. |
 
@@ -164,7 +164,7 @@ Run these commands directly in your Claude Code session:
 | Command | What it does |
 |---------|-------------|
 | `/ship` | Run all auditors in parallel, produce ship-readiness scorecard |
-| `/seo` | SEO/GEO/AEO audit with auto-fix |
+| `/seo` | SEO + AI visibility audit with auto-fix |
 | `/perf` | Lighthouse performance audit with auto-fix |
 | `/secure` | Security audit with auto-fix |
 | `/review` | Code review a pull request |

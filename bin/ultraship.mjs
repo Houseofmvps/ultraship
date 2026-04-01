@@ -20,7 +20,7 @@ const C = {
 const COMMANDS = {
   ship: { desc: 'Full pre-deploy audit + scorecard' },
   init: { desc: 'Scaffold CLAUDE.md for your project' },
-  seo: { tool: 'seo-scanner.mjs', desc: 'Run SEO/GEO/AEO audit' },
+  seo: { tool: 'seo-scanner.mjs', desc: 'Run SEO audit + AI visibility checks' },
   security: { tool: 'secret-scanner.mjs', desc: 'Scan for leaked secrets' },
   perf: { tool: 'bundle-tracker.mjs', desc: 'Analyze bundle size' },
   health: { tool: 'health-check.mjs', desc: 'Check production URL health' },
@@ -66,7 +66,7 @@ function printHelp() {
   ${C.bold}Examples:${C.nc}
     ultraship ship .                   Full audit with scorecard
     ultraship init                     Scaffold CLAUDE.md
-    ultraship seo .                    SEO/GEO/AEO audit
+    ultraship seo .                    SEO + AI Visibility audit
     ultraship security ./my-project    Scan for leaked secrets
     ultraship health https://myapp.com Check production health
 
@@ -264,7 +264,7 @@ async function runShip(dir) {
   console.log(`  ${C.white}${C.bold}║${C.nc}      ${C.cyan}${C.bold}U L T R A S H I P   S C O R E${C.nc}       ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
-  printRow('SEO/GEO/AEO', seoScore, seoWasSkipped);
+  printRow('SEO + AI Visibility', seoScore, seoWasSkipped);
   printRow('Performance', bundleScore);
   printRow('Security', securityScore);
   printRow('Code Quality', qualityScore);

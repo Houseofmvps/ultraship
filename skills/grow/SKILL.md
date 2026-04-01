@@ -36,8 +36,8 @@ Present a clear growth report:
 - Lines added vs removed (net growth)
 - Context: healthy velocity for a solo founder is 3-5 deploys/week. Less than 1 deploy/week means either the project is stable or stalling — check which.
 
-**SEO/GEO/AEO Trajectory:**
-- Current SEO/GEO/AEO scores
+**SEO + AI visibility Trajectory:**
+- Current SEO + AI visibility scores
 - Change since last check
 - Trend direction (improving/declining/stable)
 - Context: SEO score above 80 is solid, GEO above 70 means AI search engines can find and cite you, below 50 means you're invisible to AI search

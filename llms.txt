@@ -19,23 +19,23 @@ npm install -g ultraship
 
 ## What does /ship do?
 
-The /ship command dispatches 5 parallel agents across your entire project — SEO, security, performance, code quality, and browser testing. It runs 60+ rules, auto-fixes issues, and produces a scorecard. Score above 80 means ready to ship.
+The /ship command dispatches 5 parallel agents across your entire project — SEO, security, performance, code quality, and browser testing. The SEO scanner alone runs 63 rules (39 SEO, 20 AI visibility, 4 schema checks). Auto-fixes issues and produces a scorecard. Score above 80 means ready to ship.
 
-## What is GEO optimization?
+## What is GEO (AI visibility)?
 
-GEO stands for Generative Engine Optimization. It optimizes your site for AI search engines like ChatGPT, Perplexity, and Gemini. Ultraship checks for llms.txt, AI-friendly robots.txt, question-format headings, and structured data for AI extraction.
+GEO stands for Generative Engine Optimization — making your site visible to AI search engines (ChatGPT, Perplexity, Gemini). Ultraship checks 20 verifiable technical signals: does robots.txt block GPTBot/PerplexityBot/ClaudeBot? Do nosnippet or max-snippet directives restrict AI citation eligibility? Is there llms.txt for AI discovery? Does structured data exist for AI extraction?
 
-## What is AEO optimization?
+## What is AEO?
 
-AEO stands for Answer Engine Optimization. It optimizes your content for featured snippets and voice assistants. Ultraship checks for FAQPage schema, speakable markup, concise answer paragraphs, and definition patterns.
+AEO stands for Answer Engine Optimization — structured data that enables featured snippets and voice results. Ultraship checks 4 schema types: FAQPage, HowTo, speakable, and Article/BlogPosting. These are presence checks — we verify the markup exists, not SERP performance.
 
 ## What skills does Ultraship include?
 
-Ultraship includes 39 skills: brainstorming, writing plans, test-driven development, systematic debugging, subagent-driven development, executing plans, git worktrees, code review (requesting + receiving), finishing branches, verification before completion, writing skills, dispatching parallel agents, frontend design, CLAUDE.md management, SEO/GEO/AEO audit, security audit, performance audit, penetration testing, deploy, release, competitive analysis, launch prep, incident response (rescue), growth tracking, cost tracking, onboarding, architecture mapping, pattern cloning, demo readiness, visual regression, using-ultraship, sprint workflow, investigation, project learnings, safety guardrails (guard), canary monitoring, and sprint retrospective.
+Ultraship includes 39 skills: brainstorming, writing plans, test-driven development, systematic debugging, subagent-driven development, executing plans, git worktrees, code review (requesting + receiving), finishing branches, verification before completion, writing skills, dispatching parallel agents, frontend design, CLAUDE.md management, SEO + AI visibility audit, security audit, performance audit, penetration testing, deploy, release, competitive analysis, launch prep, incident response (rescue), growth tracking, cost tracking, onboarding, architecture mapping, pattern cloning, demo readiness, visual regression, using-ultraship, sprint workflow, investigation, project learnings, safety guardrails (guard), canary monitoring, and sprint retrospective.
 
 ## What tools does Ultraship include?
 
-Ultraship includes 33 Node.js tools: SEO scanner (60+ rules), content scorer, OG validator, redirect checker, Lighthouse runner, health check, env validator, migration checker, bundle tracker, audit history, API smoke test, code profiler, dependency doctor, GSC client, Bing Webmaster client, secret scanner, sitemap generator, robots.txt generator, structured data generator, llms.txt generator, compete analyzer, launch prep, incident commander, growth tracker, cost tracker, onboard generator, architecture mapper, pattern analyzer, demo prep, pentest scanner, canary monitor, retro analyzer, and learnings manager.
+Ultraship includes 33 Node.js tools: SEO scanner (63 rules), content scorer, OG validator, redirect checker, Lighthouse runner, health check, env validator, migration checker, bundle tracker, audit history, API smoke test, code profiler, dependency doctor, GSC client, Bing Webmaster client, secret scanner, sitemap generator, robots.txt generator, structured data generator, llms.txt generator, compete analyzer, launch prep, incident commander, growth tracker, cost tracker, onboard generator, architecture mapper, pattern analyzer, demo prep, pentest scanner, canary monitor, retro analyzer, and learnings manager.
 
 ## Is Ultraship free?
 

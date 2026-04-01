@@ -5,7 +5,7 @@
 The flagship command. Dispatches 5 parallel agents, runs 10 inline checks, auto-fixes issues, and produces the scorecard.
 
 **What it checks:**
-- SEO/GEO/AEO: 60+ rules including meta tags, canonical URLs, structured data, llms.txt, AI crawler access
+- SEO + AI Visibility: 63 rules — 39 SEO (meta tags, canonicals, structured data), 20 GEO (AI bot access, snippet restrictions), 4 AEO (schema checks)
 - Performance: Lighthouse via headless Chrome, Core Web Vitals, bundle size analysis
 - Security: dependency vulnerabilities, secret scanning, OWASP patterns, HTTP headers
 - Code Quality: N+1 queries, sync I/O in handlers, memory leaks, unused deps
@@ -19,15 +19,15 @@ The flagship command. Dispatches 5 parallel agents, runs 10 inline checks, auto-
 
 ---
 
-## /seo: SEO / GEO / AEO Audit
+## /seo: SEO Audit + AI Visibility
 
-**60+ rules** across three optimization layers:
+**63 rules** across three layers:
 
-| Layer | What it means | What Ultraship checks |
+| Layer | Rules | What Ultraship checks |
 |---|---|---|
-| **SEO** | Traditional search engines (Google, Bing) | Meta tags, canonical URLs, heading hierarchy, image alt text, sitemap, robots.txt, structured data |
-| **GEO** | Generative Engine Optimization (ChatGPT, Perplexity, Gemini search) | `llms.txt`, AI-friendly robots.txt, question-format headings, structured data for AI extraction |
-| **AEO** | Answer Engine Optimization (featured snippets, voice assistants) | FAQPage schema, speakable markup, concise answer paragraphs, definition patterns |
+| **SEO** | 39 | Meta tags, canonical URLs, heading hierarchy, image alt text, sitemap, robots.txt, structured data, OG tags, cross-page duplicates, orphan pages, internal linking, thin content, analytics detection |
+| **GEO** | 20 | AI bot access in robots.txt (GPTBot, PerplexityBot, ClaudeBot, Google-Extended), nosnippet/max-snippet/data-nosnippet detection, `llms.txt`, question-format headings, structured data for AI extraction |
+| **AEO** | 4 | FAQPage schema, HowTo schema, speakable markup, Article/BlogPosting schema (presence checks — we verify markup exists, not SERP performance) |
 
 **Bonus tools:**
 - Content quality scoring (Flesch-Kincaid readability, keyword density)

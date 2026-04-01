@@ -1,14 +1,14 @@
 ---
 name: seo-audit
-description: Run comprehensive SEO, GEO (Generative Engine Optimization), and AEO (Answer Engine Optimization) audit with auto-fix. Use when user wants to check or improve search visibility.
+description: Run SEO audit (39 rules) with AI visibility checks — GEO (20 rules for AI bot access, snippet restrictions) and AEO (4 schema checks). Auto-fix included. Use when user wants to check or improve search visibility.
 argument-hint: "<url-or-directory>"
 allowed-tools: Bash, Read, Edit, Grep, Glob
 paths: ["**/*.html", "**/index.html", "**/*.htm"]
 ---
 
-# SEO/GEO/AEO Audit
+# SEO Audit + AI Visibility
 
-Comprehensive search optimization audit. Finds issues AND fixes them.
+Search optimization audit with AI visibility signals. Finds issues AND fixes them.
 
 ## Process
 

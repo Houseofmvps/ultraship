@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### Claude Code plugin — 39 expert-level skills for building, shipping, and scaling production software. 33 audit tools (security, pentest, code quality, bundle size, SEO/GEO/AEO) close the loop before deploy.
+### Claude Code plugin — 39 expert-level skills for building, shipping, and scaling production software. 33 audit tools (security, pentest, code quality, bundle size, SEO + AI visibility) close the loop before deploy.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -49,7 +49,7 @@ npx ultraship security .
 +===========================================+
 |      U L T R A S H I P   S C O R E       |
 +===========================================+
-|  SEO/GEO/AEO    92/100  ############-    |
+|  SEO + AI Vis.  92/100  ############-    |
 |  Security        95/100  ############-    |
 |  Code Quality    88/100  ###########--    |
 |  Bundle Size     97/100  ############-    |
@@ -74,7 +74,7 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 
 | Tool | What it checks |
 |---|---|
-| `seo-scanner` | 60+ rules across meta tags, canonicals, heading hierarchy, OG tags, structured data, sitemap, robots.txt, `llms.txt`, AI-crawler access, content depth, cross-page canonical conflicts, snippet restrictions (nosnippet, max-snippet, data-nosnippet) |
+| `seo-scanner` | 63 rules: 39 SEO (meta tags, canonicals, headings, OG tags, structured data, sitemap, cross-page duplicate/orphan detection), 20 GEO (AI bot access in robots.txt, snippet restrictions, llms.txt, structured data for AI extraction), 4 AEO (FAQPage/HowTo/speakable schema) |
 | `secret-scanner` | AWS keys, Stripe keys, JWT secrets, database URLs, private keys. Redacts values in output. |
 | `code-profiler` | N+1 queries, sync I/O in handlers, unbounded queries, missing indexes, memory leaks, sequential awaits, ReDoS risk |
 | `bundle-tracker` | JS/CSS/image sizes in build output. Detects heavy deps (`moment`→`dayjs`, `lodash`→native). History for before/after. Monorepo-aware. |
@@ -155,7 +155,7 @@ Slash commands available inside Claude Code after installing the plugin:
 | `/canary` | Post-deploy canary — verify production health, detect regressions after deployment |
 | `/pentest` | Penetration testing — hack-test your app (web, API, browser, GitHub, local code) |
 | `/ship` | Pre-deploy scorecard — runs 5 tools, scores 4 categories |
-| `/seo` | SEO + GEO + AEO audit (60+ rules) |
+| `/seo` | SEO audit (63 rules) + AI visibility checks (bot access, snippet restrictions, schema) |
 | `/secure` | Secret scanning + OWASP patterns + `npm audit` |
 | `/perf` | Lighthouse + bundle size |
 | `/deploy` | Env check → migration check → build → deploy → health check |
@@ -188,7 +188,7 @@ Skills are markdown instruction files that shape Claude's behavior during your s
 
 **Workflow (19):** brainstorming, planning, TDD, implementation, code review, debugging, refactoring, frontend design, API design, data modeling, git workflow, deploy pipeline, release, CLAUDE.md management, verification, browser testing, **sprint pipeline**, **investigation**, **learnings management**
 
-**Specialist (8):** SEO/GEO/AEO audit, security audit, **penetration testing**, performance audit, content quality, code profiling, parallel agent dispatching, **safety guardrails**
+**Specialist (8):** SEO + AI visibility audit, security audit, **penetration testing**, performance audit, content quality, code profiling, parallel agent dispatching, **safety guardrails**
 
 **Growth & Intelligence (12):** competitive analysis, launch prep, incident response, growth tracking, cost tracking, onboarding, architecture mapping, pattern analysis, demo readiness, visual regression, **canary monitoring**, **sprint retrospective**
 
@@ -247,15 +247,15 @@ Ultraship enforces a **memory-first rule** at session start. The SessionStart ho
 
 No configuration needed — just install the plugin.
 
-## SEO, GEO, and AEO
+## SEO + AI Visibility
 
-The SEO scanner checks three layers:
+The SEO scanner checks 63 rules across three layers:
 
-- **SEO** — traditional search engine optimization (Google, Bing): meta tags, canonicals, heading hierarchy, alt text, sitemap, robots.txt, structured data, OG tags
-- **GEO** — Generative Engine Optimization (ChatGPT, Perplexity, Gemini): `llms.txt`, AI-friendly `robots.txt`, question-format headings, structured data for AI extraction
-- **AEO** — Answer Engine Optimization (featured snippets, voice assistants): FAQPage schema, concise answer paragraphs, speakable markup
+- **SEO (39 rules)** — traditional search optimization: meta tags, canonicals, heading hierarchy, alt text, OG tags, sitemap, robots.txt, structured data, analytics detection, cross-page duplicate titles/descriptions, orphan page detection, canonical conflicts, thin content, internal linking
+- **GEO (20 rules)** — AI search visibility signals: does `robots.txt` block GPTBot/PerplexityBot/ClaudeBot? Do `nosnippet`/`max-snippet` directives restrict AI citation eligibility? Is there `llms.txt` for AI discovery? Does structured data exist for AI extraction? These are verifiable technical signals — not ranking factor guesses.
+- **AEO (4 rules)** — answer engine schema checks: FAQPage, HowTo, speakable, Article/BlogPosting. These are the structured data types that enable featured snippets and voice results. We check presence, not SERP performance.
 
-GEO and AEO matter because AI search engines (ChatGPT Search, Perplexity, Gemini) now drive a significant portion of content discovery. If your `robots.txt` blocks GPTBot or you don't have `llms.txt`, AI assistants can't cite your content.
+Beyond the scanner, Ultraship connects to real APIs — GSC URL Inspection (actual index status), GA4 (actual AI referral traffic from ChatGPT/Perplexity/Copilot), Bing Webmaster (crawl status, IndexNow) — for data-driven analysis, not estimates.
 
 ## Dogfooding
 
@@ -263,7 +263,7 @@ GEO and AEO matter because AI search engines (ChatGPT Search, Perplexity, Gemini
 
 | | Backend + Dashboard | Landing (29 pages) |
 |---|---|---|
-| SEO/GEO/AEO | 63 | 52 |
+| SEO + AI Visibility | 63 | 52 |
 | Security | 100 | 100 |
 | Code Quality | 70 | 67 |
 | Bundle Size | 100 | 92 |

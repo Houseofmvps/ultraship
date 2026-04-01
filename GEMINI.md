@@ -38,7 +38,7 @@ node node_modules/ultraship/tools/code-profiler.mjs .
 
 # Or use the CLI
 npx ultraship ship .        # Full scorecard
-npx ultraship seo .         # SEO/GEO/AEO audit
+npx ultraship seo .         # SEO audit + AI visibility checks
 npx ultraship security .    # Secret scanning
 npx ultraship init          # Scaffold CLAUDE.md / GEMINI.md
 ```

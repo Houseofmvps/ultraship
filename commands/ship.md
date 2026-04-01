@@ -12,7 +12,7 @@ Run all Ultraship auditors in parallel and produce a screenshot-shareable scorec
 
 | Category | Tools | What it checks |
 |---|---|---|
-| **SEO/GEO/AEO** | seo-scanner | Meta tags, headings, structured data, OG tags, llms.txt, AI crawler access, canonical URLs, cross-page analysis |
+| **SEO + AI Visibility** | seo-scanner | 39 SEO rules (meta tags, headings, OG tags, canonicals, cross-page analysis) + 20 GEO rules (AI bot access, snippet restrictions) + 4 AEO rules (schema checks) |
 | **Security** | secret-scanner | AWS keys, Stripe keys, GitHub tokens, private keys, DB URLs, JWT secrets in source files |
 | **Code Quality** | code-profiler + dep-doctor | N+1 queries, sync I/O in handlers, memory leaks, unbounded queries, unused/outdated dependencies |
 | **Bundle Size** | bundle-tracker | Build output size, heavy dependency detection (moment→dayjs, lodash→native, axios→fetch) |

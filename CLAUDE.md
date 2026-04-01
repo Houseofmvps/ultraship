@@ -25,7 +25,7 @@ docs/             — Documentation
 
 | Tool | Purpose |
 |---|---|
-| `seo-scanner.mjs` | 60+ rule SEO/GEO/AEO scanner with cross-page analysis, analytics detection, canonical conflicts, snippet restriction detection (nosnippet, max-snippet, data-nosnippet) |
+| `seo-scanner.mjs` | SEO scanner (39 rules) + GEO signals (20 rules: AI bot access, snippet restrictions, structured data) + AEO signals (4 rules: schema checks). Cross-page analysis, analytics detection, canonical conflicts. |
 | `content-scorer.mjs` | Readability (Flesch-Kincaid), keyword density, GEO heading analysis |
 | `og-validator.mjs` | Open Graph tag validation, image reachability check |
 | `redirect-checker.mjs` | Redirect chain/loop detection, mixed protocol, sitemap-based bulk check |

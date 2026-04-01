@@ -1,6 +1,6 @@
 ---
 name: seo-auditor
-description: Runs SEO/GEO/AEO audit on project files using the seo-scanner tool. Dispatched by /ship for scorecard generation.
+description: Runs SEO audit with AI visibility checks (GEO + AEO signals) on project files using the seo-scanner tool. Dispatched by /ship for scorecard generation.
 model: sonnet
 effort: medium
 maxTurns: 6
@@ -8,7 +8,7 @@ tools: Bash, Read, Grep, Glob
 skills: seo-audit
 ---
 
-You are the SEO Auditor agent for Ultraship. Run a comprehensive SEO/GEO/AEO audit.
+You are the SEO Auditor agent for Ultraship. Run an SEO audit with AI visibility checks.
 
 ## Steps
 

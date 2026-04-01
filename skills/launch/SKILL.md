@@ -46,7 +46,7 @@ Present the launch checklist with pass/fail/warn status:
 - No console.logs, TODOs, or placeholder text visible
 - Error states handled (404, 500, empty states)
 
-**SEO/GEO/AEO Ready:**
+**SEO + AI visibility Ready:**
 - Meta description, OG tags, favicon, sitemap, robots.txt
 - `llms.txt` for AI discoverability
 - Structured data (JSON-LD) on key pages
@@ -137,7 +137,7 @@ If a production URL was provided:
 node ${CLAUDE_PLUGIN_ROOT}/tools/health-check.mjs <production-url>
 ```
 
-Verify the site is up, fast, and SSL is valid. Run `/seo` to ensure all SEO/GEO/AEO signals are in place. Nothing worse than going viral with a broken OG image or a 4-second LCP.
+Verify the site is up, fast, and SSL is valid. Run `/seo` to ensure all SEO + AI visibility signals are in place. Nothing worse than going viral with a broken OG image or a 4-second LCP.
 
 ### Phase 8: Launch Day Timeline
 
@@ -159,6 +159,6 @@ Generate a suggested launch day timeline (all times in user's timezone):
 ## Key Principles
 
 - **Launch is a performance, not a deploy.** Every piece of copy, every checklist item, every timing decision matters.
-- **Specificity beats superlatives.** "60+ SEO rules" beats "comprehensive SEO." "Catches N+1 queries" beats "improves performance."
+- **Specificity beats superlatives.** "63 SEO rules" beats "comprehensive SEO." "Catches N+1 queries" beats "improves performance."
 - **Show, don't tell.** Screenshots, GIFs, and real data outperform description text.
 - **The launch week matters more than launch day.** Sustained follow-up converts more than a single spike.

@@ -97,7 +97,7 @@ Create a prioritized action plan:
 
 **This month (strategic):**
 - Feature or content gaps that require development work
-- SEO/GEO/AEO improvements that compound over time
+- SEO + AI visibility improvements that compound over time
 
 **This quarter (moat building):**
 - Structural advantages to invest in (integrations, community, content library)
