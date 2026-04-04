@@ -41,9 +41,71 @@ npx ultraship seo .
 npx ultraship security .
 ```
 
-## What it does
+## How It Works
+
+```mermaid
+flowchart LR
+    U["You type a<br/>slash command"] --> S["Skill<br/>(markdown instructions)"]
+    S --> A["Agent<br/>(dispatched worker)"]
+    S --> T["Tools<br/>(Node.js scripts)"]
+    A --> T
+    T --> O["JSON Results"]
+    O --> R["Scorecard / Report /<br/>Actionable Fixes"]
+
+    style U fill:#f59e0b,stroke:#d97706,color:#000
+    style S fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style A fill:#3b82f6,stroke:#2563eb,color:#fff
+    style T fill:#10b981,stroke:#059669,color:#000
+    style R fill:#ef4444,stroke:#dc2626,color:#fff
+```
+
+```mermaid
+flowchart TD
+    subgraph Lifecycle["Full Lifecycle Coverage"]
+        direction LR
+        I["Idea<br/>/brainstorm"] --> B["Build<br/>/sprint"]
+        B --> AU["Audit<br/>/ship /seo /secure"]
+        AU --> D["Ship<br/>/deploy"]
+        D --> L["Launch<br/>/launch /compete"]
+        L --> G["Grow<br/>/grow /cost"]
+        G --> RE["Rescue<br/>/rescue /canary"]
+    end
+
+    style I fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style B fill:#3b82f6,stroke:#2563eb,color:#fff
+    style AU fill:#f59e0b,stroke:#d97706,color:#000
+    style D fill:#10b981,stroke:#059669,color:#000
+    style L fill:#06b6d4,stroke:#0891b2,color:#000
+    style G fill:#84cc16,stroke:#65a30d,color:#000
+    style RE fill:#ef4444,stroke:#dc2626,color:#fff
+```
+
+## What `/ship` Does
 
 `/ship` runs 5 tools in parallel and outputs a scorecard:
+
+```mermaid
+flowchart LR
+    SHIP["/ship"] --> SEO["seo-scanner<br/>63 rules"]
+    SHIP --> SEC["secret-scanner<br/>+ npm audit"]
+    SHIP --> CODE["code-profiler<br/>N+1, leaks, ReDoS"]
+    SHIP --> BUNDLE["bundle-tracker<br/>JS/CSS/images"]
+    SHIP --> ENV["env-validator<br/>+ migration-checker"]
+
+    SEO --> SC["Scorecard<br/>READY TO SHIP"]
+    SEC --> SC
+    CODE --> SC
+    BUNDLE --> SC
+    ENV --> SC
+
+    style SHIP fill:#f59e0b,stroke:#d97706,color:#000
+    style SC fill:#10b981,stroke:#059669,color:#000
+    style SEO fill:#3b82f6,stroke:#2563eb,color:#fff
+    style SEC fill:#3b82f6,stroke:#2563eb,color:#fff
+    style CODE fill:#3b82f6,stroke:#2563eb,color:#fff
+    style BUNDLE fill:#3b82f6,stroke:#2563eb,color:#fff
+    style ENV fill:#3b82f6,stroke:#2563eb,color:#fff
+```
 
 ```
 +===========================================+
@@ -209,10 +271,24 @@ Both lazy-start on first use. No background processes.
 
 ## Sprint Workflow
 
-Ultraship skills chain into a structured sprint pipeline. Each phase produces artifacts that feed the next:
+Ultraship skills chain into a structured sprint pipeline. Each phase produces artifacts that feed the next.
 
-```
-/sprint → /write-plan → /execute-plan → /tdd → /review → /ship → /deploy → /canary → /retro
+```mermaid
+flowchart LR
+    P["/write-plan<br/>Plan"] --> B["/execute-plan<br/>Build"]
+    B --> T["TDD<br/>Test"]
+    T --> R["/review + /secure<br/>Review"]
+    R --> S["/ship + /deploy<br/>Ship"]
+    S --> V["/canary<br/>Verify"]
+    V --> RE["/retro + /learn<br/>Reflect"]
+
+    style P fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style B fill:#3b82f6,stroke:#2563eb,color:#fff
+    style T fill:#06b6d4,stroke:#0891b2,color:#000
+    style R fill:#f59e0b,stroke:#d97706,color:#000
+    style S fill:#10b981,stroke:#059669,color:#000
+    style V fill:#84cc16,stroke:#65a30d,color:#000
+    style RE fill:#ec4899,stroke:#db2777,color:#fff
 ```
 
 | Phase | Skill | Output |
@@ -231,6 +307,18 @@ Run `/sprint` to follow the full pipeline, or run individual phases as needed.
 
 `/guard` activates PreToolUse hooks that block destructive commands before they execute:
 
+```mermaid
+flowchart LR
+    CMD["Claude runs<br/>a command"] --> HOOK["PreToolUse<br/>Hook"]
+    HOOK --> CHECK{"Destructive?"}
+    CHECK -->|"rm -rf, DROP TABLE,<br/>git push --force,<br/>kubectl delete..."| BLOCK["BLOCKED"]
+    CHECK -->|Safe| ALLOW["Allowed"]
+
+    style HOOK fill:#f59e0b,stroke:#d97706,color:#000
+    style BLOCK fill:#ef4444,stroke:#dc2626,color:#fff
+    style ALLOW fill:#10b981,stroke:#059669,color:#000
+```
+
 - `rm -rf`, `DROP TABLE`, `TRUNCATE` (data destruction)
 - `git push --force`, `git reset --hard` (git history destruction)
 - `git clean -f`, `git checkout .` (working directory destruction)
@@ -248,6 +336,45 @@ Ultraship enforces a **memory-first rule** at session start. The SessionStart ho
 No configuration needed. Just install the plugin.
 
 ## SEO + AI Visibility
+
+```mermaid
+flowchart TD
+    subgraph Data["Data Sources (optional API keys)"]
+        GSC["Google Search Console<br/>Index status, rankings"]
+        GA4["Google Analytics 4<br/>Traffic, AI referrals"]
+        BING["Bing Webmaster<br/>Crawl, IndexNow, backlinks"]
+    end
+
+    subgraph Analysis["Intelligence Layer"]
+        KW["keyword-intelligence<br/>12 commands"]
+        IDX["index-doctor<br/>Diagnose + fix"]
+        SCAN["seo-scanner<br/>63 rules"]
+    end
+
+    subgraph Output["Outputs"]
+        STR["/seo-strategy<br/>90-day ranking plan"]
+        FIX["/index-fix<br/>Auto-submit fixes"]
+        SCORE["/seo<br/>SEO + GEO + AEO score"]
+    end
+
+    GSC --> KW
+    GSC --> IDX
+    GA4 --> KW
+    BING --> IDX
+    SCAN --> SCORE
+    KW --> STR
+    IDX --> FIX
+
+    style GSC fill:#4285f4,stroke:#3367d6,color:#fff
+    style GA4 fill:#e37400,stroke:#c56200,color:#fff
+    style BING fill:#00809d,stroke:#006680,color:#fff
+    style KW fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style IDX fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style SCAN fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style STR fill:#10b981,stroke:#059669,color:#000
+    style FIX fill:#10b981,stroke:#059669,color:#000
+    style SCORE fill:#10b981,stroke:#059669,color:#000
+```
 
 The SEO scanner checks 63 rules across three layers:
 
@@ -279,14 +406,49 @@ See [SECURITY.md](SECURITY.md).
 
 ## Architecture
 
-```
-.claude-plugin/   Plugin manifest
-skills/           39 markdown skill files
-agents/           11 markdown agent definitions
-commands/         34 markdown command definitions
-tools/            33 Node.js ESM scripts
-tools/lib/        Shared modules (security.mjs, monorepo.mjs)
-hooks/            Session-start hook + guard hooks (PreToolUse for destructive command blocking)
+```mermaid
+flowchart TD
+    subgraph Plugin["ultraship plugin"]
+        MANIFEST[".claude-plugin/<br/>plugin.json"]
+        HOOKS["hooks/<br/>SessionStart + Guard"]
+
+        subgraph Core["Core Loop"]
+            SKILLS["skills/<br/>42 markdown files"]
+            AGENTS["agents/<br/>12 agent definitions"]
+            COMMANDS["commands/<br/>36 slash commands"]
+        end
+
+        subgraph Runtime["Runtime"]
+            TOOLS["tools/<br/>36 Node.js ESM scripts"]
+            LIB["tools/lib/<br/>security.mjs, monorepo.mjs"]
+        end
+    end
+
+    subgraph External["External (optional)"]
+        MCP1["Context7 MCP<br/>Live docs"]
+        MCP2["Playwright MCP<br/>Browser automation"]
+        GSC2["GSC / GA4 / Bing<br/>APIs"]
+    end
+
+    COMMANDS --> SKILLS
+    SKILLS --> AGENTS
+    SKILLS --> TOOLS
+    AGENTS --> TOOLS
+    TOOLS --> LIB
+    TOOLS --> GSC2
+    SKILLS --> MCP1
+    SKILLS --> MCP2
+
+    style MANIFEST fill:#6b7280,stroke:#4b5563,color:#fff
+    style HOOKS fill:#f59e0b,stroke:#d97706,color:#000
+    style SKILLS fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style AGENTS fill:#3b82f6,stroke:#2563eb,color:#fff
+    style COMMANDS fill:#06b6d4,stroke:#0891b2,color:#000
+    style TOOLS fill:#10b981,stroke:#059669,color:#000
+    style LIB fill:#059669,stroke:#047857,color:#fff
+    style MCP1 fill:#6b7280,stroke:#4b5563,color:#fff
+    style MCP2 fill:#6b7280,stroke:#4b5563,color:#fff
+    style GSC2 fill:#6b7280,stroke:#4b5563,color:#fff
 ```
 
 - Node.js ESM (`type: module`)
