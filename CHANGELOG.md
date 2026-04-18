@@ -2,6 +2,15 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.8.0] - 2026-04-18
+
+### Changed — Zero Dependencies
+
+- Replaced `htmlparser2` (and its transitive deps `entities@4.5.0`, `domutils@3.2.2`) with a zero-dependency inline SAX-style HTML parser (`tools/lib/html-parser.mjs`)
+- Eliminates the Socket.dev supply chain risk alerts: obfuscated code (entities generated decode table), network access (domutils globalThis fetch), and URL strings
+- Same Parser API (write/end + onopentag/ontext/onclosetag handlers + decodeEntities option) — no behavior change
+- All 180 tests pass
+
 ## [2.7.1] - 2026-04-01
 
 ### Fixed — Honest Marketing Claims

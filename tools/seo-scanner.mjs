@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { Parser } from 'htmlparser2';
+import { Parser } from './lib/html-parser.mjs';
 import fs from 'fs';
 import path from 'path';
 import { checkFileSize } from './lib/security.mjs';

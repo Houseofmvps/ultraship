@@ -17,7 +17,7 @@ docs/             — Documentation
 ## Tech Stack
 
 - Node.js ESM (type: module)
-- htmlparser2 for HTML parsing (SAX-based, ~30KB)
+- Zero external dependencies — HTML parsing via `tools/lib/html-parser.mjs` (inline SAX-style parser)
 - No build step — tools run directly via `node tools/<tool>.mjs`
 - All tools use `execFileSync` (not `execSync`) to prevent shell injection
 
