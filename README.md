@@ -17,8 +17,9 @@
 [![Follow @kaileskkhumar](https://img.shields.io/badge/Follow%20%40kaileskkhumar-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/kaileskkhumar)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/kailesk-khumar-soundararajan)
 [![houseofmvps.com](https://img.shields.io/badge/houseofmvps.com-Website-green?style=for-the-badge&logo=google-chrome&logoColor=white)](https://houseofmvps.com)
+[![kailxlabs.co](https://img.shields.io/badge/kailxlabs.co-Website-6366F1?style=for-the-badge&logo=google-chrome&logoColor=white)](https://www.kailxlabs.co)
 
-**Built by [Kaileskkhumar](https://www.linkedin.com/in/kailesk-khumar-soundararajan), solo founder of [houseofmvps.com](https://houseofmvps.com)**
+**Built by [Kaileskkhumar](https://www.linkedin.com/in/kailesk-khumar-soundararajan), founder of [HouseofMVPs](https://houseofmvps.com) and [Kailxlabs](https://www.kailxlabs.co)**
 
 </div>
 
