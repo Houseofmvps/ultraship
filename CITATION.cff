@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use ultraship in research, content, or production work, please cite it as below."
+title: "ultraship: Claude Code plugin for building, shipping, and scaling production software"
+abstract: "All-in-one Claude Code plugin with 42 expert skills, 36 audit tools, and 12 agents. Covers SEO strategy (GSC + Bing + GA4 keyword intelligence, index doctor, AI traffic tracking), sprint workflow, safety guardrails, canary monitoring, pre-deploy auditing (SEO, security, penetration testing, code profiling), and project tooling."
+authors:
+  - family-names: Khumar
+    given-names: Kailesk
+    affiliation: "HouseofMVPs and Kailxlabs"
+    website: "https://www.kailxlabs.co"
+    email: "houseofmvps2024@gmail.com"
+repository-code: "https://github.com/Houseofmvps/ultraship"
+url: "https://houseofmvps.com"
+license: MIT
+type: software
+keywords:
+  - claude-code
+  - claude-code-plugin
+  - seo
+  - geo
+  - aeo
+  - ai-search-optimization
+  - security
+  - penetration-testing
+  - lighthouse
+  - sprint-workflow
+identifiers:
+  - type: url
+    value: "https://www.npmjs.com/package/ultraship"
+    description: "npm package"
+  - type: url
+    value: "https://github.com/Houseofmvps/ultraship"
+    description: "GitHub repository"

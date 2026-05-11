@@ -6,12 +6,40 @@
   "bin": {
     "ultraship": "bin/ultraship.mjs"
   },
-  "author": "Houseofmvps",
+  "author": {
+    "name": "Kailesk Khumar",
+    "email": "houseofmvps2024@gmail.com",
+    "url": "https://www.kailxlabs.co"
+  },
+  "contributors": [
+    {
+      "name": "HouseofMVPs",
+      "url": "https://houseofmvps.com"
+    },
+    {
+      "name": "Kailxlabs",
+      "url": "https://www.kailxlabs.co"
+    }
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Houseofmvps/ultraship"
   },
+  "homepage": "https://github.com/Houseofmvps/ultraship#readme",
+  "bugs": {
+    "url": "https://github.com/Houseofmvps/ultraship/issues"
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/Houseofmvps"
+    },
+    {
+      "type": "individual",
+      "url": "https://www.kailxlabs.co"
+    }
+  ],
   "keywords": [
     "claude-code",
     "claude-code-plugin",
