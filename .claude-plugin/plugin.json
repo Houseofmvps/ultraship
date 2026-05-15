@@ -31,22 +31,32 @@
   ],
   "userConfig": {
     "gsc_credentials": {
+      "type": "string",
+      "title": "GSC service account JSON (base64)",
       "description": "Google Search Console service account JSON (base64-encoded). Required for /seo-strategy, /index-fix, keyword intelligence.",
       "sensitive": true
     },
     "gsc_access_token": {
+      "type": "string",
+      "title": "GSC OAuth access token",
       "description": "Google Search Console OAuth access token (alternative to service account credentials).",
       "sensitive": true
     },
     "ga4_credentials": {
+      "type": "string",
+      "title": "GA4 service account JSON (base64)",
       "description": "Google Analytics 4 service account JSON (base64-encoded). Required for GA4 traffic analysis.",
       "sensitive": true
     },
     "ga4_access_token": {
+      "type": "string",
+      "title": "GA4 OAuth access token",
       "description": "Google Analytics 4 OAuth access token (alternative to service account credentials).",
       "sensitive": true
     },
     "bing_key": {
+      "type": "string",
+      "title": "Bing Webmaster Tools API key",
       "description": "Bing Webmaster Tools API key. Required for Bing indexing, keyword research, backlinks.",
       "sensitive": true
     }
