@@ -2,6 +2,15 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.8.1] - 2026-05-18
+
+### Fixed — Plugin Install Schema Compliance
+
+- Added required `type: "string"` and `title` fields to all five `userConfig` entries in `.claude-plugin/plugin.json` (`gsc_credentials`, `gsc_access_token`, `ga4_credentials`, `ga4_access_token`, `bing_key`)
+- Fixes `claude plugin install ultraship` failing with `userConfig.<key>.type: Invalid option` and `userConfig.<key>.title: expected string, received undefined`
+- No behavior change — existing `description` and `sensitive: true` preserved
+- Thanks to @anderson-0 (#5)
+
 ## [2.8.0] - 2026-04-18
 
 ### Changed — Zero Dependencies
