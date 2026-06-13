@@ -6,10 +6,10 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
-skills/           — 42 skills (19 workflow + 10 specialist + 13 growth/launch/intelligence)
+skills/           — 41 skills (19 workflow + 10 specialist + 13 growth/launch/intelligence)
 agents/           — 12 agents (review, seo, seo-strategist, security, pentest, perf, browser, compete, launch, incident, growth, canary)
-commands/         — 36 slash commands (/seo-strategy, /index-fix, /sprint, /investigate, /learn, /guard, /retro, /canary, /ship, /pentest, /seo, /compete, /launch, /rescue, /grow, etc.)
-tools/            — 36 Node.js tools (ga4-client, keyword-intelligence, index-doctor, seo-scanner, lighthouse, pentest-scanner, etc.)
+commands/         — 37 slash commands (/seo-strategy, /index-fix, /sprint, /investigate, /learn, /guard, /retro, /canary, /ship, /pentest, /seo, /compete, /launch, /rescue, /grow, /codex, etc.)
+tools/            — 37 Node.js tools (ga4-client, keyword-intelligence, index-doctor, seo-scanner, lighthouse, pentest-scanner, codex-generator, etc.)
 hooks/            — SessionStart + PostCompact hooks + guard hooks (PreToolUse for destructive command blocking)
 docs/             — Documentation
 ```
@@ -61,6 +61,7 @@ docs/             — Documentation
 | `ga4-client.mjs` | Google Analytics 4 Data API — 12 commands: overview, top-pages, traffic-sources, conversions, landing-pages, user-journey, search-terms, geo, devices, realtime, ai-traffic (ChatGPT/Perplexity/Copilot), organic. --organic flag for search-only filtering. Key event rates per page. |
 | `keyword-intelligence.mjs` | Keyword analysis — 12 commands: analyze (with difficulty + topical authority + SERP features + position bands), quick-wins, cannibalization, content-gaps, intent-map, trending, high-intent, page-keywords, content-decay, difficulty, anomalies (low-position high-CTR), cross-reference (GSC↔GA4). Brand filtering via --brand flag. |
 | `index-doctor.mjs` | Index diagnosis — inspects URLs via GSC, diagnoses non-indexing reasons (nosnippet/max-snippet detection), auto-submits fixes to Bing |
+| `codex-generator.mjs` | Codebase index — compact map of routes, schema, components, lib exports, structure. Stack-agnostic (JS/TS, Python, Go, Ruby, PHP, Rust, Java). Writes `.ultraship/codex.md` to save AI tokens. Skips audit fields + shadcn/radix UI primitives. Route paths validated (no false positives from non-route code). |
 
 ## Security
 

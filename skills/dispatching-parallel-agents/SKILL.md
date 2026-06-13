@@ -85,8 +85,16 @@ When agents return:
 
 Good agent prompts are:
 1. **Focused** - One clear problem domain
-2. **Self-contained** - All context needed to understand the problem
+2. **Self-contained** - All context the agent needs, INCLUDING relevant code snippets
 3. **Specific about output** - What should the agent return?
+4. **Permission to explore** - Agent can read files it needs, not just files you anticipated
+
+**The #1 reason subagents fail is context starvation.** The controller thinks it provided enough context but didn't. When in doubt, include more:
+- Paste the actual error messages, not paraphrases
+- Paste relevant code snippets inline (don't make the agent find them)
+- Name the exact files and line numbers involved
+- Describe the patterns/conventions the codebase uses
+- Tell the agent what adjacent files exist and what they do
 
 ```markdown
 Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
@@ -95,14 +103,19 @@ Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
 2. "should handle mixed completed and aborted tools" - fast tool aborted instead of completed
 3. "should properly track pendingToolCount" - expects 3 results but gets 0
 
-These are timing/race condition issues. Your task:
+These are timing/race condition issues. The abort implementation is in
+src/agents/agent-tool-handler.ts (the abortTool method around line 150).
+Tests use a helper createMockToolStream() from test-utils.ts.
 
-1. Read the test file and understand what each test verifies
+Your task:
+
+1. Read the test file and the implementation file
 2. Identify root cause - timing issues or actual bugs?
 3. Fix by:
    - Replacing arbitrary timeouts with event-based waiting
    - Fixing bugs in abort implementation if found
    - Adjusting test expectations if testing changed behavior
+4. You may read other files if needed to understand the system
 
 Do NOT just increase timeouts - find the real issue.
 
@@ -115,13 +128,19 @@ Return: Summary of what you found and what you fixed.
 **✅ Specific:** "Fix agent-tool-abort.test.ts" - focused scope
 
 **❌ No context:** "Fix the race condition" - agent doesn't know where
-**✅ Context:** Paste the error messages and test names
+**✅ Context:** Paste the error messages, test names, AND relevant source code inline
 
 **❌ No constraints:** Agent might refactor everything
 **✅ Constraints:** "Do NOT change production code" or "Fix tests only"
 
 **❌ Vague output:** "Fix it" - you don't know what changed
 **✅ Specific:** "Return summary of root cause and changes"
+
+**❌ "Don't explore":** Agent can't read files → guesses → fails → you redo the work
+**✅ Permission:** "Read any files you need to understand the system"
+
+**❌ Tight tool budget (15 calls):** Agent rushes → BLOCKED → you redo the work
+**✅ Reasonable budget:** Let agents work until done, cap at 25-30 for safety
 
 ## When NOT to Use
 

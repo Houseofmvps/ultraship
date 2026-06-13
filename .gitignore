@@ -2,3 +2,7 @@ node_modules/
 .env
 *.log
 .DS_Store
+
+# Generated artifacts
+.ultraship/
+.codesight/

@@ -204,7 +204,7 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | `keyword-intelligence` | 12-command keyword engine: analyze, quick-wins, cannibalization, content-gaps, intent-map, trending, high-intent, page-keywords, content-decay, difficulty, **anomalies** (CTR anomalies), **cross-reference** (GSC↔GA4). `--brand` flag for non-brand filtering. |
 | `index-doctor` | Index diagnosis: inspect URLs via GSC URL Inspection API, diagnose 15+ coverage states, auto-fix and submit to Bing. |
 
-## Commands (36)
+## Commands (37)
 
 Slash commands available inside Claude Code after installing the plugin:
 
@@ -231,6 +231,7 @@ Slash commands available inside Claude Code after installing the plugin:
 | `/cost` | AI build cost tracking |
 | `/onboard` | Generate developer onboarding guide |
 | `/architecture` | Generate Mermaid architecture diagrams |
+| `/codex` | Generate a compact codebase index (routes, schema, components, lib) to save AI tokens |
 | `/clone-patterns` | Analyze any repo's patterns, compare to yours |
 | `/demo` | Find dev artifacts, score demo readiness |
 | `/visual-diff` | Before/after screenshot comparison (via Playwright MCP) |
@@ -416,11 +417,11 @@ flowchart TD
         subgraph Core["Core Loop"]
             SKILLS["skills/<br/>42 markdown files"]
             AGENTS["agents/<br/>12 agent definitions"]
-            COMMANDS["commands/<br/>36 slash commands"]
+            COMMANDS["commands/<br/>37 slash commands"]
         end
 
         subgraph Runtime["Runtime"]
-            TOOLS["tools/<br/>36 Node.js ESM scripts"]
+            TOOLS["tools/<br/>37 Node.js ESM scripts"]
             LIB["tools/lib/<br/>security.mjs, monorepo.mjs"]
         end
     end

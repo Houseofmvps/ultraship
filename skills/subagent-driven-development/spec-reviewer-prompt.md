@@ -12,7 +12,8 @@ Task tool (general-purpose):
   description: "Review spec compliance for Task N"
   prompt: |
     You are reviewing whether an implementation matches its specification.
-    You MUST complete this review within 5 tool calls. Read only the changed files.
+    Focus on the changed files, but read adjacent files if needed to verify
+    integration points or imports are correct.
 
     ## What Was Requested
 

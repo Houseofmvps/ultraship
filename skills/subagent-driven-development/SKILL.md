@@ -37,6 +37,18 @@ digraph when_to_use {
 - Two-stage review after each task: spec compliance first, then code quality
 - Faster iteration (no human-in-loop between tasks)
 
+## Task Sizing
+
+Before dispatching, classify each task:
+
+| Size | Criteria | Process |
+|------|----------|---------|
+| **Small** | 1-2 files, < 50 lines changed, clear spec | Implementer only → mark complete |
+| **Medium** | 2-4 files, clear spec, some integration | Implementer → spec review → mark complete |
+| **Large** | 4+ files, cross-cutting, architectural decisions | Implementer → spec review → code quality review → mark complete |
+
+**Most tasks are Small or Medium.** Only Large tasks need the full 3-agent review cycle. Skipping unnecessary reviews for small tasks saves 2 subagent invocations per task.
+
 ## The Process
 
 ```dot
@@ -45,17 +57,20 @@ digraph process {
 
     subgraph cluster_per_task {
         label="Per Task";
+        "Classify task size (Small/Medium/Large)" [shape=diamond];
         "Dispatch implementer subagent (./implementer-prompt.md)" [shape=box];
         "Implementer subagent asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Implementer subagent implements, tests, commits, self-reviews" [shape=box];
+        "Mark task complete (Small)" [shape=box];
         "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [shape=box];
         "Spec reviewer subagent confirms code matches spec?" [shape=diamond];
         "Implementer subagent fixes spec gaps" [shape=box];
+        "Mark task complete (Medium)" [shape=box];
         "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [shape=box];
         "Code quality reviewer subagent approves?" [shape=diamond];
         "Implementer subagent fixes quality issues" [shape=box];
-        "Mark task complete in TodoWrite" [shape=box];
+        "Mark task complete (Large)" [shape=box];
     }
 
     "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
@@ -63,22 +78,27 @@ digraph process {
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
     "Use ultraship:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
-    "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Read plan, extract all tasks with full text, note context, create TodoWrite" -> "Classify task size (Small/Medium/Large)";
+    "Classify task size (Small/Medium/Large)" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
     "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Implementer subagent asks questions?" -> "Implementer subagent implements, tests, commits, self-reviews" [label="no"];
-    "Implementer subagent implements, tests, commits, self-reviews" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)";
+    "Implementer subagent implements, tests, commits, self-reviews" -> "Mark task complete (Small)" [label="Small"];
+    "Implementer subagent implements, tests, commits, self-reviews" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="Medium/Large"];
     "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" -> "Spec reviewer subagent confirms code matches spec?";
     "Spec reviewer subagent confirms code matches spec?" -> "Implementer subagent fixes spec gaps" [label="no"];
     "Implementer subagent fixes spec gaps" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="re-review"];
-    "Spec reviewer subagent confirms code matches spec?" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="yes"];
+    "Spec reviewer subagent confirms code matches spec?" -> "Mark task complete (Medium)" [label="Medium"];
+    "Spec reviewer subagent confirms code matches spec?" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="Large"];
     "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" -> "Code quality reviewer subagent approves?";
     "Code quality reviewer subagent approves?" -> "Implementer subagent fixes quality issues" [label="no"];
     "Implementer subagent fixes quality issues" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="re-review"];
-    "Code quality reviewer subagent approves?" -> "Mark task complete in TodoWrite" [label="yes"];
-    "Mark task complete in TodoWrite" -> "More tasks remain?";
-    "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
+    "Code quality reviewer subagent approves?" -> "Mark task complete (Large)" [label="yes"];
+    "Mark task complete (Small)" -> "More tasks remain?";
+    "Mark task complete (Medium)" -> "More tasks remain?";
+    "Mark task complete (Large)" -> "More tasks remain?";
+    "More tasks remain?" -> "Classify task size (Small/Medium/Large)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
     "Dispatch final code reviewer subagent for entire implementation" -> "Use ultraship:finishing-a-development-branch";
 }
@@ -90,10 +110,10 @@ Use the least powerful model that can handle each role. This prevents timeouts a
 
 | Role | Model | Why |
 |------|-------|-----|
-| Implementer (1-2 files, clear spec) | sonnet | Mechanical work with clear spec — sonnet is fast and accurate |
-| Implementer (3+ files, integration) | opus | Cross-file coordination needs deep reasoning |
+| Implementer (Small task) | sonnet | Mechanical work with clear spec — sonnet is fast and accurate |
+| Implementer (Medium/Large task) | opus | Cross-file coordination needs deep reasoning |
 | Spec reviewer | sonnet | Checklist comparison — no deep reasoning needed |
-| Code quality reviewer | opus | Spotting subtle bugs, architecture issues, security flaws needs best judgment |
+| Code quality reviewer (Large only) | opus | Spotting subtle bugs, architecture issues, security flaws needs best judgment |
 | Final reviewer | opus | Reviewing entire implementation requires holistic understanding |
 
 **Rules:**
@@ -101,6 +121,7 @@ Use the least powerful model that can handle each role. This prevents timeouts a
 - Use sonnet for mechanical tasks with clear specs and tool-running.
 - If a sonnet implementer reports BLOCKED, re-dispatch with opus.
 - Never downgrade opus agents to sonnet — quality is non-negotiable.
+- **Default to opus for implementers** — sonnet failures that the main agent has to fix cost more than opus would have.
 
 ## Handling Implementer Status
 

@@ -40,6 +40,7 @@ const COMMANDS = {
   architecture: { tool: 'architecture-mapper.mjs', desc: 'Generate architecture diagrams' },
   patterns: { tool: 'pattern-analyzer.mjs', desc: 'Analyze codebase patterns' },
   demo: { tool: 'demo-prep.mjs', desc: 'Demo readiness check' },
+  codex: { tool: 'codex-generator.mjs', desc: 'Generate compact codebase index (saves tokens)' },
 };
 
 const args = process.argv.slice(2);

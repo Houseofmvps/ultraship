@@ -2,6 +2,31 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.9.0] - 2026-06-13
+
+### Added — `/codex` Codebase Index
+
+- New `/codex` command + `codex-generator.mjs` tool: generates a compact markdown index of a codebase (routes, DB schema, components, lib exports, project structure) so AI assistants don't burn tokens re-exploring project structure
+- Stack-agnostic: detects and extracts from JS/TS (Hono, Express, Fastify, Next.js app router, NestJS, SvelteKit, Nuxt), Python (FastAPI, Flask, Django), Go (Gin, Echo, Chi), Ruby (Rails), PHP (Laravel), Rust (Actix, Axum), Java/Kotlin (Spring)
+- ORMs supported: Drizzle, Prisma, Mongoose, Sequelize, TypeORM, SQLAlchemy, Django ORM, GORM, ActiveRecord, Eloquent
+- Skips noise: audit fields (`createdAt`/`updatedAt`/`deletedAt`), shadcn/radix UI primitives, test files, generated/build dirs
+- Writes `.ultraship/codex.md` (mode 0600), caps scanned files at 100KB, never crashes Claude Code (always exits 0 with JSON)
+- 11 unit tests in `tests/codex-generator.test.mjs`
+
+### Fixed — Route extraction false positives
+
+- The generic route matcher could capture non-route code (e.g. a string with spaces or operators after `.get(`/`.post(`) and emit garbage "routes". Route paths are now validated — anything containing whitespace, `<>;` backtick, or `||`/`&&`/`=>` is dropped
+
+### Changed
+
+- `.ultraship/` and `.codesight/` are now gitignored (generated artifacts)
+- Counts corrected across docs to filesystem truth: 37 tools, 41 skills, 12 agents, 37 commands
+
+### Improved — Subagent skills
+
+- `subagent-driven-development`: added task sizing (Small/Medium/Large) so small tasks skip unnecessary review rounds, raised implementer tool budget from 15 to 25 with permission to read adjacent files, and now defaults implementers to opus (sonnet failures the controller must fix cost more than opus would have)
+- `dispatching-parallel-agents`: added guidance that context starvation is the #1 cause of subagent failure — paste real errors and code inline, grant permission to explore, give a reasonable tool budget
+
 ## [2.8.1] - 2026-05-18
 
 ### Fixed — Plugin Install Schema Compliance

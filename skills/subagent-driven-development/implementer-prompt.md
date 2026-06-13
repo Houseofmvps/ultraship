@@ -8,11 +8,15 @@ Task tool (general-purpose):
   prompt: |
     You are implementing Task N: [task name]
 
-    ## Time Budget
+    ## Working Style
 
-    You MUST complete this task within 15 tool calls. If you cannot finish within
-    this budget, report BLOCKED with what's left. Do NOT read files you don't need
-    to change. Do NOT explore the codebase — the context below tells you everything.
+    Be efficient but thorough. If you need to read a file to understand how something
+    works before making changes, do it — guessing leads to broken implementations.
+    The context below covers the core requirements, but you may need to read adjacent
+    files to understand patterns, imports, or interfaces. That's expected.
+
+    If you're past 25 tool calls and not close to done, report BLOCKED with what's
+    left rather than producing low-quality work.
 
     ## Task Description
 

@@ -5,13 +5,13 @@
     "email": "houseofmvps2024@gmail.com"
   },
   "metadata": {
-    "description": "Claude Code plugin — 36 tools, 42 skills, 12 agents, 36 commands. Elite SEO strategy with AI traffic tracking, IndexNow, GSC-GA4 cross-reference, CTR anomalies, brand filtering, keyword intelligence, index doctor, pentest, ship, launch, grow, rescue."
+    "description": "Claude Code plugin — 37 tools, 41 skills, 12 agents, 37 commands. Elite SEO strategy with AI traffic tracking, IndexNow, GSC-GA4 cross-reference, CTR anomalies, brand filtering, keyword intelligence, index doctor, codebase index, pentest, ship, launch, grow, rescue."
   },
   "plugins": [
     {
       "name": "ultraship",
-      "description": "Full lifecycle plugin: plan, build, test, review, ship, deploy, verify, reflect. 36 tools, 42 skills, 12 agents.",
-      "version": "2.8.1",
+      "description": "Full lifecycle plugin: plan, build, test, review, ship, deploy, verify, reflect. 37 tools, 41 skills, 12 agents.",
+      "version": "2.9.0",
       "source": "./",
       "author": {
         "name": "Houseofmvps",
