@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### Claude Code plugin. 39 expert-level skills for building, shipping, and scaling production software. 33 audit tools (security, pentest, code quality, bundle size, SEO + AI Readiness check) close the loop before deploy.
+### Claude Code plugin. 40 expert-level skills for building, shipping, and scaling production software. 33 audit tools (security, pentest, code quality, bundle size, SEO + AI Readiness check) close the loop before deploy. A built-in Currency Guard keeps Claude on current docs, not stale training data.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -26,7 +26,7 @@
 ---
 
 ```
-1 dependency (htmlparser2) · 180 tests · Node.js ESM · MIT
+0 dependencies · 211 tests · Node.js ESM · MIT
 ```
 
 ## Install
@@ -246,13 +246,13 @@ Slash commands available inside Claude Code after installing the plugin:
 | `/write-plan` | Implementation plan from spec |
 | `/execute-plan` | Execute plan step by step |
 
-## Skills (39)
+## Skills (40)
 
 Skills are markdown instruction files that shape Claude's behavior during your session. They activate based on context. When you're debugging, Claude uses the debugging skill. When you're building UI, it uses the frontend design skill.
 
 **Workflow (19):** brainstorming, planning, TDD, implementation, code review, debugging, refactoring, frontend design, API design, data modeling, git workflow, deploy pipeline, release, CLAUDE.md management, verification, browser testing, **sprint pipeline**, **investigation**, **learnings management**
 
-**Specialist (8):** SEO + AI visibility audit, security audit, **penetration testing**, performance audit, content quality, code profiling, parallel agent dispatching, **safety guardrails**
+**Specialist (9):** SEO + AI visibility audit, security audit, **penetration testing**, performance audit, content quality, code profiling, parallel agent dispatching, **safety guardrails**, **staying current**
 
 **Growth & Intelligence (12):** competitive analysis, launch prep, incident response, growth tracking, cost tracking, onboarding, architecture mapping, pattern analysis, demo readiness, visual regression, **canary monitoring**, **sprint retrospective**
 
@@ -270,6 +270,18 @@ Agents are dispatched by skills to run audits in parallel:
 | [Playwright](https://github.com/anthropics/anthropic-quickstarts/tree/main/mcp-server-playwright) | Browser automation. Navigate, screenshot, fill forms, test deployed pages. |
 
 Both lazy-start on first use. No background processes.
+
+### Optional MCP integrations (detect-if-present)
+
+Ultraship doesn't bundle these (they need your credentials and would slow every install), but several skills use them automatically *if you've connected them*:
+
+| Connect | Sharpens |
+|---|---|
+| **Sentry** | `/rescue` pulls live production errors and maps stack traces to code instead of guessing the culprit. `/canary` confirms a post-deploy error spike before recommending rollback. |
+| **Vercel** | `/deploy` reads real deployment status, build logs, and which commit is live (not just a single HTTP probe). |
+| **Supabase** | `/deploy` verifies migration state against the actual database to catch dashboard-vs-repo drift. |
+
+Add them with `claude mcp add` (or the `/plugin` browser). When connected, the skills detect the tools and use them; when not, they fall back to the built-in static checks.
 
 ## Sprint Workflow
 
@@ -412,7 +424,7 @@ See [SECURITY.md](SECURITY.md).
 flowchart TD
     subgraph Plugin["ultraship plugin"]
         MANIFEST[".claude-plugin/<br/>plugin.json"]
-        HOOKS["hooks/<br/>SessionStart + Guard"]
+        HOOKS["hooks/<br/>SessionStart + Currency Guard + Guard"]
 
         subgraph Core["Core Loop"]
             SKILLS["skills/<br/>42 markdown files"]

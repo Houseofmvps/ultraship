@@ -2,6 +2,41 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.10.0] - 2026-06-13
+
+### Added — Currency Guard (keep Claude on current docs, not stale training data)
+
+- New `UserPromptSubmit` hook (`hooks/currency-guard.sh`): fires on every prompt, detects version-sensitive language (library/framework/SDK APIs, version numbers, pricing, model IDs, "latest/newest/deprecated/migrate") and injects a deterministic directive to verify against current sources (context7 MCP for library docs, WebSearch/WebFetch for everything else, the lockfile for installed versions) before answering. Stays silent on non-version-sensitive prompts. Exits 0, JSON-safe.
+- New `staying-current` skill: the full policy — what's version-sensitive, where to verify, how to apply, anti-patterns.
+- `using-ultraship` master skill now carries a currency-first rule alongside the memory-first rule.
+- 15 unit tests in `tests/currency-guard.test.mjs`.
+
+### Added — June 2026 platform features
+
+- `disallowed-tools` frontmatter: `code-review` and `investigate` now hard-remove `Edit`/`Write`/`NotebookEdit` while active, making "reviews don't mutate code" and investigate's "no fixes until root cause" real constraints rather than requests.
+- Nested-subagents (5 levels) + dynamic Workflows guidance added to `sprint`, `dispatching-parallel-agents`, and `seo-audit` for codebase-wide work.
+
+### Added — Ops integrations (detect-if-present, nothing bundled)
+
+- `rescue` + `canary` use a connected **Sentry** MCP to pull live errors and map stack traces to code / confirm post-deploy spikes.
+- `deploy` uses connected **Vercel** (deployment status, build logs, live commit) and **Supabase** (migration drift) MCPs when present. Falls back to static checks otherwise. Documented in the README.
+
+### Added — Stronger persistent memory
+
+- `learnings-manager.mjs` gains `digest` (compact grouped-by-topic snapshot for cheap context injection) and `recall` (relevance-ranked top-N, title>tag>body, recency tiebreak). `/learn` skill documents the digest-then-recall long-session pattern. Tests extended (18 total).
+
+### Added — LSP awareness
+
+- `code-review` and `/profile` now use a connected LSP (find references / go to definition) to verify call sites and impact instead of grep-guessing, falling back to text search when no language server is connected.
+
+### Added — Distribution
+
+- `docs/MARKETPLACE.md`: verified submission guide for the Anthropic community marketplace, ClaudePluginHub, and claudemarketplaces.com, plus the live self-hosted install path. `claude plugin validate` passes.
+
+### Changed
+
+- Counts: 42 skills (added `staying-current`), 37 tools, 12 agents, 37 commands. Stale README stats corrected (0 dependencies, 211 tests — was "1 dependency, 180 tests").
+
 ## [2.9.0] - 2026-06-13
 
 ### Added — `/codex` Codebase Index

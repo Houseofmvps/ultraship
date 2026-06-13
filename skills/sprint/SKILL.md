@@ -44,6 +44,8 @@ A sprint is the full lifecycle of shipping a feature — from planning through d
 2. If tasks are independent, use **`ultraship:dispatching-parallel-agents`** for parallel execution
 3. If working in isolation, use **`ultraship:using-git-worktrees`** for a clean workspace
 
+**Scaling to large work:** Subagents can now nest up to 5 levels deep — a dispatched implementer can fan out its own helpers for sub-steps. For codebase-wide changes (a migration, a cross-cutting refactor, an audit of every route), prefer a **dynamic Workflow**: describe the task naturally and include the word "workflow" so Claude generates an orchestration script that pipelines the work across many background subagents with verification built in. Use a single controller for a handful of tasks; escalate to a Workflow when the work-list is large or unknown in size.
+
 **Artifacts produced:** Working code, committed to a feature branch
 
 **Gate:** All planned tasks are implemented. Code compiles/runs without errors.

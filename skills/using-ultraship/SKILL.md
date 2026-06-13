@@ -15,6 +15,10 @@ If you were dispatched as a subagent to execute a specific task, skip this skill
 When a skill is relevant to your current task, invoke it before responding. If you're unsure whether a skill applies, lean toward invoking it — skills are lightweight and you can adapt after loading.
 </IMPORTANT>
 
+<IMPORTANT>
+**Currency-first rule:** Do not answer version-sensitive questions from training data — library/SDK APIs, package versions, model IDs, pricing, CLI flags, "latest" anything. Verify against current sources first (context7 MCP for library docs, WebSearch/WebFetch for everything else, the project lockfile for installed versions). The `staying-current` skill is the full policy; the Currency Guard hook will remind you when a prompt looks version-sensitive. If you can't verify, say so rather than guessing.
+</IMPORTANT>
+
 ## Instruction Priority
 
 Ultraship skills override default system prompt behavior, but **user instructions always take precedence**:

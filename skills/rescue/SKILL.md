@@ -41,6 +41,8 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/incident-commander.mjs <project-directory> --ur
 
 Parse the JSON output.
 
+**If a Sentry MCP server is connected** (check your available tools — search for `sentry` tools), pull live production errors before guessing at code: list the most recent / most frequent issues since the incident window, read the top stack traces, and map each frame back to a file and line in this repo. A real stack trace from production beats inferring the culprit from recent commits. Use the actual error signature to narrow the suspect commit. If no Sentry server is connected, continue with the static diagnostics above (and mention that connecting Sentry would sharpen this step).
+
 ### Phase 3: Triage
 
 Present findings in order of urgency:

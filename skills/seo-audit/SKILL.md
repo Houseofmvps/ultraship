@@ -21,6 +21,8 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/seo-scanner.mjs <project-directory>
 
 Parse the JSON output for findings and scores (seo, geo, aeo).
 
+> **Large sites:** when a site has many pages and each needs page-specific fixes, escalate to a **dynamic Workflow** (describe the audit and include the word "workflow") so the scan-then-fix-then-verify pipeline runs across pages in parallel instead of one at a time.
+
 ### Phase 2: Report
 
 Present findings grouped by category with severity:

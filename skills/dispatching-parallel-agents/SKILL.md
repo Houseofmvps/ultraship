@@ -13,6 +13,8 @@ When you have multiple unrelated failures (different test files, different subsy
 
 **Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
 
+**Nesting and scale:** Subagents can spawn their own subagents up to 5 levels deep, so a dispatched agent owning a large domain can fan out helpers for its sub-steps rather than doing everything serially. When the work-list is large, repetitive, or unknown in size (every route, every package in a monorepo, every finding to verify), stop hand-dispatching and escalate to a **dynamic Workflow** — describe the task and include the word "workflow" so an orchestration script pipelines the items across background subagents with a verification stage built in. Rule of thumb: a few independent tasks → dispatch agents here; dozens of items or fan-out-then-verify → a Workflow.
+
 ## When to Use
 
 ```dot

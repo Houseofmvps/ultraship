@@ -2,6 +2,7 @@
 name: code-review
 description: Code review with principal-engineer-level depth. Reviews for correctness, performance, security, maintainability, and architecture. Use when completing tasks, reviewing PRs, or before merging.
 allowed-tools: Bash(gh pr:*), Bash(gh issue:*), Read, Grep, Glob
+disallowed-tools: Edit, Write, NotebookEdit
 ---
 
 # Code Review
@@ -11,6 +12,8 @@ Review code the way a principal engineer would — not just "does it work?" but 
 ## Review Dimensions
 
 Every review should evaluate these dimensions, in order of importance:
+
+> **Use an LSP if one is connected.** If LSP tools are available (check your tools for a language server — TypeScript, Pyright, gopls, rust-analyzer), use them instead of grep-guessing. `find references` on a changed function tells you the real blast radius; `go to definition` confirms a call signature actually matches; rename/diagnostics surface type errors the eye misses. A review that verifies call sites with an LSP catches breakage that a text-only review ships. If no LSP is connected, fall back to Grep/Glob and say so.
 
 ### 1. Correctness
 

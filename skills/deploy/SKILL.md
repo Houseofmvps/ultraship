@@ -37,6 +37,8 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/migration-checker.mjs <project-directory>
 ```
 If `deploy_safe: false` → WARN. Show pending migrations. Ask user to confirm.
 
+**If a Supabase MCP server is connected** (check your available tools for `supabase`), verify migration state against the *actual* database before deploying, not just the local migration files: list applied migrations and confirm the pending ones aren't already applied or in conflict. This catches the "migration ran on the dashboard but not in the repo" drift that breaks deploys.
+
 If there are pending migrations, verify they are reversible:
 - For Drizzle: check that corresponding `down` SQL or rollback logic exists
 - For Prisma: confirm `prisma migrate resolve` can undo the migration
@@ -172,6 +174,8 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/health-check.mjs <production-url>
 Report: status code, response time, SSL status, security headers.
 
 If the health check fails on the first attempt, wait 30 seconds and retry once. Some platforms (Vercel, Railway) have a cold-start window where the first request after deploy is slow or fails. Two consecutive failures means the deploy is broken — trigger rollback.
+
+**If a Vercel MCP server is connected** (check your available tools for `vercel`), don't infer deploy state from a single HTTP probe: read the actual deployment status, build logs, and which commit is live. This confirms the deploy you intended is the one serving traffic, surfaces build-time failures the health check can't see, and gives you the exact deployment to promote or roll back.
 
 ### Step 5b: Performance Baseline
 

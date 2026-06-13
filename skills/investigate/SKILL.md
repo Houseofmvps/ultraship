@@ -2,11 +2,14 @@
 name: investigate
 description: Root cause investigation — structured debugging with module freeze. No fixes without investigation. Use when encountering any bug, error, or unexpected behavior.
 argument-hint: "<error-or-symptom-description>"
+disallowed-tools: Edit, Write, NotebookEdit
 ---
 
 # Investigate — Root Cause Analysis
 
 Investigation is the discipline of understanding a problem before fixing it. This skill enforces a strict protocol: **no fixes until the root cause is found.**
+
+> **Enforced:** while this skill is active, `Edit`, `Write`, and `NotebookEdit` are removed via `disallowed-tools`. The no-fixes rule is a hard constraint here, not a request. Once you have found and stated the root cause, conclude the investigation — the fix happens as a separate step outside this skill.
 
 **Announce at start:** "I'm using the investigate skill — no fixes until we find the root cause."
 

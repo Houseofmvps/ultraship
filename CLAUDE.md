@@ -6,11 +6,11 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
-skills/           — 41 skills (19 workflow + 10 specialist + 13 growth/launch/intelligence)
+skills/           — 42 skills (19 workflow + 11 specialist + 13 growth/launch/intelligence; includes staying-current)
 agents/           — 12 agents (review, seo, seo-strategist, security, pentest, perf, browser, compete, launch, incident, growth, canary)
 commands/         — 37 slash commands (/seo-strategy, /index-fix, /sprint, /investigate, /learn, /guard, /retro, /canary, /ship, /pentest, /seo, /compete, /launch, /rescue, /grow, /codex, etc.)
 tools/            — 37 Node.js tools (ga4-client, keyword-intelligence, index-doctor, seo-scanner, lighthouse, pentest-scanner, codex-generator, etc.)
-hooks/            — SessionStart + PostCompact hooks + guard hooks (PreToolUse for destructive command blocking)
+hooks/            — SessionStart + UserPromptSubmit (Currency Guard) + PostCompact hooks + guard hooks (PreToolUse for destructive command blocking)
 docs/             — Documentation
 ```
 
@@ -91,6 +91,8 @@ docs/             — Documentation
 - Skill frontmatter uses `argument-hint`, `allowed-tools`, `paths` per official spec
 - Hooks use `statusMessage` for UX feedback during execution
 - PostCompact hook re-injects ultraship context after conversation compaction
+- UserPromptSubmit hook (`currency-guard.sh`) detects version-sensitive prompts (library/SDK APIs, versions, pricing, model IDs, "latest") and injects a directive to verify against current sources (context7/WebSearch) instead of training data. Pairs with the `staying-current` skill. Exits 0, injects only on a match, escapes JSON via sed.
+- Skills/commands can set `disallowed-tools` in frontmatter to remove tools while active (e.g. code-review and investigate block Edit/Write/NotebookEdit)
 
 ## Publishing
 

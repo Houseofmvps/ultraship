@@ -125,4 +125,46 @@ describe('learnings-manager CLI', () => {
     assert.equal(result.success, true);
     assert.equal(result.pruned_count, 0);
   });
+
+  it('digest returns a compact grouped snapshot', () => {
+    const result = runTool(['digest']);
+    assert.equal(result.success, true);
+    assert.equal(result.action, 'digest');
+    assert.ok(result.total >= 1);
+    assert.ok(result.topics >= 1);
+    assert.match(result.content, /# Project Learnings Digest/);
+    // grouped by primary tag — "test" group should appear
+    assert.match(result.content, /## test/);
+  });
+
+  it('recall requires --query', () => {
+    const result = runTool(['recall']);
+    assert.equal(result.success, false);
+    assert.ok(result.error.includes('--query'));
+  });
+
+  it('recall returns relevance-ranked results with scores', () => {
+    const result = runTool(['recall', '--query', 'Test Learning']);
+    assert.equal(result.success, true);
+    assert.equal(result.action, 'recall');
+    assert.ok(result.count >= 1);
+    assert.ok(result.results[0].score > 0);
+    assert.ok('summary' in result.results[0]);
+    // results are sorted by score descending
+    for (let i = 1; i < result.results.length; i++) {
+      assert.ok(result.results[i - 1].score >= result.results[i].score);
+    }
+  });
+
+  it('recall respects --limit', () => {
+    const result = runTool(['recall', '--query', 'test', '--limit', '1']);
+    assert.equal(result.success, true);
+    assert.ok(result.results.length <= 1);
+  });
+
+  it('recall returns empty for non-matching query', () => {
+    const result = runTool(['recall', '--query', 'zzz-nonexistent-zzz']);
+    assert.equal(result.success, true);
+    assert.equal(result.count, 0);
+  });
 });

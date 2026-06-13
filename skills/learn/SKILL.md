@@ -1,7 +1,7 @@
 ---
 name: learn
-description: Manage project learnings across sessions. Save, search, prune, and export learnings that compound over time. Use when user wants to record, recall, or share project knowledge.
-argument-hint: "<save|search|list|prune|export> [query]"
+description: Manage project learnings across sessions. Save, search, recall, digest, prune, and export learnings that compound over time. Use when user wants to record, recall, or share project knowledge.
+argument-hint: "<save|search|recall|digest|list|prune|export> [query]"
 allowed-tools: Bash, Read, Write, Grep
 ---
 
@@ -39,7 +39,23 @@ node ${CLAUDE_PLUGIN_ROOT}/tools/learnings-manager.mjs save --title "Title here"
 node ${CLAUDE_PLUGIN_ROOT}/tools/learnings-manager.mjs search --query "keyword"
 ```
 
-Search by title, body content, or tags. Use this BEFORE starting work on a topic — past learnings prevent repeated mistakes.
+Search by title, body content, or tags. Returns all matches, unranked.
+
+### Recall the most relevant learnings (ranked)
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/learnings-manager.mjs recall --query "keyword" [--limit N]
+```
+
+Prefer `recall` over `search` when you want the *most relevant* prior knowledge, not every match. It ranks by relevance (title > tag > body) with recency breaking ties, returns the top N (default 5) with one-line summaries and a score. Use this BEFORE starting work on a topic — it surfaces the learnings most likely to prevent a repeated mistake without dumping the whole history into context.
+
+### Digest the whole knowledge base (compression)
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/learnings-manager.mjs digest
+```
+
+Produces a compact, grouped-by-topic snapshot — one line per learning, primary tag only — so a long history stays readable in a few tokens. Inject this at session start (or after a compaction) to carry forward what the project has learned without re-reading every learning file. This is the long-session memory primitive: `digest` to load context cheaply, `recall` to drill into a topic.
 
 ### List all learnings
 
@@ -66,7 +82,7 @@ Export for sharing with team members or backing up before a major refactor.
 
 ## Workflow Integration
 
-**At session start:** If the user mentions a topic, search learnings for relevant context before proceeding.
+**At session start:** Run `digest` to load a compact snapshot of what the project has learned, then `recall --query "<topic>"` when the user names a specific area — load cheap context first, drill in on demand.
 
 **After debugging:** Save the root cause and fix as a learning — it will save hours next time.
 

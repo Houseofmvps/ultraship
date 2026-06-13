@@ -58,6 +58,8 @@ If issues are found, show them with severity and recommended action.
 
 If the canary detects problems:
 
+**If a Sentry MCP server is connected** (check your available tools for `sentry`), confirm the regression against live error data: compare the error/issue rate since this deploy to the prior baseline window. A post-deploy spike in a new issue is hard confirmation that the deploy caused it — and the stack trace tells you exactly what to roll back or fix. Distinguish a real regression from background noise this way before recommending a rollback.
+
 1. **`degraded`** — Show the specific error patterns found. Check if they're pre-existing or new.
 2. **`regression_detected`** — Show the before/after comparison. If response time regressed >50%, investigate.
 3. **`critical_regression` or `down`** — Recommend immediate rollback:

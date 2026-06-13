@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // tools/learnings-manager.mjs
-// Project learnings manager — save, search, list, prune, export learnings
+// Project learnings manager — save, search, list, prune, export, digest, recall
 // Usage: node tools/learnings-manager.mjs <action> [options]
-//   Actions: save, search, list, prune, export
+//   Actions: save, search, list, prune, export, digest, recall
 //   save --title "Title" --body "Learning content" --tags "tag1,tag2"
 //   search --query "keyword"
 //   list [--limit N]
 //   prune --older-than 90  (days)
 //   export [--format json|markdown]
+//   digest                       (compact grouped-by-topic snapshot for context injection)
+//   recall --query "keyword" [--limit N]  (relevance-ranked top-N learnings)
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync } from 'fs';
 import { resolve, join } from 'path';
@@ -123,13 +125,76 @@ function exportLearnings(format) {
   return { format: 'json', learnings: all, count: all.length };
 }
 
+function truncate(s, n) {
+  const clean = String(s || '').replace(/\s+/g, ' ').trim();
+  return clean.length > n ? clean.slice(0, n - 1) + '…' : clean;
+}
+
+// digest — compress all learnings into a compact, grouped-by-topic snapshot.
+// Designed to be injected into context: one line per learning, primary tag only
+// (no duplication), newest first. Keeps a long history readable in few tokens.
+function digestLearnings() {
+  const dir = getLearningsDir();
+  const all = loadAllLearnings(dir);
+  if (all.length === 0) {
+    return { content: '', total: 0, topics: 0 };
+  }
+  const groups = {};
+  for (const l of all) {
+    const t = (l.tags && l.tags.length) ? l.tags[0] : 'general';
+    (groups[t] ||= []).push(l);
+  }
+  const topics = Object.keys(groups).sort(
+    (a, b) => groups[b].length - groups[a].length || a.localeCompare(b)
+  );
+  let md = `# Project Learnings Digest\n\n${all.length} learning${all.length === 1 ? '' : 's'} across ${topics.length} topic${topics.length === 1 ? '' : 's'}.\n\n`;
+  for (const t of topics) {
+    md += `## ${t} (${groups[t].length})\n`;
+    for (const l of groups[t]) {
+      md += `- **${truncate(l.title, 80)}** — ${truncate(l.body, 120)}\n`;
+    }
+    md += '\n';
+  }
+  return { content: md.trim(), total: all.length, topics: topics.length };
+}
+
+// recall — relevance-ranked top-N learnings for a query. Beats `search` (which
+// returns all matches unranked) for surfacing the most relevant prior knowledge.
+// Weights: title match 3, tag match 2, body match 1; recency breaks ties.
+function recallLearnings(query, limit) {
+  const dir = getLearningsDir();
+  const all = loadAllLearnings(dir);
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const scored = all.map(l => {
+    const title = l.title.toLowerCase();
+    const body = l.body.toLowerCase();
+    const tags = (l.tags || []).map(t => t.toLowerCase());
+    let score = 0;
+    for (const term of terms) {
+      if (title.includes(term)) score += 3;
+      if (tags.some(t => t.includes(term))) score += 2;
+      if (body.includes(term)) score += 1;
+    }
+    return { l, score };
+  }).filter(x => x.score > 0);
+  scored.sort((a, b) => b.score - a.score || new Date(b.l.created_at) - new Date(a.l.created_at));
+  return scored.slice(0, limit).map(x => ({
+    id: x.l.id,
+    title: x.l.title,
+    summary: truncate(x.l.body, 160),
+    tags: x.l.tags,
+    score: x.score,
+    created_at: x.l.created_at,
+  }));
+}
+
 function main() {
   const args = process.argv.slice(2);
   const action = args[0];
 
   if (!action) {
     output({
-      error: 'Usage: node learnings-manager.mjs <action> [options]\nActions: save, search, list, prune, export',
+      error: 'Usage: node learnings-manager.mjs <action> [options]\nActions: save, search, list, prune, export, digest, recall',
       success: false,
     });
     process.exit(0);
@@ -186,8 +251,25 @@ function main() {
       break;
     }
 
+    case 'digest': {
+      const result = digestLearnings();
+      output({ success: true, action: 'digest', ...result });
+      break;
+    }
+
+    case 'recall': {
+      if (!flags.query) {
+        output({ error: 'recall requires --query', success: false });
+        process.exit(0);
+      }
+      const limit = flags.limit ? parseInt(flags.limit, 10) : 5;
+      const results = recallLearnings(flags.query, limit);
+      output({ success: true, action: 'recall', query: flags.query, results, count: results.length });
+      break;
+    }
+
     default:
-      output({ error: `Unknown action: ${action}. Valid: save, search, list, prune, export`, success: false });
+      output({ error: `Unknown action: ${action}. Valid: save, search, list, prune, export, digest, recall`, success: false });
   }
 }
 
