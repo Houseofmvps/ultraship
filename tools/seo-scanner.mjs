@@ -6,6 +6,8 @@ import { checkFileSize } from './lib/security.mjs';
 
 // Pages that are conventionally noindexed by design — a noindex here is correct, not a defect.
 // Matched on the path basename (and the parent dir, for `404/index.html`-style routes).
+// Error/utility pages are also exempt from content-ranking rules (thin content, orphan,
+// no-internal-links) — a 404 page is inherently short and unlinked, that's not a defect.
 const ERROR_UTILITY_RE = /^(?:404|403|401|500|503|error|not[-_]?found|offline|_error|_not-found|maintenance)(?:\.html?)?$/i;
 function isErrorOrUtilityPage(relFile) {
   const base = path.basename(relFile).replace(/\.html?$/i, '');
@@ -16,6 +18,15 @@ function isErrorOrUtilityPage(relFile) {
     if (ERROR_UTILITY_RE.test(parent)) return true;
   }
   return false;
+}
+
+// Search-engine ownership-verification stubs (Google Search Console, Yandex, Pinterest, Bing).
+// These are intentionally near-empty markers, NOT content pages — they have no title/h1/links
+// by design, so every SEO rule is a false positive on them. Matched precisely by filename so a
+// real page like `google-ads-guide.html` never matches (the token must be a long hex string).
+const VERIFICATION_STUB_RE = /^(?:google[0-9a-f]{10,}|yandex_[0-9a-f]+|pinterest-[0-9a-f]+|BingSiteAuth)\.(?:html?|xml)$/i;
+function isVerificationStub(relFile) {
+  return VERIFICATION_STUB_RE.test(path.basename(relFile));
 }
 
 const ALWAYS_SKIP = new Set(['node_modules', '.git', '.next']);
@@ -474,6 +485,10 @@ function scanDirectory(rootDir) {
   // Per-file SEO checks
   for (const { relFile, state } of pageData) {
 
+    // Search-engine verification stubs are intentionally-empty ownership markers, not content
+    // pages — skip every rule so missing title/description/h1/links aren't false-flagged.
+    if (isVerificationStub(relFile)) continue;
+
     // noindex blocks ALL search engines and AI bots. Critical on a real content page,
     // but EXPECTED (info-only, no score hit / hard-fail) on error & utility pages — a 404
     // or 500 page SHOULD be noindexed, so flagging it critical is a false alarm.
@@ -578,19 +593,21 @@ function scanDirectory(rootDir) {
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'seo', rule: 'missing-json-ld', message: 'No JSON-LD structured data found' });
     }
 
-    // Thin content detection (pages with <300 words rank poorly)
-    if (state.wordCount > 0 && state.wordCount < 300) {
+    // Thin content detection (pages with <300 words rank poorly). Error/utility pages are
+    // inherently short and noindexed — exempt them so a 404 isn't flagged as thin content.
+    if (state.wordCount > 0 && state.wordCount < 300 && !isErrorOrUtilityPage(relFile)) {
       findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'thin-content', message: `Only ${state.wordCount} words on page — thin content ranks poorly (aim for 300+ words)` });
       findings.push({ file: relFile, line: 0, severity: 'medium', category: 'geo', rule: 'thin-content-ai', message: `Only ${state.wordCount} words — AI engines need substantial content to extract and cite` });
     }
 
-    // Internal link analysis
-    if (state.internalLinks.length === 0 && pageData.length > 1) {
+    // Internal link analysis (error/utility pages exempt — not part of the crawl graph)
+    if (state.internalLinks.length === 0 && pageData.length > 1 && !isErrorOrUtilityPage(relFile)) {
       findings.push({ file: relFile, line: 0, severity: 'high', category: 'seo', rule: 'no-internal-links', message: 'Page has zero internal links — crawlers cannot discover other pages from here' });
     }
 
-    // Orphan page detection (no other page links to this one)
-    if (pageData.length > 1) {
+    // Orphan page detection (no other page links to this one). Error/utility pages are
+    // intentionally unlinked from nav, so an orphan 404 is expected, not a defect.
+    if (pageData.length > 1 && !isErrorOrUtilityPage(relFile)) {
       // Strip build output prefixes (dist/, build/) so paths match link targets
       let normalizedFile = relFile.replace(/\\/g, '/');
       normalizedFile = normalizedFile.replace(/^(dist|build)\//, '');

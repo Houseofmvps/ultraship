@@ -2,6 +2,17 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.13.2] - 2026-06-28
+
+### Fixed — seo-scanner precision pass (fewer false positives on non-content files)
+
+Found by running the full `/ship` against a live production site — the static SEO score (60) was far below the live Lighthouse SEO score (100), and the entire gap was false alarms on files that aren't content pages:
+
+- **Search-engine verification stubs are no longer audited.** Google Search Console / Yandex / Pinterest / Bing ownership files (e.g. `googleb88d33c38f15c7cd.html`) are intentionally near-empty markers — they were being flagged for missing title, description, h1, and internal links. They now produce zero findings. Matched precisely by filename (the token must be a long hex string), so a real page like `google-ads-guide.html` is still audited normally.
+- **Error & utility pages are exempt from content-ranking rules.** A 404/500/offline page is inherently short and unlinked, so `thin-content`, `thin-content-ai`, `orphan-page`, and `no-internal-links` no longer fire on them (reusing the same error-page detection added in 2.13.1 for the noindex check). A real, unlinked content page is still flagged as an orphan — the exemption is error-pages-only.
+
+On the live test site this raised the reported SEO score from **60 → 87** (now in line with Lighthouse) and removed 60 false findings, with no loss of real signal. +4 regression tests (274 total).
+
 ## [2.13.1] - 2026-06-28
 
 ### Fixed — ship-gate false-positive on noindexed error pages

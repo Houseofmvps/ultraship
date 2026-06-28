@@ -147,4 +147,40 @@ describe('seo-scanner', () => {
     const result = runScanner(tmpDir);
     assert.ok(!result.findings.some(f => f.severity === 'critical'), 'directory-routed 404 must not be critical');
   });
+
+  it('produces ZERO findings for a Google Search Console verification stub', () => {
+    // A real content page so multi-page checks run, plus the verification stub.
+    fs.writeFileSync(path.join(tmpDir, 'index.html'), `<!DOCTYPE html>
+<html lang="en"><head><title>Home</title><meta name="description" content="Welcome to the homepage of our product"><link rel="canonical" href="https://x.co/"></head><body><h1>Home</h1><a href="/about">About</a><p>${'word '.repeat(320)}</p></body></html>`);
+    fs.writeFileSync(path.join(tmpDir, 'googleb88d33c38f15c7cd.html'), 'google-site-verification: googleb88d33c38f15c7cd.html');
+    const result = runScanner(tmpDir);
+    const stubFindings = result.findings.filter(f => /googleb88d33c38f15c7cd/.test(f.file || ''));
+    assert.equal(stubFindings.length, 0, 'verification stub must not generate any SEO findings');
+  });
+
+  it('still flags a normal page that happens to start with "google" (not a stub)', () => {
+    fs.writeFileSync(path.join(tmpDir, 'google-ads-guide.html'), `<!DOCTYPE html>
+<html><head></head><body><p>short</p></body></html>`);
+    const result = runScanner(tmpDir);
+    assert.ok(result.findings.some(f => /google-ads-guide/.test(f.file || '')), 'a real content page named google-* must still be audited');
+  });
+
+  it('does NOT flag an error page for thin-content or orphan-page', () => {
+    fs.writeFileSync(path.join(tmpDir, 'index.html'), `<!DOCTYPE html>
+<html lang="en"><head><title>Home</title><meta name="description" content="Welcome to the homepage of our product here"><link rel="canonical" href="https://x.co/"></head><body><h1>Home</h1><a href="/about">About</a><p>${'word '.repeat(320)}</p></body></html>`);
+    fs.writeFileSync(path.join(tmpDir, '404.html'), `<!DOCTYPE html>
+<html lang="en"><head><title>Not Found</title></head><body><h1>404</h1><p>Page not found</p></body></html>`);
+    const result = runScanner(tmpDir);
+    const bad = result.findings.filter(f => /404\.html/.test(f.file || '') && ['thin-content', 'orphan-page', 'no-internal-links', 'thin-content-ai'].includes(f.rule));
+    assert.equal(bad.length, 0, 'a 404 page must not be flagged thin/orphan/no-internal-links');
+  });
+
+  it('STILL flags a real orphan content page (exemption is error-page only)', () => {
+    fs.writeFileSync(path.join(tmpDir, 'index.html'), `<!DOCTYPE html>
+<html lang="en"><head><title>Home</title><meta name="description" content="Welcome to the homepage of our product here"><link rel="canonical" href="https://x.co/"></head><body><h1>Home</h1><a href="/about">About</a><p>${'word '.repeat(320)}</p></body></html>`);
+    fs.writeFileSync(path.join(tmpDir, 'secret-landing.html'), `<!DOCTYPE html>
+<html lang="en"><head><title>Secret Landing Page</title><meta name="description" content="A real content page that nothing links to at all here"></head><body><h1>Secret</h1><p>${'word '.repeat(320)}</p></body></html>`);
+    const result = runScanner(tmpDir);
+    assert.ok(result.findings.some(f => /secret-landing/.test(f.file || '') && f.rule === 'orphan-page'), 'a real unlinked content page must still be flagged as orphan');
+  });
 });
