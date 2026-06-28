@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BIN = path.join(__dirname, '..', 'bin', 'ultraship.mjs');
-const TIMEOUT = 120_000; // ship runs 5 audits in parallel, give it time
+const TIMEOUT = 120_000; // ship runs 6 tools across 5 categories in parallel, give it time
 
 /** Strip ANSI escape codes so regex matching works on plain text. */
 function stripAnsi(str) {
@@ -185,9 +185,9 @@ describe('ultraship ship scorecard', () => {
       out = stripAnsi(err.stdout || '');
     }
 
-    // Footer: "✓ Scanned: N/4 audits completed" and "● Todo: N manual items remaining"
+    // Footer: "✓ Scanned: N/5 audits completed" and "● Todo: N manual items remaining"
     assert.match(out, /Scanned:/, 'Should show Scanned line');
-    assert.match(out, /\d+\/4 audits completed/, 'Should show audit count out of 4');
+    assert.match(out, /\d+\/5 audits completed/, 'Should show audit count out of 5');
     assert.match(out, /Todo:/, 'Should show Todo line');
     assert.match(out, /manual items remaining/, 'Should show remaining items');
   });

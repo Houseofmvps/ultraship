@@ -8,11 +8,12 @@ Run all Ultraship auditors in parallel and produce a screenshot-shareable scorec
 
 ## What It Runs
 
-4 scored categories from 5 tools, all in parallel:
+5 scored categories from 6 tools, all in parallel:
 
 | Category | Tools | What it checks |
 |---|---|---|
 | **SEO + AI Visibility** | seo-scanner | 39 SEO rules (meta tags, headings, OG tags, canonicals, cross-page analysis) + 20 GEO rules (AI bot access, snippet restrictions) + 4 AEO rules (schema checks) |
+| **Accessibility** | a11y-scanner | WCAG 2.2 A/AA static checks: missing alt text, unlabeled form controls, icon-only buttons, missing `lang`, heading order, positive tabindex, zoom disabled, broken aria references |
 | **Security** | secret-scanner | AWS keys, Stripe keys, GitHub tokens, private keys, DB URLs, JWT secrets in source files |
 | **Code Quality** | code-profiler + dep-doctor | N+1 queries, sync I/O in handlers, memory leaks, unbounded queries, unused/outdated dependencies |
 | **Bundle Size** | bundle-tracker | Build output size, heavy dependency detection (moment→dayjs, lodash→native, axios→fetch) |
@@ -48,12 +49,14 @@ The scorecard tells you what's wrong. To fix issues:
 
 1. Run individual audit commands for detailed findings:
    - `ultraship seo .` — full SEO findings with file:line locations
+   - `ultraship a11y .` — all WCAG 2.2 accessibility findings
    - `ultraship security .` — all detected secrets
    - `ultraship profile .` — N+1 queries, sync I/O, memory leaks
    - `ultraship deps .` — unused and outdated packages
 
 2. In Claude Code, use the corresponding skills which include fix guidance:
    - `/seo` — SEO audit with fix suggestions
+   - `/a11y` — accessibility audit + auto-fix
    - `/secure` — security audit with fix suggestions
    - `/profile` — code quality fixes
 

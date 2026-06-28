@@ -6,6 +6,7 @@ import { execFileSync, execFile } from 'child_process';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve, join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { computeShipScores } from '../tools/lib/ship-scoring.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TOOLS_DIR = join(__dirname, '..', 'tools');
@@ -19,8 +20,10 @@ const C = {
 
 const COMMANDS = {
   ship: { desc: 'Full pre-deploy audit + scorecard' },
+  'ship-gate': { tool: 'ship-gate.mjs', desc: 'Blocking quality gate (exit 1 on fail). init|run|ci|hook' },
   init: { desc: 'Scaffold CLAUDE.md for your project' },
   seo: { tool: 'seo-scanner.mjs', desc: 'Run SEO audit + AI visibility checks' },
+  a11y: { tool: 'a11y-scanner.mjs', desc: 'Accessibility audit (WCAG 2.2)' },
   security: { tool: 'secret-scanner.mjs', desc: 'Scan for leaked secrets' },
   perf: { tool: 'bundle-tracker.mjs', desc: 'Analyze bundle size' },
   health: { tool: 'health-check.mjs', desc: 'Check production URL health' },
@@ -114,8 +117,9 @@ async function runShip(dir) {
   console.log(`  ${C.dim}${'─'.repeat(45)}${C.nc}\n`);
 
   // Run all audits in parallel
-  const [seo, secrets, profile, deps, bundle] = await Promise.all([
+  const [seo, a11y, secrets, profile, deps, bundle] = await Promise.all([
     runToolAsync('seo-scanner.mjs', resolvedDir),
+    runToolAsync('a11y-scanner.mjs', resolvedDir),
     runToolAsync('secret-scanner.mjs', resolvedDir),
     runToolAsync('code-profiler.mjs', resolvedDir),
     runToolAsync('dep-doctor.mjs', resolvedDir),
@@ -126,12 +130,17 @@ async function runShip(dir) {
   const totalFindings = (seo?.findings?.length || 0) + (secrets?.findings?.length || 0) +
     (profile?.findings?.length || 0) + (deps?.unused?.length || 0) + (deps?.outdated?.length || 0);
 
-  // Detect if SEO was skipped (backend project or no HTML files)
-  const seoWasSkipped = seo?.skipped || seo?.scores?.seo === null;
+  // Score every category via the shared module (the ship-gate uses the same one, so
+  // the advisory scorecard and the blocking gate can never disagree).
+  const {
+    seoScore, a11yScore, securityScore, qualityScore, bundleScore,
+    seoWasSkipped, a11yWasSkipped, overall, ran,
+  } = computeShipScores({ seo, a11y, secrets, profile, deps, bundle });
 
   // Completed audit names
   const auditNames = [];
   if (!seo?._failed && !seoWasSkipped) auditNames.push('SEO');
+  if (!a11y?._failed && !a11yWasSkipped) auditNames.push('A11y');
   if (!bundle?._failed) auditNames.push('Perf');
   if (!secrets?._failed) auditNames.push('Security');
   if (!profile?._failed || !deps?._failed) auditNames.push('Quality');
@@ -144,89 +153,13 @@ async function runShip(dir) {
   // Track which audits failed
   const failures = [];
   if (seo?._failed) failures.push(`SEO: ${seo._error}`);
+  if (a11y?._failed) failures.push(`Accessibility: ${a11y._error}`);
   if (secrets?._failed) failures.push(`Security: ${secrets._error}`);
   if (profile?._failed) failures.push(`Code Quality: ${profile._error}`);
   if (deps?._failed) failures.push(`Dependencies: ${deps._error}`);
   if (bundle?._failed) failures.push(`Bundle: ${bundle._error}`);
 
-  // Calculate scores — failed tools return null (excluded from overall)
-  function calcFindingsScore(data, deductionMap, dedupeByRule = false) {
-    if (!data || data._failed) return null;
-    if (!data.findings) return 100;
-    let deductions = 0;
-    if (dedupeByRule) {
-      // SEO: same rule on N pages = one deduction (it's one fix, not N fixes)
-      const seenRules = new Set();
-      for (const f of data.findings) {
-        const ruleKey = f.rule || f.category || f.message;
-        if (!seenRules.has(ruleKey)) {
-          seenRules.add(ruleKey);
-          deductions += deductionMap[f.severity] || 0;
-        }
-      }
-    } else {
-      for (const f of data.findings) {
-        deductions += deductionMap[f.severity] || 0;
-      }
-    }
-    return Math.max(0, 100 - deductions);
-  }
-
-  // SEO: if scanner returned skipped (backend project) or null scores, propagate null
-  const seoScore = seoWasSkipped ? null : calcFindingsScore(seo, { critical: 5, high: 3, medium: 1, low: 0 }, true);
-  // Security: leaked secrets are severe
-  const securityScore = calcFindingsScore(secrets, { critical: 15, high: 10, medium: 5 });
-
-  // Code Quality: profiler findings + dep-doctor findings combined
-  // Deduplicate: same category in same file = one deduction
-  function calcQualityScore(profileData, depsData) {
-    let deductions = 0;
-    // Profiler findings (N+1, sync I/O, memory leaks, etc.)
-    if (profileData && !profileData._failed && profileData.findings) {
-      const seenCatFile = new Set();
-      for (const f of profileData.findings) {
-        const key = `${f.category}:${f.file}`;
-        const first = !seenCatFile.has(key);
-        seenCatFile.add(key);
-        const mult = first ? 1 : 0.5;
-        if (f.severity === 'high') deductions += 5 * mult;
-        else if (f.severity === 'medium') deductions += 2 * mult;
-        else deductions += 0.5 * mult;
-      }
-    } else if (!profileData || profileData._failed) {
-      return null;
-    }
-    // Dep-doctor: unused deps and outdated deps
-    if (depsData && !depsData._failed) {
-      const unusedList = depsData.unused || [];
-      const outdated = depsData.outdated?.length || 0;
-      for (const u of unusedList) {
-        if (u.severity === 'high') deductions += 3;
-        else deductions += 1;
-      }
-      deductions += outdated * 1;
-    }
-    return Math.max(0, Math.round(100 - deductions));
-  }
-  const qualityScore = calcQualityScore(profile, deps);
-
-  // Bundle: size + heavy dependency detection
-  function calcBundleScore(data) {
-    if (!data || data._failed) return null;
-    if (!data.success) return 100; // no build output = nothing to check
-    const heavyDeps = data.dependencies?.heavy_deps?.length || data.heavy_dependencies?.length || 0;
-    const totalBytes = data.bundle?.total_bytes || data.total_size || 0;
-    const totalMB = totalBytes / (1024 * 1024);
-    let deductions = heavyDeps * 8;
-    if (totalMB > 5) deductions += 15;
-    else if (totalMB > 2) deductions += 8;
-    return Math.max(0, 100 - deductions);
-  }
-  const bundleScore = calcBundleScore(bundle);
-
-  // Calculate overall — only from audits that actually ran
-  const scores = [seoScore, securityScore, qualityScore, bundleScore].filter(s => s !== null);
-  const overall = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+  // Scores come from computeShipScores() above. `ran` = number of categories that scored.
   const hasFailures = failures.length > 0;
 
   function bar(score) {
@@ -266,6 +199,7 @@ async function runShip(dir) {
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
   printRow('SEO + AI Visibility', seoScore, seoWasSkipped);
+  printRow('Accessibility', a11yScore, a11yWasSkipped);
   printRow('Performance', bundleScore);
   printRow('Security', securityScore);
   printRow('Code Quality', qualityScore);
@@ -276,7 +210,7 @@ async function runShip(dir) {
   console.log(`  ${C.white}${C.bold}║${C.nc}   STATUS         ${statusText}       ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}                                          ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╠══════════════════════════════════════════╣${C.nc}`);
-  console.log(`  ${C.white}${C.bold}║${C.nc}  ${C.green}✓ Scanned:${C.nc} ${scores.length}/4 audits completed        ${C.white}${C.bold}║${C.nc}`);
+  console.log(`  ${C.white}${C.bold}║${C.nc}  ${C.green}✓ Scanned:${C.nc} ${ran}/5 audits completed        ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}║${C.nc}  ${C.yellow}● Todo:${C.nc}    ${String(totalFindings).padEnd(3)} manual items remaining   ${C.white}${C.bold}║${C.nc}`);
   console.log(`  ${C.white}${C.bold}╚══════════════════════════════════════════╝${C.nc}`);
 
@@ -285,12 +219,13 @@ async function runShip(dir) {
     for (const f of failures) {
       console.log(`  ${C.red}  ✗ ${f}${C.nc}`);
     }
-    console.log(`  ${C.dim}Re-run to retry. Score is based on ${scores.length} of 4 audits.${C.nc}`);
+    console.log(`  ${C.dim}Re-run to retry. Score is based on ${ran} of 5 audits.${C.nc}`);
   }
 
   // Show top findings so the scorecard is actionable
   const allFindings = [
     ...(seo?.findings || []).map(f => ({ ...f, audit: 'SEO' })),
+    ...(a11y?.findings || []).map(f => ({ ...f, audit: 'A11y' })),
     ...(secrets?.findings || []).map(f => ({ ...f, audit: 'Security' })),
     ...(profile?.findings || []).map(f => ({ ...f, audit: 'Quality' })),
     ...(deps?.unused || []).map(u => ({ file: u.package || u.name, severity: u.severity || 'medium', message: `Unused dependency: ${u.package || u.name}`, audit: 'Quality' })),
@@ -426,6 +361,16 @@ if (command === 'version' || command === '--version' || command === '-v') {
 
 if (command === 'ship') {
   runShip(target);
+} else if (command === 'ship-gate') {
+  // The gate owns its own (colored) output, and its exit code MUST propagate — 0 pass / 1 fail —
+  // so `npx ultraship ship-gate .` can block a pre-push hook or CI job. Forward all args verbatim.
+  const gateArgs = args.slice(1);
+  try {
+    execFileSync('node', [join(TOOLS_DIR, 'ship-gate.mjs'), ...gateArgs], { stdio: 'inherit' });
+    process.exit(0);
+  } catch (err) {
+    process.exit(typeof err.status === 'number' ? err.status : 1);
+  }
 } else if (command === 'init') {
   runInit(target);
 } else {

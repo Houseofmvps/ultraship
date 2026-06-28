@@ -6,10 +6,10 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
-skills/           — 42 skills (19 workflow + 11 specialist + 13 growth/launch/intelligence; includes staying-current)
-agents/           — 12 agents (review, seo, seo-strategist, security, pentest, perf, browser, compete, launch, incident, growth, canary)
-commands/         — 37 slash commands (/seo-strategy, /index-fix, /sprint, /investigate, /learn, /guard, /retro, /canary, /ship, /pentest, /seo, /compete, /launch, /rescue, /grow, /codex, etc.)
-tools/            — 37 Node.js tools (ga4-client, keyword-intelligence, index-doctor, seo-scanner, lighthouse, pentest-scanner, codex-generator, etc.)
+skills/           — 44 skills (workflow + specialist + growth/launch/intelligence; includes staying-current, a11y, ship-gate)
+agents/           — 13 agents (review, seo, seo-strategist, security, pentest, perf, a11y, browser, compete, launch, incident, growth, canary)
+commands/         — 16 command files (/ship, /seo, /secure, /review, /perf, /profile, /bundle, /deps, /health, /redirects, /codex, /content, etc.). NOTE: every skill is ALSO a slash command, so /a11y, /sprint, /pentest, /compete, /canary, /launch, /rescue, /grow etc. all work — the 21 redundant command launchers that duplicated same-named skills were removed 2026-06-28 (Anthropic merged commands into skills).
+tools/            — 39 Node.js tools (ga4-client, keyword-intelligence, index-doctor, seo-scanner, a11y-scanner, ship-gate, lighthouse, pentest-scanner, codex-generator, etc.) + shared lib/ship-scoring.mjs (single source of truth for /ship + ship-gate scoring)
 hooks/            — SessionStart + UserPromptSubmit (Currency Guard) + PostCompact hooks + guard hooks (PreToolUse for destructive command blocking)
 docs/             — Documentation
 ```
@@ -26,6 +26,8 @@ docs/             — Documentation
 | Tool | Purpose |
 |---|---|
 | `seo-scanner.mjs` | SEO scanner (39 rules) + GEO signals (20 rules: AI bot access, snippet restrictions, structured data) + AEO signals (4 rules: schema checks). Cross-page analysis, analytics detection, canonical conflicts. |
+| `a11y-scanner.mjs` | Static accessibility scanner (WCAG 2.2 A/AA subset): missing alt, unlabeled form controls, empty buttons/links, missing `lang`/`title`/`main`, heading order, positive tabindex, zoom disabled, duplicate ids, broken aria references. Zero false positives. Dispatched by `/ship`; rendered contrast/focus checks escalate to `npx pa11y` via the `/a11y` skill. |
+| `ship-gate.mjs` | Blocking quality gate. Subcommands: `init` (write `.ultraship/ship-gate.json` thresholds), `run` (score via shared `lib/ship-scoring.mjs`, compare to thresholds, hard-fail on leaked secrets / critical findings, **exit 1 on fail**), `ci` (write `.github/workflows/ship-gate.yml`), `hook` (write `.git/hooks/pre-push`). Same scoring as `/ship` so they never disagree. |
 | `content-scorer.mjs` | Readability (Flesch-Kincaid), keyword density, GEO heading analysis |
 | `og-validator.mjs` | Open Graph tag validation, image reachability check |
 | `redirect-checker.mjs` | Redirect chain/loop detection, mixed protocol, sitemap-based bulk check |

@@ -2,6 +2,29 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.11.0] - 2026-06-28
+
+### Added — Deterministic ship-gate (blocking quality gate)
+
+- New `ship-gate.mjs` tool: promotes the `/ship` scorecard from advisory to a **blocking, config-as-code gate**. `init` writes `.ultraship/ship-gate.json` (per-category score thresholds + hard-fail rules); `run` scores all six auditors and **exits 1** if any category is below threshold, a secret is leaked, or a critical finding exists; `ci` writes `.github/workflows/ship-gate.yml`; `hook` writes a `.git/hooks/pre-push`. Reports a "merge confidence" score.
+- New `tools/lib/ship-scoring.mjs`: extracted the scorecard math into one shared module that both `bin/ultraship.mjs` (the `/ship` scorecard) and `ship-gate.mjs` import — so the advisory scorecard and the blocking gate can never disagree. `/ship` behavior is unchanged (verified by the existing scorecard tests).
+- New `ship-gate` skill (`/ship-gate`): init → tune thresholds → run → install CI + pre-push → explain and fix failures.
+- `ultraship ship-gate .` CLI command propagates the gate's exit code (unlike the always-0 scorecard) so it can block CI and pushes.
+- 12 unit tests in `tests/ship-gate.test.mjs`.
+
+### Added — Accessibility audit + auto-fix (WCAG 2.2)
+
+- New `a11y-scanner.mjs` tool: zero-dependency static accessibility scanner using the inline SAX parser. Flags the deterministic, source-visible WCAG 2.2 A/AA failures with zero false positives — missing alt text, unlabeled form controls (placeholders don't count), icon-only buttons/links, missing `lang`/`title`/`main`, empty headings, skipped heading levels, positive `tabindex`, zoom-disabled viewport, duplicate ids, and broken `aria-labelledby`/`aria-describedby`/`for` references. JSON output, exit 0.
+- New `a11y` skill (`/a11y`): scan → report → auto-fix the deterministic issues → escalate to a rendered scan (`npx pa11y` / `npx @axe-core/cli`) for contrast, focus, and reading order → verify. Derives alt text and labels from context; never invents content for decorative images.
+- New `a11y-auditor` agent: report-only WCAG scan dispatched by `/ship`.
+- `/ship` now scores **5 categories from 6 tools** (added Accessibility). `ultraship a11y .` available standalone.
+- 20 unit tests in `tests/a11y-scanner.test.mjs` (243 total).
+
+### Changed — consolidated commands into skills
+
+- Removed 21 redundant command launchers (`architecture, canary, clone-patterns, compete, cost, demo, deploy, grow, guard, index-fix, investigate, launch, learn, onboard, pentest, release, rescue, retro, seo-strategy, sprint, visual-diff`) that only said "invoke the X skill". Claude Code merged commands into skills, so every one of those slash commands still works — it now resolves to its same-named skill (with richer features: argument hints, auto-activation). 16 dedicated command files remain.
+- Counts: **38 tools, 43 skills, 13 agents, 16 commands** across `plugin.json`, `marketplace.json`, `package.json`, README, and CLAUDE.md.
+
 ## [2.10.0] - 2026-06-13
 
 ### Added — Currency Guard (keep Claude on current docs, not stale training data)
