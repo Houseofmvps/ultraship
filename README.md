@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### Claude Code plugin. 42 expert-level skills for building, shipping, and scaling production software. 36 audit tools (accessibility, vibe-coding security, pentest, code quality, bundle size, SEO + AI Readiness check) plus a blocking ship-gate close the loop before deploy. A built-in Currency Guard keeps Claude on current docs, not stale training data.
+### Claude Code plugin. 43 expert-level skills for building, shipping, and scaling production software. 37 audit tools (accessibility, vibe-coding security, AI evals, pentest, code quality, bundle size, SEO + AI Readiness check) plus a blocking ship-gate close the loop before deploy. A built-in Currency Guard keeps Claude on current docs, not stale training data.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -26,7 +26,7 @@
 ---
 
 ```
-0 dependencies · 257 tests · Node.js ESM · MIT
+0 dependencies · 267 tests · Node.js ESM · MIT
 ```
 
 ## Install
@@ -131,7 +131,7 @@ flowchart LR
 
 </details>
 
-## Tools (39)
+## Tools (40)
 
 Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output. Exit 0 always. No build step.
 
@@ -144,6 +144,7 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | `ship-gate` | Blocking quality gate — scores all auditors (shared math with `/ship`), compares to `.ultraship/ship-gate.json` thresholds, hard-fails on leaked secrets / critical findings, **exits 1 on fail**. Generates a pre-push hook + GitHub Actions workflow. |
 | `secret-scanner` | AWS keys, Stripe keys, JWT secrets, database URLs, private keys. Redacts values in output. |
 | `vibe-security-scanner` | Vibe-Coding Security Sentinel — context secret-scanner misses: server-only secrets behind a `NEXT_PUBLIC_`/`VITE_` prefix, a decoded Supabase `service_role` key exposed to the client, service_role in a `"use client"` file, Supabase tables with no RLS. Zero false positives. |
+| `eval-scanner` | Locates every LLM call site (Anthropic, OpenAI, Gemini, Mistral, Cohere, Ollama, Vercel AI SDK, LangChain) by provider + model id, detects the test runner and whether an eval suite exists. Flags AI features shipping with no evals. Seeds `/evals`. Zero false positives. |
 | `code-profiler` | N+1 queries, sync I/O in handlers, unbounded queries, missing indexes, memory leaks, sequential awaits, ReDoS risk |
 | `bundle-tracker` | JS/CSS/image sizes in build output. Detects heavy deps (`moment`→`dayjs`, `lodash`→native). History for before/after. Monorepo-aware. |
 | `dep-doctor` | Unused dependencies via import graph analysis (not just grep). Dead wrapper files. Outdated packages. |
@@ -232,13 +233,13 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | `/write-plan` | Deprecated alias → use the `writing-plans` skill |
 | `/execute-plan` | Deprecated alias → use the `executing-plans` skill |
 
-## Skills (42)
+## Skills (43)
 
 Skills are markdown instruction files that shape Claude's behavior during your session. They activate based on context. When you're debugging, Claude uses the debugging skill. When you're building UI, it uses the frontend design skill.
 
 **Workflow (19):** brainstorming, planning, TDD, implementation, code review, debugging, refactoring, frontend design, API design, data modeling, git workflow, deploy pipeline, release, CLAUDE.md management, verification, browser testing, **sprint pipeline**, **investigation**, **learnings management**
 
-**Specialist (11):** SEO + AI visibility audit, **accessibility audit + auto-fix**, **deterministic ship-gate**, security audit, **penetration testing**, performance audit, content quality, code profiling, parallel agent dispatching, **safety guardrails**, **staying current**
+**Specialist (12):** SEO + AI visibility audit, **accessibility audit + auto-fix**, **deterministic ship-gate**, **AI eval harness**, security audit, **penetration testing**, performance audit, content quality, code profiling, parallel agent dispatching, **safety guardrails**, **staying current**
 
 **Growth & Intelligence (12):** competitive analysis, launch prep, incident response, growth tracking, cost tracking, onboarding, architecture mapping, pattern analysis, demo readiness, visual regression, **canary monitoring**, **sprint retrospective**
 
@@ -413,13 +414,13 @@ flowchart TD
         HOOKS["hooks/<br/>SessionStart + Currency Guard + Guard"]
 
         subgraph Core["Core Loop"]
-            SKILLS["skills/<br/>43 markdown files"]
+            SKILLS["skills/<br/>45 markdown files"]
             AGENTS["agents/<br/>13 agent definitions"]
             COMMANDS["commands/<br/>16 command files"]
         end
 
         subgraph Runtime["Runtime"]
-            TOOLS["tools/<br/>40 Node.js ESM scripts"]
+            TOOLS["tools/<br/>41 Node.js ESM scripts"]
             LIB["tools/lib/<br/>security.mjs, monorepo.mjs"]
         end
     end

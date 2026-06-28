@@ -6,10 +6,10 @@ All-in-one builder plugin for Claude Code. npm: `ultraship`, GitHub: `Houseofmvp
 
 ```
 .claude-plugin/   — Plugin manifest (plugin.json)
-skills/           — 44 skills (workflow + specialist + growth/launch/intelligence; includes staying-current, a11y, ship-gate)
+skills/           — 45 skills (workflow + specialist + growth/launch/intelligence; includes staying-current, a11y, ship-gate, evals)
 agents/           — 13 agents (review, seo, seo-strategist, security, pentest, perf, a11y, browser, compete, launch, incident, growth, canary)
 commands/         — 16 command files (/ship, /seo, /secure, /review, /perf, /profile, /bundle, /deps, /health, /redirects, /codex, /content, etc.). NOTE: every skill is ALSO a slash command, so /a11y, /sprint, /pentest, /compete, /canary, /launch, /rescue, /grow etc. all work — the 21 redundant command launchers that duplicated same-named skills were removed 2026-06-28 (Anthropic merged commands into skills).
-tools/            — 40 Node.js tools (ga4-client, keyword-intelligence, index-doctor, seo-scanner, a11y-scanner, ship-gate, vibe-security-scanner, lighthouse, pentest-scanner, codex-generator, etc.) + shared lib/ship-scoring.mjs (single source of truth for /ship + ship-gate scoring)
+tools/            — 41 Node.js tools (ga4-client, keyword-intelligence, index-doctor, seo-scanner, a11y-scanner, ship-gate, vibe-security-scanner, eval-scanner, lighthouse, pentest-scanner, codex-generator, etc.) + shared lib/ship-scoring.mjs (single source of truth for /ship + ship-gate scoring)
 hooks/            — SessionStart + UserPromptSubmit (Currency Guard) + PostCompact hooks + guard hooks (PreToolUse for destructive command blocking)
 docs/             — Documentation
 ```
@@ -44,6 +44,7 @@ docs/             — Documentation
 | `dep-doctor.mjs` | Detects unused/outdated dependencies, recommends removals |
 | `secret-scanner.mjs` | Detects leaked secrets, skips .env.example files |
 | `vibe-security-scanner.mjs` | Vibe-Coding Security Sentinel — context-aware checks secret-scanner misses: server-only secrets behind a public env prefix (`NEXT_PUBLIC_`/`VITE_`/etc.), a decoded Supabase `service_role` JWT exposed to the client, service_role referenced in a `"use client"` file, Supabase tables created without RLS (gated on a Supabase signal), and an advisory for mutation routes with no auth lib. Zero false positives. |
+| `eval-scanner.mjs` | Locates every LLM call site (Anthropic, OpenAI, Gemini, Mistral, Cohere, Ollama, Vercel AI SDK, LangChain) by provider + model id via real import/require detection (no local `./ai` false positives), detects the test runner and whether a Promptfoo/eval suite already exists, and flags AI features shipping with no evals. Seeds the `/evals` skill. Zero false positives. |
 | `sitemap-generator.mjs` | Generates sitemap.xml from HTML files |
 | `robots-generator.mjs` | Generates AI-friendly robots.txt (allows GPTBot, PerplexityBot, etc.) |
 | `structured-data-generator.mjs` | Generates JSON-LD structured data |

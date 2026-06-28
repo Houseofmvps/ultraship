@@ -1,7 +1,7 @@
 {
   "name": "ultraship",
-  "version": "2.12.0",
-  "description": "Claude Code plugin with a Currency Guard that keeps Claude on current docs (not stale training data), elite SEO strategy (GSC + Bing + GA4 keyword intelligence, index doctor, AI traffic tracking, IndexNow, cross-reference, CTR anomalies, brand filtering), sprint workflow, safety guardrails, canary monitoring, retrospectives, pre-deploy auditing (SEO, security, penetration testing, code profiling, bundle size), workflow enforcement (TDD, code review, planning), and project tooling (competitive analysis, architecture mapping, codebase indexing, incident response). 40 tools, 44 skills, 13 agents.",
+  "version": "2.13.0",
+  "description": "Claude Code plugin with a Currency Guard that keeps Claude on current docs (not stale training data), elite SEO strategy (GSC + Bing + GA4 keyword intelligence, index doctor, AI traffic tracking, IndexNow, cross-reference, CTR anomalies, brand filtering), sprint workflow, safety guardrails, canary monitoring, retrospectives, pre-deploy auditing (SEO, security, penetration testing, code profiling, bundle size), workflow enforcement (TDD, code review, planning), and project tooling (competitive analysis, architecture mapping, codebase indexing, incident response). 41 tools, 45 skills, 13 agents.",
   "type": "module",
   "bin": {
     "ultraship": "bin/ultraship.mjs"

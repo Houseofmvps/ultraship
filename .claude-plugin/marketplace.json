@@ -5,13 +5,13 @@
     "email": "houseofmvps2024@gmail.com"
   },
   "metadata": {
-    "description": "Claude Code plugin — 40 tools, 44 skills, 13 agents, 16 commands. Currency Guard keeps Claude on current docs, not stale training data. Elite SEO strategy with AI traffic tracking, IndexNow, GSC-GA4 cross-reference, CTR anomalies, brand filtering, keyword intelligence, index doctor, codebase index, pentest, ship, launch, grow, rescue."
+    "description": "Claude Code plugin — 41 tools, 45 skills, 13 agents, 16 commands. Currency Guard keeps Claude on current docs, not stale training data. Elite SEO strategy with AI traffic tracking, IndexNow, GSC-GA4 cross-reference, CTR anomalies, brand filtering, keyword intelligence, index doctor, codebase index, pentest, ship, launch, grow, rescue."
   },
   "plugins": [
     {
       "name": "ultraship",
-      "description": "Full lifecycle plugin: plan, build, test, review, ship, deploy, verify, reflect. Currency Guard keeps Claude on current docs. 40 tools, 44 skills, 13 agents.",
-      "version": "2.12.0",
+      "description": "Full lifecycle plugin: plan, build, test, review, ship, deploy, verify, reflect. Currency Guard keeps Claude on current docs. 41 tools, 45 skills, 13 agents.",
+      "version": "2.13.0",
       "source": "./",
       "author": {
         "name": "Houseofmvps",

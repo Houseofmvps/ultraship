@@ -2,6 +2,14 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.13.0] - 2026-06-28
+
+### Added — Eval & regression harness for AI code (`/evals`)
+
+- New `eval-scanner.mjs` tool: locates the AI features that need an eval harness. The 2026 reality is that AI-written code passes review but fails at runtime, and AI *features* (chatbots, RAG, classifiers) drift silently as prompts and models change. The scanner finds every real LLM call site by provider + model id across **Anthropic, OpenAI, Google Gemini, Mistral, Cohere, Ollama, the Vercel AI SDK, and LangChain** (JS/TS + Python), detects the project's test runner, and reports whether a Promptfoo / eval suite already exists. Zero false positives — detection is on real `import`/`require` of a known SDK module, so a local `./ai` import is never flagged; model ids are reported, never used as a standalone trigger. Flags `ai-features-without-evals` when AI features ship with no eval coverage.
+- New `evals` skill (`/evals`): scan → **characterization tests** (lock the *current* behavior of code before an agent refactors it, so a regression is caught immediately) → **Promptfoo suite** for each AI feature (on-topic rubric, prompt-injection refusal, no-PII-echo, latency budget) → wire it into the ship-gate so a failing eval fails CI. Model ids are verified against current sources (Currency Guard) before being pinned.
+- Surfaced as the `ultraship evals .` CLI command. 10 unit tests in `tests/eval-scanner.test.mjs` (267 total).
+
 ## [2.12.0] - 2026-06-28
 
 ### Added — Vibe-Coding Security Sentinel
