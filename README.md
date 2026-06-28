@@ -26,7 +26,7 @@
 ---
 
 ```
-0 dependencies · 267 tests · Node.js ESM · MIT
+0 dependencies · 270 tests · Node.js ESM · MIT
 ```
 
 ## Install

@@ -4,6 +4,20 @@ import fs from 'fs';
 import path from 'path';
 import { checkFileSize } from './lib/security.mjs';
 
+// Pages that are conventionally noindexed by design — a noindex here is correct, not a defect.
+// Matched on the path basename (and the parent dir, for `404/index.html`-style routes).
+const ERROR_UTILITY_RE = /^(?:404|403|401|500|503|error|not[-_]?found|offline|_error|_not-found|maintenance)(?:\.html?)?$/i;
+function isErrorOrUtilityPage(relFile) {
+  const base = path.basename(relFile).replace(/\.html?$/i, '');
+  if (ERROR_UTILITY_RE.test(base)) return true;
+  // `404/index.html`, `not-found/index.html` → check the immediate parent directory name
+  if (/^index$/i.test(base)) {
+    const parent = path.basename(path.dirname(relFile));
+    if (ERROR_UTILITY_RE.test(parent)) return true;
+  }
+  return false;
+}
+
 const ALWAYS_SKIP = new Set(['node_modules', '.git', '.next']);
 // dist/ and build/ are skipped UNLESS they contain HTML files (pre-rendered sites)
 const MAYBE_SKIP = new Set(['dist', 'build']);
@@ -398,14 +412,14 @@ function scanDirectory(rootDir) {
 
   // Flag duplicate titles/descriptions (only when multiple pages exist)
   if (pageData.length > 1) {
-    for (const [title, files] of titleMap) {
+    for (const [, files] of titleMap) {
       if (files.length > 1) {
         for (const f of files) {
           findings.push({ file: f, line: 0, severity: 'high', category: 'seo', rule: 'duplicate-title', message: `Duplicate <title> shared with ${files.length - 1} other page(s) — each page needs a unique title` });
         }
       }
     }
-    for (const [desc, files] of descMap) {
+    for (const [, files] of descMap) {
       if (files.length > 1) {
         for (const f of files) {
           findings.push({ file: f, line: 0, severity: 'high', category: 'seo', rule: 'duplicate-meta-description', message: `Duplicate meta description shared with ${files.length - 1} other page(s) — each page needs unique description` });
@@ -460,10 +474,16 @@ function scanDirectory(rootDir) {
   // Per-file SEO checks
   for (const { relFile, state } of pageData) {
 
-    // Critical: noindex blocks ALL search engines and AI bots
+    // noindex blocks ALL search engines and AI bots. Critical on a real content page,
+    // but EXPECTED (info-only, no score hit / hard-fail) on error & utility pages — a 404
+    // or 500 page SHOULD be noindexed, so flagging it critical is a false alarm.
     if (state.hasNoindex) {
-      findings.push({ file: relFile, line: 0, severity: 'critical', category: 'seo', rule: 'has-noindex', message: 'Page has <meta name="robots" content="noindex"> — invisible to ALL search engines and AI bots' });
-      findings.push({ file: relFile, line: 0, severity: 'critical', category: 'geo', rule: 'noindex-blocks-ai', message: 'noindex blocks AI crawlers (GPTBot, PerplexityBot, Claude-Web) — page cannot be cited in AI answers. If noindex is intentional (staging, admin, private pages), this is expected.' });
+      if (isErrorOrUtilityPage(relFile)) {
+        findings.push({ file: relFile, line: 0, severity: 'info', category: 'seo', rule: 'has-noindex-utility-page', message: 'Page is noindexed — expected for an error/utility page (404, 500, offline, etc.). No action needed.' });
+      } else {
+        findings.push({ file: relFile, line: 0, severity: 'critical', category: 'seo', rule: 'has-noindex', message: 'Page has <meta name="robots" content="noindex"> — invisible to ALL search engines and AI bots' });
+        findings.push({ file: relFile, line: 0, severity: 'critical', category: 'geo', rule: 'noindex-blocks-ai', message: 'noindex blocks AI crawlers (GPTBot, PerplexityBot, Claude-Web) — page cannot be cited in AI answers. If noindex is intentional (staging, admin, private pages), this is expected.' });
+      }
     }
 
     // Snippet restrictions — Google says more restrictive preview controls can limit AI feature eligibility

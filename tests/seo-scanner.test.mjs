@@ -121,4 +121,30 @@ describe('seo-scanner', () => {
     const result = runScanner(tmpDir);
     assert.equal(result.files_scanned, 1, 'Should skip dist/ with only JS files');
   });
+
+  it('flags noindex on a real content page as critical', () => {
+    fs.writeFileSync(path.join(tmpDir, 'pricing.html'), `<!DOCTYPE html>
+<html><head><title>Pricing</title><meta name="robots" content="noindex"></head><body><h1>Pricing</h1></body></html>`);
+    const result = runScanner(tmpDir);
+    const crit = result.findings.find(f => f.rule === 'has-noindex' && f.severity === 'critical');
+    assert.ok(crit, 'noindex on a content page should be a critical finding');
+  });
+
+  it('does NOT flag a noindexed 404 page as critical (info only — expected for error pages)', () => {
+    fs.writeFileSync(path.join(tmpDir, '404.html'), `<!DOCTYPE html>
+<html><head><title>Not Found</title><meta name="robots" content="noindex"></head><body><h1>404</h1></body></html>`);
+    const result = runScanner(tmpDir);
+    assert.ok(!result.findings.some(f => f.severity === 'critical'), 'a noindexed 404 must not produce any critical finding');
+    const info = result.findings.find(f => f.rule === 'has-noindex-utility-page');
+    assert.ok(info && info.severity === 'info', 'should record an info-level note for the utility-page noindex');
+  });
+
+  it('treats 404/index.html (directory-routed error page) as a utility page too', () => {
+    const errDir = path.join(tmpDir, '404');
+    fs.mkdirSync(errDir, { recursive: true });
+    fs.writeFileSync(path.join(errDir, 'index.html'), `<!DOCTYPE html>
+<html><head><title>Not Found</title><meta name="robots" content="noindex"></head><body><h1>404</h1></body></html>`);
+    const result = runScanner(tmpDir);
+    assert.ok(!result.findings.some(f => f.severity === 'critical'), 'directory-routed 404 must not be critical');
+  });
 });

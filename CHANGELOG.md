@@ -2,6 +2,12 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.13.1] - 2026-06-28
+
+### Fixed — ship-gate false-positive on noindexed error pages
+
+- `seo-scanner.mjs` no longer reports a **critical** `noindex` finding for conventionally-noindexed **error & utility pages** (`404`, `500`, `403`, `offline`, `maintenance`, etc., including directory-routed `404/index.html`). A 404 page *should* be noindexed, so the old behavior made the `/ship-gate` **hard-fail on essentially every well-built site** (they all ship a noindexed 404). These pages now emit an `info`-level `has-noindex-utility-page` note instead — no score deduction, no hard-fail. A `noindex` on a real content page is still critical. Found by dogfooding `/ship-gate` against a live prerendered site (270 tests, +3 regression).
+
 ## [2.13.0] - 2026-06-28
 
 ### Added — Eval & regression harness for AI code (`/evals`)
