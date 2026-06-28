@@ -2,7 +2,7 @@
 
 <img src="assets/hero-banner.jpg" alt="Ultraship — Claude Code Plugin" width="100%"/>
 
-### Claude Code plugin. 42 expert-level skills for building, shipping, and scaling production software. 35 audit tools (accessibility, security, pentest, code quality, bundle size, SEO + AI Readiness check) plus a blocking ship-gate close the loop before deploy. A built-in Currency Guard keeps Claude on current docs, not stale training data.
+### Claude Code plugin. 42 expert-level skills for building, shipping, and scaling production software. 36 audit tools (accessibility, vibe-coding security, pentest, code quality, bundle size, SEO + AI Readiness check) plus a blocking ship-gate close the loop before deploy. A built-in Currency Guard keeps Claude on current docs, not stale training data.
 
 [![npm version](https://img.shields.io/npm/v/ultraship?style=for-the-badge&logo=npm&color=CB3837)](https://www.npmjs.com/package/ultraship)
 [![npm downloads](https://img.shields.io/npm/dm/ultraship?style=for-the-badge&logo=npm&color=blue&label=Monthly%20Downloads)](https://www.npmjs.com/package/ultraship)
@@ -26,7 +26,7 @@
 ---
 
 ```
-0 dependencies · 243 tests · Node.js ESM · MIT
+0 dependencies · 257 tests · Node.js ESM · MIT
 ```
 
 ## Install
@@ -131,7 +131,7 @@ flowchart LR
 
 </details>
 
-## Tools (38)
+## Tools (39)
 
 Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output. Exit 0 always. No build step.
 
@@ -143,6 +143,7 @@ Each tool is a standalone Node.js script (`node tools/<name>.mjs`). JSON output.
 | `a11y-scanner` | WCAG 2.2 A/AA static checks: missing alt text, unlabeled form controls, icon-only buttons, missing `lang`/`title`/`main`, heading order, positive tabindex, zoom disabled, duplicate ids, broken aria references. Zero false positives. |
 | `ship-gate` | Blocking quality gate — scores all auditors (shared math with `/ship`), compares to `.ultraship/ship-gate.json` thresholds, hard-fails on leaked secrets / critical findings, **exits 1 on fail**. Generates a pre-push hook + GitHub Actions workflow. |
 | `secret-scanner` | AWS keys, Stripe keys, JWT secrets, database URLs, private keys. Redacts values in output. |
+| `vibe-security-scanner` | Vibe-Coding Security Sentinel — context secret-scanner misses: server-only secrets behind a `NEXT_PUBLIC_`/`VITE_` prefix, a decoded Supabase `service_role` key exposed to the client, service_role in a `"use client"` file, Supabase tables with no RLS. Zero false positives. |
 | `code-profiler` | N+1 queries, sync I/O in handlers, unbounded queries, missing indexes, memory leaks, sequential awaits, ReDoS risk |
 | `bundle-tracker` | JS/CSS/image sizes in build output. Detects heavy deps (`moment`→`dayjs`, `lodash`→native). History for before/after. Monorepo-aware. |
 | `dep-doctor` | Unused dependencies via import graph analysis (not just grep). Dead wrapper files. Outdated packages. |
@@ -418,7 +419,7 @@ flowchart TD
         end
 
         subgraph Runtime["Runtime"]
-            TOOLS["tools/<br/>39 Node.js ESM scripts"]
+            TOOLS["tools/<br/>40 Node.js ESM scripts"]
             LIB["tools/lib/<br/>security.mjs, monorepo.mjs"]
         end
     end

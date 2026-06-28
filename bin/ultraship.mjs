@@ -25,6 +25,7 @@ const COMMANDS = {
   seo: { tool: 'seo-scanner.mjs', desc: 'Run SEO audit + AI visibility checks' },
   a11y: { tool: 'a11y-scanner.mjs', desc: 'Accessibility audit (WCAG 2.2)' },
   security: { tool: 'secret-scanner.mjs', desc: 'Scan for leaked secrets' },
+  'vibe-check': { tool: 'vibe-security-scanner.mjs', desc: 'Vibe-coding security: public-prefixed secrets, client service keys, missing RLS' },
   perf: { tool: 'bundle-tracker.mjs', desc: 'Analyze bundle size' },
   health: { tool: 'health-check.mjs', desc: 'Check production URL health' },
   content: { tool: 'content-scorer.mjs', desc: 'Score content quality' },

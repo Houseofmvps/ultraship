@@ -2,6 +2,18 @@
 
 All notable changes to Ultraship will be documented in this file.
 
+## [2.12.0] - 2026-06-28
+
+### Added — Vibe-Coding Security Sentinel
+
+- New `vibe-security-scanner.mjs` tool: catches the 2026 "shipped-fast, leaked-everything" breach class (the Moltbook class) that generic secret scanning misses, by looking at **context** rather than raw secret patterns. Zero false positives — every finding is a categorical mistake or carries decoded proof:
+  - **`public-prefixed-secret-name` / `public-prefixed-secret-value`** — a server-only secret (`SERVICE_ROLE`/`SECRET`/`PRIVATE_KEY`/`PASSWORD`, or a real `sk_live`/`AKIA`/private-key value) behind a `NEXT_PUBLIC_`/`VITE_`/`EXPO_PUBLIC_`/etc. prefix, i.e. bundled into the browser.
+  - **`public-supabase-service-role-key`** — decodes JWTs behind a public prefix and flags only those whose role is `service_role` (the anon key, public by design, is never flagged).
+  - **`service-role-in-client`** — a Supabase service_role key referenced inside a `"use client"` component.
+  - **`supabase-table-without-rls`** — tables created without Row Level Security in `.sql` migrations (gated on a Supabase signal so plain-Postgres projects aren't falsely flagged).
+  - **`mutation-routes-no-auth-lib`** (advisory) — mutation endpoints found with no auth library in dependencies.
+- Surfaced via the `security-audit` skill (`/secure`) with per-rule fixes, and as the `ultraship vibe-check .` CLI command. 14 unit tests in `tests/vibe-security-scanner.test.mjs` (257 total).
+
 ## [2.11.0] - 2026-06-28
 
 ### Added — Deterministic ship-gate (blocking quality gate)

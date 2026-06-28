@@ -35,6 +35,21 @@ For any findings:
 - Check if the file should be in .gitignore
 - If .env is committed, add it to .gitignore
 
+### Step 2b: Vibe-Coding Security Sentinel
+
+Generic secret scanning misses the *context* mistakes that leak whole databases (the Moltbook breach class). Run the Sentinel:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/tools/vibe-security-scanner.mjs <project-directory>
+```
+
+It flags only categorical mistakes / decoded proof (zero false positives):
+- **`public-prefixed-secret-name` / `public-prefixed-secret-value`** — a server-only secret behind `NEXT_PUBLIC_`/`VITE_`/`EXPO_PUBLIC_`/etc. **Fix:** rename without the public prefix, read it server-side only, and rotate the key (it was in the browser bundle).
+- **`public-supabase-service-role-key`** — a decoded Supabase `service_role` JWT exposed to the client. **Fix:** rotate immediately; use the anon key on the client, service_role only on the server.
+- **`service-role-in-client`** — a service_role key referenced in a `"use client"` component. **Fix:** move that Supabase call to a server action / route handler.
+- **`supabase-table-without-rls`** — a table created with no Row Level Security. **Fix:** `alter table <t> enable row level security;` plus `create policy` rules. With the anon key public, an RLS-less table is world-readable/writable.
+- **`mutation-routes-no-auth-lib`** (advisory) — confirm each POST/PUT/DELETE checks identity and is rate-limited.
+
 ### Step 3: OWASP Pattern Detection
 
 Use Grep to scan source files for dangerous patterns:
