@@ -472,3 +472,7 @@ node tools/<tool>.mjs # Run any tool directly
 ## License
 
 MIT
+
+---
+
+Built by [Kailesk Khumar](https://www.linkedin.com/in/kailesk-khumar), founder of [HouseofMVPs](https://houseofmvps.com) · [Book a 30-min strategy call](https://cal.com/houseofmvps/30-min-strategy-call-with-kailesk-khumar)
